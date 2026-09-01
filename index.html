@@ -11,8 +11,9 @@
     --sa1: #3b7a57;
     --sa2: #a63d40;
     --cinofilo: #6b4e9b;
+    --avif: #c77d1e;
     --operatore: #4a6fa5;
-    --bg: #f7f5f2;
+    --bg: #000000;
     --card: #ffffff;
     --text: #24292e;
     --muted: #6b7280;
@@ -71,16 +72,16 @@
     display: none;
   }
   .controls {
-    background: var(--card);
+    background: #2a2a2a;
     border-radius: 12px;
     padding: 14px 16px;
     margin-bottom: 16px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
   }
   .controls label {
     display: block;
     font-size: 0.75rem;
-    color: var(--muted);
+    color: #b0b0b0;
     text-transform: uppercase;
     letter-spacing: 0.3px;
     margin-bottom: 4px;
@@ -98,6 +99,7 @@
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
+    align-items: center;
   }
   .role-chip {
     padding: 6px 12px;
@@ -205,6 +207,25 @@
   }
   #exportIcsBtn:hover { background: #2e6144; }
   #exportIcsBtn:disabled { background: #ccc; cursor: not-allowed; }
+  #sendLocationBtn {
+    margin-left: auto;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border-radius: 10px;
+    border: none;
+    background: #d92b2b;
+    color: white;
+    font-size: 1.4rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  #sendLocationBtn:hover { background: #b81f1f; }
+  #sendLocationBtn:disabled { background: #ccc; cursor: not-allowed; }
   .heli-track-strip {
     margin-top: 8px;
   }
@@ -258,7 +279,7 @@
     gap: 8px;
     margin-top: 12px;
     font-size: 0.82rem;
-    color: var(--muted);
+    color: #b0b0b0;
     cursor: pointer;
     text-transform: none;
     font-weight: 500;
@@ -277,8 +298,8 @@
   .month-title {
     font-size: 1rem;
     font-weight: 700;
-    color: #1f2a52;
-    border-bottom: 2px solid #e3e0da;
+    color: #ffffff;
+    border-bottom: 2px solid #333;
     padding: 10px 4px 5px;
     margin: 20px -4px 10px;
     position: sticky;
@@ -336,6 +357,7 @@
   .badge.SA1 { background: var(--sa1); }
   .badge.SA2 { background: var(--sa2); }
   .badge.Cinofilo { background: var(--cinofilo); }
+  .badge.AVIF { background: var(--avif); }
   #empty { text-align: center; color: var(--muted); padding: 30px; font-size: 0.9rem; }
   footer { text-align: center; color: var(--muted); font-size: 0.72rem; margin-top: 30px; }
 </style>
@@ -373,6 +395,8 @@
       <div class="role-chip active" data-role="SA1">SA1</div>
       <div class="role-chip active" data-role="SA2">SA2</div>
       <div class="role-chip active" data-role="Cinofilo">Cinofilo</div>
+      <div class="role-chip active" data-role="AVIF">AVIF</div>
+      <button id="sendLocationBtn" title="Invia la mia posizione alla centrale" aria-label="Invia la mia posizione alla centrale">📍</button>
     </div>
     <button id="todayBtn">📍 Chi c'è di turno oggi</button>
     <button id="exportIcsBtn">📅 Esporta i miei turni nel calendario</button>
@@ -395,7 +419,7 @@
   <div id="empty" style="display:none;">Nessun turno trovato con questi filtri.</div>
 </main>
 
-<footer>Estratto automaticamente dagli aggiornamenti PEC — Agosto 2026 → Gennaio 2027<br>Ultimo aggiornamento: PEC ricevuta il 31/08/2026<span id="footerCount"></span><br><a href="#" id="logoutLink" style="color:inherit;">Esci da questo dispositivo</a></footer>
+<footer>Estratto automaticamente dagli aggiornamenti PEC — Può contenere errori<span id="footerCount"></span><br><a href="#" id="logoutLink" style="color:inherit;">Esci da questo dispositivo</a></footer>
 
 <script>
 // Hash SHA-256 della password (invece del testo in chiaro nel codice sorgente).
@@ -478,7 +502,7 @@ fetch('./turni_data.json')
 
 
 function initApp() {
-const activeRoles = new Set(['Operatore','SA1','SA2','Cinofilo']);
+const activeRoles = new Set(['Operatore','SA1','SA2','Cinofilo','AVIF']);
 
 // Numeri di telefono per contatto rapido — compila con "NOME COGNOME": "+39..."
 const PHONE_NUMBERS = {
@@ -763,7 +787,7 @@ document.getElementById('todayBtn').addEventListener('click', () => {
   // reset filtri per essere sicuri di vedere tutti i turni di oggi
   sel.value = '';
   activeRoles.clear();
-  ['Operatore', 'SA1', 'SA2', 'Cinofilo'].forEach(r => activeRoles.add(r));
+  ['Operatore', 'SA1', 'SA2', 'Cinofilo', 'AVIF'].forEach(r => activeRoles.add(r));
   document.querySelectorAll('.role-chip').forEach(chip => chip.classList.add('active'));
 
   render();
@@ -827,6 +851,43 @@ document.getElementById('exportIcsBtn').addEventListener('click', () => {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+});
+
+// --- Invia posizione GPS alla centrale via WhatsApp ---
+const CENTRALE_NUMBER = '393357572986';
+const sendLocationBtn = document.getElementById('sendLocationBtn');
+
+sendLocationBtn.addEventListener('click', () => {
+  if (!navigator.geolocation) {
+    alert('Il tuo browser non supporta la geolocalizzazione.');
+    return;
+  }
+  sendLocationBtn.disabled = true;
+  sendLocationBtn.textContent = '⏳';
+
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      const lat = position.coords.latitude.toFixed(6);
+      const lon = position.coords.longitude.toFixed(6);
+      const mapsLink = `https://maps.google.com/?q=${lat},${lon}`;
+      const text = encodeURIComponent(`La mia posizione attuale: ${mapsLink}`);
+      window.open(`https://wa.me/${CENTRALE_NUMBER}?text=${text}`, '_blank', 'noopener');
+      sendLocationBtn.disabled = false;
+      sendLocationBtn.textContent = '📍';
+    },
+    (error) => {
+      let msg = 'Impossibile ottenere la posizione.';
+      if (error.code === error.PERMISSION_DENIED) {
+        msg = 'Permesso di geolocalizzazione negato. Abilitalo nelle impostazioni del browser per usare questa funzione.';
+      } else if (error.code === error.TIMEOUT) {
+        msg = 'Rilevamento posizione scaduto, riprova.';
+      }
+      alert(msg);
+      sendLocationBtn.disabled = false;
+      sendLocationBtn.textContent = '📍';
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
 });
 
 render();
