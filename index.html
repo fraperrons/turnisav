@@ -99,15 +99,15 @@
   }
   .role-filters {
     display: flex;
-    gap: 8px;
+    gap: 5px;
     flex-wrap: wrap;
     align-items: center;
   }
   .role-chip {
-    padding: 6px 12px;
+    padding: 4px 8px;
     border-radius: 20px;
     border: 2px solid #ddd;
-    font-size: 0.8rem;
+    font-size: 0.7rem;
     font-weight: 600;
     cursor: pointer;
     background: white;
@@ -218,25 +218,26 @@
     gap: 4px;
   }
   .contact-centrale-label {
-    font-size: 0.65rem;
+    font-size: 0.55rem;
     color: #b0b0b0;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.2px;
+    white-space: nowrap;
   }
   .contact-centrale-buttons {
     display: flex;
     gap: 8px;
   }
   #callCentraleBtn {
-    width: 48px;
-    height: 48px;
+    width: 38px;
+    height: 38px;
     padding: 0;
-    border-radius: 10px;
+    border-radius: 8px;
     border: none;
     background: #4a8c5c;
     color: white;
-    font-size: 1.4rem;
+    font-size: 1.15rem;
     font-weight: 800;
     cursor: pointer;
     display: flex;
@@ -247,14 +248,14 @@
   }
   #callCentraleBtn:hover { background: #3a6f48; }
   #sendLocationBtn {
-    width: 48px;
-    height: 48px;
+    width: 38px;
+    height: 38px;
     padding: 0;
-    border-radius: 10px;
+    border-radius: 8px;
     border: none;
     background: #2e4a52;
     color: white;
-    font-size: 1.4rem;
+    font-size: 1.15rem;
     font-weight: 800;
     cursor: pointer;
     display: flex;
@@ -492,7 +493,7 @@
       <div class="role-chip active" data-role="Cinofilo">Cinofilo</div>
       <div class="role-chip active" data-role="AVIF">AVIF</div>
       <div class="contact-centrale-group">
-        <div class="contact-centrale-label">Contatta il centro</div>
+        <div class="contact-centrale-label">Centro</div>
         <div class="contact-centrale-buttons">
           <a href="tel:+390165518187" id="callCentraleBtn" title="Chiama la centrale" aria-label="Chiama la centrale">📞</a>
           <button id="sendLocationBtn" title="Invia la mia posizione alla centrale" aria-label="Invia la mia posizione alla centrale">📍</button>
