@@ -97,17 +97,37 @@
     margin-bottom: 12px;
     background: white;
   }
+  .ruolo-contatto-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+    margin-top: 12px;
+  }
+  .ruolo-col label {
+    display: block;
+    font-size: 0.75rem;
+    color: #b0b0b0;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin-bottom: 4px;
+  }
   .role-filters {
     display: flex;
-    gap: 5px;
-    flex-wrap: wrap;
-    align-items: center;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .role-chip-row {
+    display: flex;
+    gap: 6px;
   }
   .role-chip {
-    padding: 4px 8px;
+    width: 92px;
+    box-sizing: border-box;
+    text-align: center;
+    padding: 6px 10px;
     border-radius: 20px;
     border: 2px solid #ddd;
-    font-size: 0.7rem;
+    font-size: 0.8rem;
     font-weight: 600;
     cursor: pointer;
     background: white;
@@ -211,18 +231,17 @@
   #exportIcsBtn:hover { background: #2e6144; }
   #exportIcsBtn:disabled { background: #ccc; cursor: not-allowed; }
   .contact-centrale-group {
-    margin-left: auto;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    align-items: flex-end;
     gap: 4px;
   }
   .contact-centrale-label {
-    font-size: 0.55rem;
+    display: block;
+    font-size: 0.75rem;
     color: #b0b0b0;
-    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.2px;
+    letter-spacing: 0.3px;
     white-space: nowrap;
   }
   .contact-centrale-buttons {
@@ -230,14 +249,14 @@
     gap: 8px;
   }
   #callCentraleBtn {
-    width: 38px;
-    height: 38px;
+    width: 48px;
+    height: 48px;
     padding: 0;
-    border-radius: 8px;
+    border-radius: 10px;
     border: none;
     background: #4a8c5c;
     color: white;
-    font-size: 1.15rem;
+    font-size: 1.4rem;
     font-weight: 800;
     cursor: pointer;
     display: flex;
@@ -248,14 +267,14 @@
   }
   #callCentraleBtn:hover { background: #3a6f48; }
   #sendLocationBtn {
-    width: 38px;
-    height: 38px;
+    width: 48px;
+    height: 48px;
     padding: 0;
-    border-radius: 8px;
+    border-radius: 10px;
     border: none;
     background: #2e4a52;
     color: white;
-    font-size: 1.15rem;
+    font-size: 1.4rem;
     font-weight: 800;
     cursor: pointer;
     display: flex;
@@ -485,15 +504,23 @@
       </div>
       <div id="searchResults"></div>
     </div>
-    <label>Ruolo</label>
-    <div class="role-filters" id="roleFilters">
-      <div class="role-chip active" data-role="Operatore">Operatore</div>
-      <div class="role-chip active" data-role="SA1">SA1</div>
-      <div class="role-chip active" data-role="SA2">SA2</div>
-      <div class="role-chip active" data-role="Cinofilo">Cinofilo</div>
-      <div class="role-chip active" data-role="AVIF">AVIF</div>
+    <div class="ruolo-contatto-row">
+      <div class="ruolo-col">
+        <label>Ruolo</label>
+        <div class="role-filters" id="roleFilters">
+          <div class="role-chip-row">
+            <div class="role-chip active" data-role="Operatore">Operatore</div>
+            <div class="role-chip active" data-role="SA1">SA1</div>
+            <div class="role-chip active" data-role="SA2">SA2</div>
+          </div>
+          <div class="role-chip-row">
+            <div class="role-chip active" data-role="Cinofilo">Cinofilo</div>
+            <div class="role-chip active" data-role="AVIF">AVIF</div>
+          </div>
+        </div>
+      </div>
       <div class="contact-centrale-group">
-        <div class="contact-centrale-label">Centro</div>
+        <label class="contact-centrale-label">Contatta il centro</label>
         <div class="contact-centrale-buttons">
           <a href="tel:+390165518187" id="callCentraleBtn" title="Chiama la centrale" aria-label="Chiama la centrale">📞</a>
           <button id="sendLocationBtn" title="Invia la mia posizione alla centrale" aria-label="Invia la mia posizione alla centrale">📍</button>
