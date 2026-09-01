@@ -118,6 +118,7 @@
   .role-chip.active[data-role="SA1"] { background: var(--sa1); border-color: var(--sa1); color: white; }
   .role-chip.active[data-role="SA2"] { background: var(--sa2); border-color: var(--sa2); color: white; }
   .role-chip.active[data-role="Cinofilo"] { background: var(--cinofilo); border-color: var(--cinofilo); color: white; }
+  .role-chip.active[data-role="AVIF"] { background: var(--avif); border-color: var(--avif); color: black; }
 
   #footerCount {
     display: block;
@@ -188,13 +189,13 @@
     padding: 11px;
     border-radius: 8px;
     border: none;
-    background: var(--giorno);
+    background: #2f9bd6;
     color: black;
     font-size: 0.9rem;
     font-weight: 700;
     cursor: pointer;
   }
-  #todayBtn:hover { background: #c27b20; }
+  #todayBtn:hover { background: #2480b8; }
   #exportIcsBtn {
     margin-top: 8px;
     width: 100%;
@@ -209,14 +210,49 @@
   }
   #exportIcsBtn:hover { background: #2e6144; }
   #exportIcsBtn:disabled { background: #ccc; cursor: not-allowed; }
-  #sendLocationBtn {
+  .contact-centrale-group {
     margin-left: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .contact-centrale-label {
+    font-size: 0.65rem;
+    color: #b0b0b0;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+  }
+  .contact-centrale-buttons {
+    display: flex;
+    gap: 8px;
+  }
+  #callCentraleBtn {
     width: 48px;
     height: 48px;
     padding: 0;
     border-radius: 10px;
     border: none;
-    background: #d92b2b;
+    background: #4a8c5c;
+    color: white;
+    font-size: 1.4rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    text-decoration: none;
+  }
+  #callCentraleBtn:hover { background: #3a6f48; }
+  #sendLocationBtn {
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border-radius: 10px;
+    border: none;
+    background: #2e4a52;
     color: white;
     font-size: 1.4rem;
     font-weight: 800;
@@ -226,7 +262,7 @@
     justify-content: center;
     flex-shrink: 0;
   }
-  #sendLocationBtn:hover { background: #b81f1f; }
+  #sendLocationBtn:hover { background: #223a40; }
   #sendLocationBtn:disabled { background: #ccc; cursor: not-allowed; }
   .heli-track-strip {
     margin-top: 8px;
@@ -236,17 +272,17 @@
     padding: 11px;
     border-radius: 8px;
     border: none;
-    background: #f2b705;
-    color: #3a2a00;
+    background: #c99a1e;
+    color: black;
     font-size: 0.9rem;
     font-weight: 700;
     cursor: pointer;
     line-height: 1.4;
   }
-  #heliTrackBtn:hover { background: #d9a204; }
+  #heliTrackBtn:hover { background: #a87e17; }
   .experimental-tag {
     font-size: 0.68rem;
-    color: rgba(58,42,0,0.7);
+    color: rgba(0,0,0,0.6);
     font-weight: 500;
     font-style: italic;
   }
@@ -359,7 +395,7 @@
   .badge.SA1 { background: var(--sa1); }
   .badge.SA2 { background: var(--sa2); }
   .badge.Cinofilo { background: var(--cinofilo); }
-  .badge.AVIF { background: var(--avif); }
+  .badge.AVIF { background: var(--avif); color: black; }
   #empty { text-align: center; color: var(--muted); padding: 30px; font-size: 0.9rem; }
   footer { text-align: center; color: var(--muted); font-size: 0.72rem; margin-top: 30px; }
   #reportBox {
@@ -455,12 +491,18 @@
       <div class="role-chip active" data-role="SA2">SA2</div>
       <div class="role-chip active" data-role="Cinofilo">Cinofilo</div>
       <div class="role-chip active" data-role="AVIF">AVIF</div>
-      <button id="sendLocationBtn" title="Invia la mia posizione alla centrale" aria-label="Invia la mia posizione alla centrale">📍</button>
+      <div class="contact-centrale-group">
+        <div class="contact-centrale-label">Contatta il centro</div>
+        <div class="contact-centrale-buttons">
+          <a href="tel:+390165518187" id="callCentraleBtn" title="Chiama la centrale" aria-label="Chiama la centrale">📞</a>
+          <button id="sendLocationBtn" title="Invia la mia posizione alla centrale" aria-label="Invia la mia posizione alla centrale">📍</button>
+        </div>
+      </div>
     </div>
     <button id="todayBtn">📍 Chi c'è di turno oggi</button>
     <button id="exportIcsBtn">📅 Esporta i miei turni nel calendario</button>
     <div class="heli-track-strip">
-      <button type="button" id="heliTrackBtn">🚁 Tracciamento <span class="experimental-tag">(sperimentale)</span></button>
+      <button type="button" id="heliTrackBtn">🚁 Tracciamento</button>
     </div>
     <select id="heliSelect">
       <option value="">— Seleziona la targa —</option>
