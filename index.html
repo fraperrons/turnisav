@@ -370,6 +370,21 @@
     border-radius: 20px;
     text-transform: uppercase;
   }
+  .swap-shift-btn {
+    border: none;
+    background: #eef1f5;
+    color: #444;
+    font-size: 0.8rem;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  .swap-shift-btn:hover { background: #dde2e8; }
   @keyframes pulse-highlight {
     0%, 100% { background: var(--card); }
     50% { background: #fff3e0; }
@@ -959,6 +974,7 @@ function render() {
           <span class="badge ${s.role}">${s.role}</span>
           ${isActiveNow(s) ? '<span class="active-now-badge">🔴 In corso ora</span>' : ''}
           ${s === nextShiftRef ? '<span class="next-shift-badge">⭐ Prossimo turno</span>' : ''}
+          ${selectedName ? '<button type="button" class="swap-shift-btn" title="Richiedi cambio turno">🔄</button>' : ''}
         </div>
         <div class="contact-row">
           ${PHONE_NUMBERS[s.name]
@@ -974,6 +990,22 @@ function render() {
     nameEl.addEventListener('click', () => {
       contactRow.classList.toggle('visible');
     });
+
+    const swapBtn = card.querySelector('.swap-shift-btn');
+    if (swapBtn) {
+      swapBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const dayLabel = s.type === 'notte'
+          ? card.querySelector('.daterange').textContent
+          : card.querySelector('.day-full').textContent;
+        const wdLabel = s.type === 'notte'
+          ? card.querySelector('.wd-range').textContent
+          : card.querySelector('.wd-top').textContent;
+        const turnoLabel = s.type === 'notte' ? 'notte' : 'giorno';
+        const msg = `Ciao a tutti! Avrei bisogno di uno scambio per il turno di ${wdLabel} ${dayLabel} (${s.month}) — ${turnoLabel}, ruolo ${s.role}. Chi può darmi una mano? Grazie, ${s.name}`;
+        window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
+      });
+    }
     resultsEl.appendChild(card);
   });
 }
