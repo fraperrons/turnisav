@@ -918,6 +918,7 @@ function render() {
       card.classList.add('next-shift-card');
     }
     card.dataset.date = s.date;
+    card.dataset.type = s.type;
 
     const WD_ABBR = ['DOM','LUN','MAR','MER','GIO','VEN','SAB'];
     const WD_FULL = ['Domenica','Lunedì','Martedì','Mercoledì','Giovedì','Venerdì','Sabato'];
@@ -1027,6 +1028,9 @@ document.addEventListener('click', (e) => {
 document.getElementById('todayBtn').addEventListener('click', () => {
   const now = new Date();
   const todayStr = `${now.getDate()}/${now.getMonth() + 1}/${now.getFullYear() % 100}`;
+  const tomorrow = new Date(now);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const tomorrowStr = `${tomorrow.getDate()}/${tomorrow.getMonth() + 1}/${tomorrow.getFullYear() % 100}`;
 
   // reset filtri per essere sicuri di vedere tutti i turni di oggi
   sel.value = '';
@@ -1037,7 +1041,10 @@ document.getElementById('todayBtn').addEventListener('click', () => {
   render();
 
   requestAnimationFrame(() => {
-    const cards = [...document.querySelectorAll('.shift-card')].filter(c => c.dataset.date === todayStr);
+    const cards = [...document.querySelectorAll('.shift-card')].filter(c =>
+      c.dataset.date === todayStr ||
+      (c.dataset.date === tomorrowStr && c.dataset.type === 'notte')
+    );
     if (cards.length === 0) {
       alert('Nessun turno registrato per la data di oggi.');
       return;
