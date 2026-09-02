@@ -39,22 +39,21 @@
   }
   header h1 { margin: 0 0 6px; font-size: 1.3rem; }
   #refreshBtn {
-    position: absolute;
-    top: 14px;
-    right: 14px;
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
+    flex-shrink: 0;
+    width: 42px;
+    height: 42px;
+    border-radius: 8px;
     border: none;
-    background: rgba(255,255,255,0.15);
+    background: #2e4468;
     color: white;
-    font-size: 1.1rem;
+    font-size: 1.3rem;
+    font-weight: 800;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
   }
-  #refreshBtn:hover { background: rgba(255,255,255,0.25); }
+  #refreshBtn:hover { background: #23344e; }
   #refreshBtn.spinning { animation: spin 0.8s linear; }
   @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
   #refreshToast {
@@ -633,7 +632,6 @@
 <body>
 
 <header>
-  <button type="button" id="refreshBtn" title="Aggiorna dati" aria-label="Aggiorna dati">🔄</button>
   <h1>🚁 Turni Soccorso Alpino Valdostano 🚁</h1>
   <p>Servizio di pronto intervento presso la Protezione Civile</p>
 </header>
@@ -658,6 +656,7 @@
         <select id="monthFilter">
           <option value="">— Tutti i mesi —</option>
         </select>
+        <button type="button" id="refreshBtn" title="Aggiorna dati" aria-label="Aggiorna dati">⟳</button>
         <input type="text" id="searchInput" placeholder="Scrivi un nome...">
       </div>
       <div id="searchResults"></div>
