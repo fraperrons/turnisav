@@ -446,7 +446,7 @@
   .call-btn { background: var(--sa1); }
   .wa-btn { background: #25D366; }
   .no-number { font-size: 0.78rem; color: var(--muted); font-style: italic; }
-  .badges { display: flex; gap: 6px; flex-wrap: wrap; }
+  .badges { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
   .badge {
     font-size: 0.65rem; font-weight: 700; padding: 2px 8px;
     border-radius: 20px; color: white; text-transform: uppercase;
@@ -1002,7 +1002,13 @@ function render() {
           ? card.querySelector('.wd-range').textContent
           : card.querySelector('.wd-top').textContent;
         const turnoLabel = s.type === 'notte' ? 'notte' : 'giorno';
-        const msg = `Ciao a tutti! Avrei bisogno di uno scambio per il turno di ${wdLabel} ${dayLabel} (${s.month}) — ${turnoLabel}, ruolo ${s.role}. Chi può darmi una mano? Grazie, ${s.name}`;
+        const monthName = s.month.split(' ')[0];
+        let msg;
+        if (s.type === 'notte') {
+          msg = `Ciao a tutti! Avrei bisogno di un cambio per il turno del ${dayLabel} ${monthName} — notte. Chi può darmi una mano? Grazie.`;
+        } else {
+          msg = `Ciao a tutti! Avrei bisogno di un cambio per il turno di ${wdLabel} ${dayLabel} ${monthName} — giorno. Chi può darmi una mano? Grazie.`;
+        }
         window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
       });
     }
