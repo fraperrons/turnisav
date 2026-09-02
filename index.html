@@ -134,7 +134,17 @@
   }
   .search-row {
     display: flex;
+    flex-wrap: wrap;
     gap: 8px;
+  }
+  #monthFilter {
+    flex: 0 0 auto;
+    width: 140px;
+    padding: 10px 6px;
+    font-size: 0.85rem;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    background: white;
   }
   .search-icon-btn {
     flex-shrink: 0;
@@ -382,8 +392,19 @@
   .date-box .daterange { font-size: 1.25rem; font-weight: 800; color: #1f2a52; white-space: nowrap; text-align: justify; text-align-last: center; }
   .details { flex: 1; }
   .details .name { font-size: 0.9rem; font-weight: 600; margin-bottom: 4px; }
-  .clickable-name { cursor: pointer; user-select: none; }
-  .tap-hint { font-size: 0.7rem; color: var(--muted); }
+  .clickable-name { cursor: pointer; user-select: none; display: flex; align-items: center; gap: 6px; }
+  .tap-hint {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #3f9d5f;
+    color: white;
+    font-size: 0.75rem;
+    flex-shrink: 0;
+  }
   .contact-row {
     display: none;
     gap: 8px;
@@ -498,6 +519,9 @@
     <div class="name-search">
       <div class="search-row">
         <button type="button" class="search-icon-btn" id="searchToggleBtn" title="Cerca nominativo">🔍</button>
+        <select id="monthFilter">
+          <option value="">— Tutti i mesi —</option>
+        </select>
         <input type="text" id="searchInput" placeholder="Scrivi un nome...">
       </div>
       <div id="searchResults"></div>
@@ -515,6 +539,13 @@
     <div class="heli-track-strip">
       <button type="button" id="heliTrackBtn">🚁 Tracciamento</button>
     </div>
+    <select id="heliSelect">
+      <option value="">— Seleziona la targa —</option>
+      <option value="i-rivu">I-RIVU</option>
+      <option value="i-wood">I-WOOD</option>
+      <option value="i-asar">I-ASAR</option>
+      <option value="i-gree">I-GREE</option>
+    </select>
     <div class="contact-centrale-group">
       <label class="contact-centrale-label">Contatta il centro</label>
       <div class="contact-centrale-buttons">
@@ -525,13 +556,6 @@
         <button id="sendLocationBtn" title="Invia la mia posizione alla centrale" aria-label="Invia la mia posizione alla centrale">📍</button>
       </div>
     </div>
-    <select id="heliSelect">
-      <option value="">— Seleziona la targa —</option>
-      <option value="i-rivu">I-RIVU</option>
-      <option value="i-wood">I-WOOD</option>
-      <option value="i-asar">I-ASAR</option>
-      <option value="i-gree">I-GREE</option>
-    </select>
     <label class="past-toggle-row">
       <input type="checkbox" id="showPastToggle">
       Mostra anche i turni passati
@@ -757,6 +781,17 @@ names.forEach(n => {
   sel.appendChild(opt);
 });
 
+// Menu mese/anno: solo i mesi realmente presenti nei dati, nell'ordine cronologico già usato
+const monthsPresent = [...new Set(SHIFTS.map(s => s.month))];
+const monthFilterEl = document.getElementById('monthFilter');
+monthsPresent.forEach(m => {
+  const opt = document.createElement('option');
+  opt.value = m;
+  opt.textContent = m;
+  monthFilterEl.appendChild(opt);
+});
+monthFilterEl.addEventListener('change', render);
+
 // Ricorda l'ultimo nominativo selezionato
 function saveSelectedName(name) {
   try { localStorage.setItem('sav_selected_name', name || ''); } catch (e) {}
@@ -831,12 +866,14 @@ showPastToggle.addEventListener('change', render);
 
 function render() {
   const selectedName = sel.value;
+  const selectedMonth = monthFilterEl.value;
   const showPast = showPastToggle.checked;
   const tKey = todayKey();
   const filtered = SHIFTS.filter(s =>
     (!selectedName || s.name === selectedName) &&
     activeRoles.has(s.role) &&
-    (showPast || dateKey(s.date) >= tKey)
+    (!selectedMonth || s.month === selectedMonth) &&
+    (selectedMonth || showPast || dateKey(s.date) >= tKey)
   );
 
   const resultsEl = document.getElementById('results');
@@ -890,7 +927,7 @@ function render() {
         ${dateBoxHtml}
       </div>
       <div class="details">
-        <div class="name clickable-name">${s.name} <span class="tap-hint">▾</span></div>
+        <div class="name clickable-name">${s.name} <span class="tap-hint">📞</span></div>
         <div class="badges">
           <span class="badge ${s.type}">${s.type === 'notte' ? '🌙 Notte' : '☀️ Giorno'}</span>
           <span class="badge ${s.role}">${s.role}</span>
