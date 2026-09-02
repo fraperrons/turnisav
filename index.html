@@ -4,7 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Turni SAV — Soccorso Alpino Valdostano</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' rx='14' fill='%23b5651d'/><path d='M8 46 L24 20 L32 32 L40 16 L56 46 Z' fill='%23ffffff'/><circle cx='46' cy='16' r='5' fill='%23ffffff'/></svg>">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><defs><clipPath id='rs'><rect width='64' height='64' rx='22'/></clipPath></defs><g clip-path='url(%23rs)'><rect width='64' height='64' fill='%232e4468'/><polygon points='0,50 14,32 22,42 32,26 44,42 52,34 64,50 64,64 0,64' fill='%233d5c8a'/><g transform='translate(15,13) scale(1.45)'><path d='M3,3H17V5H3V3M23,6V10.5L14.75,12.2C14.91,12.6 15,13.04 15,13.5C15,14.9 14.18,16.1 13,16.66V17L13,19H16V21H4A3,3 0 0,1 1,18V17H3V18A1,1 0 0,0 4,19H5V16.74C3.25,16.13 2,14.46 2,12.5C2,10 4,8 6.5,8H9V6H11V8H21V6H23M11,19V17H7V19H11M7.5,10C6.12,10 5,10.9 5,12C5,13.1 6.12,14 7.5,14C8.88,14 10,13.1 10,12C10,10.9 8.88,10 7.5,10Z' fill='%23ffffff'/></g></g></svg>">
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#2e4468">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
   :root {
     --notte: #2c3e6b;
@@ -28,12 +31,48 @@
     padding: 0 0 40px 0;
   }
   header {
+    position: relative;
     background: linear-gradient(135deg, #2e4468, #3d5c8a);
     color: white;
     padding: 24px 20px 20px;
     text-align: center;
   }
   header h1 { margin: 0 0 6px; font-size: 1.3rem; }
+  #refreshBtn {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255,255,255,0.15);
+    color: white;
+    font-size: 1.1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  #refreshBtn:hover { background: rgba(255,255,255,0.25); }
+  #refreshBtn.spinning { animation: spin 0.8s linear; }
+  @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  #refreshToast {
+    position: fixed;
+    top: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #2a2a2a;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    z-index: 200;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  #refreshToast.visible { opacity: 1; }
   header p { margin: 0; opacity: 0.85; font-size: 0.85rem; }
 
   #gate {
@@ -222,6 +261,78 @@
   }
   #exportIcsBtn:hover { background: #2e6144; }
   #exportIcsBtn:disabled { background: #ccc; cursor: not-allowed; }
+  #calendarViewBtn {
+    margin-top: 8px;
+    width: 100%;
+    padding: 11px;
+    border-radius: 8px;
+    border: none;
+    background: #6b4e9b;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  #calendarViewBtn:hover { background: #543d7a; }
+  #calendarViewBtn.active { background: #3f2c5c; }
+  .cal-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .cal-nav button {
+    background: #2a2a2a;
+    color: white;
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 6px 14px;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  #calMonthLabel { color: white; font-weight: 700; font-size: 1rem; }
+  .cal-weekdays {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    text-align: center;
+    color: #b0b0b0;
+    font-size: 0.7rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .cal-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+  }
+  .cal-day {
+    aspect-ratio: 1;
+    background: var(--card);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    color: var(--text);
+    position: relative;
+  }
+  .cal-day.empty { background: transparent; }
+  .cal-day.is-today { outline: 2px solid #d98c2b; }
+  .cal-day-dots { display: flex; gap: 3px; margin-top: 3px; }
+  .cal-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+  .notte-dot { background: var(--notte); }
+  .giorno-dot { background: var(--giorno); }
+  .cal-legend {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 12px;
+    font-size: 0.75rem;
+    color: #b0b0b0;
+    align-items: center;
+  }
+  .cal-legend span { display: flex; align-items: center; gap: 5px; }
   .contact-centrale-group {
     margin-top: 14px;
     display: flex;
@@ -522,9 +633,11 @@
 <body>
 
 <header>
+  <button type="button" id="refreshBtn" title="Aggiorna dati" aria-label="Aggiorna dati">🔄</button>
   <h1>🚁 Turni Soccorso Alpino Valdostano 🚁</h1>
   <p>Servizio di pronto intervento presso la Protezione Civile</p>
 </header>
+<div id="refreshToast"></div>
 
 <div id="gate">
   <h2>🔒 Accesso squadra</h2>
@@ -559,6 +672,7 @@
     </div>
     <button id="todayBtn">📍 Chi c'è di turno oggi</button>
     <button id="exportIcsBtn">📅 Esporta i miei turni nel calendario</button>
+    <button id="calendarViewBtn">🗓️ Vista calendario</button>
     <div class="heli-track-strip">
       <button type="button" id="heliTrackBtn">🚁 Tracciamento</button>
     </div>
@@ -585,6 +699,21 @@
     </label>
   </div>
   <div id="results"></div>
+  <div id="calendarView" style="display:none;">
+    <div class="cal-nav">
+      <button type="button" id="calPrevBtn">◀</button>
+      <div id="calMonthLabel"></div>
+      <button type="button" id="calNextBtn">▶</button>
+    </div>
+    <div class="cal-weekdays">
+      <div>L</div><div>M</div><div>M</div><div>G</div><div>V</div><div>S</div><div>D</div>
+    </div>
+    <div class="cal-grid" id="calGrid"></div>
+    <div class="cal-legend">
+      <span><span class="cal-dot notte-dot"></span> Notte</span>
+      <span><span class="cal-dot giorno-dot"></span> Giorno</span>
+    </div>
+  </div>
   <div id="empty" style="display:none;">Nessun turno trovato con questi filtri.</div>
   <div id="reportBox">
     <button type="button" id="reportToggleBtn">🐞 Segnala un errore</button>
@@ -708,26 +837,70 @@ heliSelect.addEventListener('change', () => {
 
 let SHIFTS = [];
 
-fetch('./turni_data.json')
-  .then(r => r.json())
-  .then(data => { SHIFTS = data; initApp(); })
-  .catch(err => {
-    console.error('Errore caricamento dati turni:', err);
-    document.getElementById('results').innerHTML = '<p style="text-align:center;color:#a63d40;padding:30px;">Errore nel caricamento dei dati turni.</p>';
+// Registrazione Service Worker per funzionamento offline (PWA)
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
   });
+}
 
-// Data/ora dell'ultimo aggiornamento reale (scritta solo dallo script Google quando pubblica un cambiamento vero)
-fetch('./last_update.json')
-  .then(r => r.ok ? r.json() : null)
-  .then(data => {
-    if (!data || !data.timestamp) return;
-    const d = new Date(data.timestamp);
-    const formatted = d.toLocaleString('it-IT', {
-      day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+function loadShiftsData() {
+  return fetch('./turni_data.json', { cache: 'no-store' })
+    .then(r => r.json())
+    .then(data => {
+      SHIFTS = data;
+      if (typeof initApp === 'function' && !window.__appInitialized) {
+        window.__appInitialized = true;
+        initApp();
+      } else {
+        window.__renderApp();
+        const calVisible = document.getElementById('calendarView').style.display === 'block';
+        if (calVisible && window.__renderCalendarApp) window.__renderCalendarApp();
+      }
+    })
+    .catch(err => {
+      console.error('Errore caricamento dati turni:', err);
+      document.getElementById('results').innerHTML = '<p style="text-align:center;color:#a63d40;padding:30px;">Errore nel caricamento dei dati turni.</p>';
+      throw err;
     });
-    document.getElementById('lastUpdateBox').textContent = `Ultimo aggiornamento: ${formatted}`;
-  })
-  .catch(() => {}); // se il file non esiste ancora, semplicemente non mostra nulla
+}
+
+function loadLastUpdate() {
+  return fetch('./last_update.json', { cache: 'no-store' })
+    .then(r => r.ok ? r.json() : null)
+    .then(data => {
+      if (!data || !data.timestamp) return;
+      const d = new Date(data.timestamp);
+      const formatted = d.toLocaleString('it-IT', {
+        day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+      });
+      document.getElementById('lastUpdateBox').textContent = `Ultimo aggiornamento: ${formatted}`;
+    })
+    .catch(() => {});
+}
+
+loadShiftsData();
+// Data/ora dell'ultimo aggiornamento reale (scritta solo dallo script Google quando pubblica un cambiamento vero)
+loadLastUpdate();
+
+const refreshBtn = document.getElementById('refreshBtn');
+const refreshToast = document.getElementById('refreshToast');
+
+function showToast(text) {
+  refreshToast.textContent = text;
+  refreshToast.classList.add('visible');
+  setTimeout(() => refreshToast.classList.remove('visible'), 2000);
+}
+
+refreshBtn.addEventListener('click', () => {
+  refreshBtn.classList.add('spinning');
+  Promise.all([loadShiftsData(), loadLastUpdate()])
+    .then(() => showToast('✅ Dati aggiornati'))
+    .catch(() => showToast('⚠️ Nessuna connessione, mostro l\'ultima versione salvata'))
+    .finally(() => {
+      setTimeout(() => refreshBtn.classList.remove('spinning'), 800);
+    });
+});
 
 
 function initApp() {
@@ -828,8 +1001,107 @@ if (savedName && names.includes(savedName)) {
 }
 
 const exportIcsBtnEl = document.getElementById('exportIcsBtn');
+const calendarViewBtnEl = document.getElementById('calendarViewBtn');
+let calendarViewActive = false;
+let calCurrentMonthIdx = 0; // indice nell'elenco dei mesi realmente presenti nei dati
+const MESI_ABBR_TO_IT = {
+  'Gennaio': 0, 'Febbraio': 1, 'Marzo': 2, 'Aprile': 3, 'Maggio': 4, 'Giugno': 5,
+  'Luglio': 6, 'Agosto': 7, 'Settembre': 8, 'Ottobre': 9, 'Novembre': 10, 'Dicembre': 11
+};
+
+function toggleCalendarView(forceState) {
+  calendarViewActive = forceState !== undefined ? forceState : !calendarViewActive;
+  document.getElementById('results').style.display = calendarViewActive ? 'none' : 'block';
+  document.getElementById('empty').style.display = 'none';
+  document.getElementById('calendarView').style.display = calendarViewActive ? 'block' : 'none';
+  calendarViewBtnEl.classList.toggle('active', calendarViewActive);
+  calendarViewBtnEl.textContent = calendarViewActive ? '📋 Torna alla lista' : '🗓️ Vista calendario';
+  if (calendarViewActive) renderCalendar();
+}
+
+calendarViewBtnEl.addEventListener('click', () => toggleCalendarView());
+
+function renderCalendar() {
+  const selectedName = sel.value;
+  if (!selectedName) return;
+
+  const personShifts = SHIFTS.filter(s => s.name === selectedName && activeRoles.has(s.role));
+  const monthsWithData = [...new Set(personShifts.map(s => s.month))];
+  monthsWithData.sort((a, b) => monthsPresent.indexOf(a) - monthsPresent.indexOf(b));
+
+  if (monthsWithData.length === 0) {
+    document.getElementById('calMonthLabel').textContent = 'Nessun turno';
+    document.getElementById('calGrid').innerHTML = '';
+    return;
+  }
+
+  if (calCurrentMonthIdx < 0) calCurrentMonthIdx = 0;
+  if (calCurrentMonthIdx >= monthsWithData.length) calCurrentMonthIdx = monthsWithData.length - 1;
+
+  const monthLabel = monthsWithData[calCurrentMonthIdx];
+  document.getElementById('calMonthLabel').textContent = monthLabel;
+
+  document.getElementById('calPrevBtn').disabled = calCurrentMonthIdx === 0;
+  document.getElementById('calNextBtn').disabled = calCurrentMonthIdx === monthsWithData.length - 1;
+
+  const [monthName, yearStr] = monthLabel.split(' ');
+  const monthNum = MESI_ABBR_TO_IT[monthName];
+  const year = parseInt(yearStr, 10);
+
+  const firstDay = new Date(year, monthNum, 1);
+  const daysInMonth = new Date(year, monthNum + 1, 0).getDate();
+  let startWeekday = firstDay.getDay(); // 0=domenica
+  startWeekday = startWeekday === 0 ? 6 : startWeekday - 1; // lunedì=0
+
+  // mappa giorno -> tipi di turno presenti quel giorno per questo mese
+  const dayMap = {};
+  personShifts.filter(s => s.month === monthLabel).forEach(s => {
+    const dayNum = parseInt(s.date.split('/')[0], 10);
+    if (!dayMap[dayNum]) dayMap[dayNum] = new Set();
+    dayMap[dayNum].add(s.type);
+  });
+
+  const now = new Date();
+  const todayKeyStr = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
+
+  const grid = document.getElementById('calGrid');
+  grid.innerHTML = '';
+
+  for (let i = 0; i < startWeekday; i++) {
+    const empty = document.createElement('div');
+    empty.className = 'cal-day empty';
+    grid.appendChild(empty);
+  }
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const cell = document.createElement('div');
+    cell.className = 'cal-day';
+    if (`${year}-${monthNum}-${d}` === todayKeyStr) cell.classList.add('is-today');
+
+    const dotsHtml = dayMap[d]
+      ? `<div class="cal-day-dots">${[...dayMap[d]].map(t => `<span class="cal-dot ${t}-dot"></span>`).join('')}</div>`
+      : '';
+    cell.innerHTML = `<div>${d}</div>${dotsHtml}`;
+    grid.appendChild(cell);
+  }
+}
+
+document.getElementById('calPrevBtn').addEventListener('click', () => {
+  calCurrentMonthIdx--;
+  renderCalendar();
+});
+document.getElementById('calNextBtn').addEventListener('click', () => {
+  calCurrentMonthIdx++;
+  renderCalendar();
+});
+
+
 function updateExportBtnVisibility() {
   exportIcsBtnEl.style.display = sel.value ? 'block' : 'none';
+  calendarViewBtnEl.style.display = sel.value ? 'block' : 'none';
+  if (!sel.value && calendarViewActive) {
+    toggleCalendarView(false);
+  }
 }
 updateExportBtnVisibility();
 
@@ -846,7 +1118,7 @@ document.querySelectorAll('.role-chip').forEach(chip => {
     render();
   });
 });
-sel.addEventListener('change', () => { saveSelectedName(sel.value); updateExportBtnVisibility(); render(); });
+sel.addEventListener('change', () => { saveSelectedName(sel.value); calCurrentMonthIdx = 0; updateExportBtnVisibility(); render(); if (calendarViewActive) renderCalendar(); });
 
 function dateKey(dateStr) {
   const [d, mo, yy] = dateStr.split('/').map(Number);
@@ -1005,7 +1277,8 @@ function render() {
         const monthName = s.month.split(' ')[0];
         let msg;
         if (s.type === 'notte') {
-          msg = `Ciao a tutti! Avrei bisogno di un cambio per il turno del ${dayLabel} ${monthName} — notte. Chi può darmi una mano? Grazie.`;
+          const dayLabelClean = dayLabel.replace(/-/g, '').replace(/\s+/g, ' ').trim();
+          msg = `Ciao a tutti! Avrei bisogno di un cambio per il turno del ${dayLabelClean} ${monthName} — notte. Chi può darmi una mano? Grazie.`;
         } else {
           msg = `Ciao a tutti! Avrei bisogno di un cambio per il turno di ${wdLabel} ${dayLabel} ${monthName} — giorno. Chi può darmi una mano? Grazie.`;
         }
@@ -1189,6 +1462,10 @@ sendLocationBtn.addEventListener('click', () => {
 });
 
 render();
+
+// Espongo le funzioni di rendering globalmente, servono al pulsante di refresh
+window.__renderApp = render;
+window.__renderCalendarApp = renderCalendar;
 }
 
 </script>
