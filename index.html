@@ -884,6 +884,14 @@ function render() {
     (selectedMonth || showPast || dateKey(s.date) >= tKey)
   );
 
+  // Ordine di visualizzazione fisso all'interno di ogni stesso giorno/turno:
+  // Operatore, SA1, SA1, Cinofilo, SA2, SA2, AVIF, AVIF — indipendente dall'ordine nei dati
+  const ROLE_ORDER = { Operatore: 0, SA1: 1, Cinofilo: 2, SA2: 3, AVIF: 4 };
+  filtered.sort((a, b) => {
+    if (a.month !== b.month || a.date !== b.date || a.type !== b.type) return 0;
+    return (ROLE_ORDER[a.role] ?? 5) - (ROLE_ORDER[b.role] ?? 5);
+  });
+
   const resultsEl = document.getElementById('results');
   const emptyEl = document.getElementById('empty');
   const footerCountEl = document.getElementById('footerCount');
