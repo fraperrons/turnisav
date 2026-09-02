@@ -357,6 +357,19 @@
     outline-offset: 2px;
     animation: pulse-highlight 1.6s ease-in-out 2;
   }
+  .shift-card.next-shift-card {
+    background: #eaf6ee;
+    border: 2px solid #3f9d5f;
+  }
+  .next-shift-badge {
+    background: #3f9d5f;
+    color: white;
+    font-size: 0.65rem;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 20px;
+    text-transform: uppercase;
+  }
   @keyframes pulse-highlight {
     0%, 100% { background: var(--card); }
     50% { background: #fff3e0; }
@@ -884,6 +897,12 @@ function render() {
   emptyEl.style.display = 'none';
   footerCountEl.textContent = ` · ${filtered.length} turni visualizzati`;
 
+  // Trovo il prossimo turno futuro, solo quando è selezionato un nominativo specifico
+  let nextShiftRef = null;
+  if (selectedName) {
+    nextShiftRef = filtered.find(s => dateKey(s.date) >= tKey) || null;
+  }
+
   let currentMonth = null;
   filtered.forEach(s => {
     if (s.month !== currentMonth) {
@@ -895,6 +914,9 @@ function render() {
     }
     const card = document.createElement('div');
     card.className = 'shift-card';
+    if (s === nextShiftRef) {
+      card.classList.add('next-shift-card');
+    }
     card.dataset.date = s.date;
 
     const WD_ABBR = ['DOM','LUN','MAR','MER','GIO','VEN','SAB'];
@@ -927,6 +949,7 @@ function render() {
           <span class="badge ${s.type}">${s.type === 'notte' ? '🌙 Notte' : '☀️ Giorno'}</span>
           <span class="badge ${s.role}">${s.role}</span>
           ${isActiveNow(s) ? '<span class="active-now-badge">🔴 In corso ora</span>' : ''}
+          ${s === nextShiftRef ? '<span class="next-shift-badge">⭐ Prossimo turno</span>' : ''}
         </div>
         <div class="contact-row">
           ${PHONE_NUMBERS[s.name]
