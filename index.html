@@ -1042,6 +1042,7 @@ document.getElementById('todayBtn').addEventListener('click', () => {
 
   // reset filtri per essere sicuri di vedere tutti i turni di oggi
   sel.value = '';
+  monthFilterEl.value = '';
   activeRoles.clear();
   ['Operatore', 'SA1', 'SA2', 'Cinofilo', 'AVIF'].forEach(r => activeRoles.add(r));
   document.querySelectorAll('.role-chip').forEach(chip => chip.classList.add('active'));
