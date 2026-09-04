@@ -260,6 +260,56 @@
   }
   #exportIcsBtn:hover { background: #2e6144; }
   #exportIcsBtn:disabled { background: #ccc; cursor: not-allowed; }
+  #exportPanel {
+    display: none;
+    margin-top: 8px;
+    background: #2a2a2a;
+    border-radius: 10px;
+    padding: 12px;
+  }
+  #exportPanel.visible { display: block; }
+  #exportPanelList {
+    max-height: 260px;
+    overflow-y: auto;
+    margin-bottom: 10px;
+  }
+  .export-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 7px 4px;
+    border-bottom: 1px solid #3a3a3a;
+    font-size: 0.85rem;
+    color: #eee;
+  }
+  .export-item:last-child { border-bottom: none; }
+  .export-item input { width: 18px; height: 18px; flex-shrink: 0; }
+  .export-panel-actions {
+    display: flex;
+    gap: 8px;
+  }
+  #exportSelectAllBtn {
+    flex: 1;
+    padding: 9px;
+    border-radius: 8px;
+    border: 1px solid #555;
+    background: transparent;
+    color: #ccc;
+    font-size: 0.82rem;
+    cursor: pointer;
+  }
+  #exportConfirmBtn {
+    flex: 1;
+    padding: 9px;
+    border-radius: 8px;
+    border: none;
+    background: #3b7a57;
+    color: white;
+    font-weight: 700;
+    font-size: 0.82rem;
+    cursor: pointer;
+  }
+  #exportConfirmBtn:hover { background: #2e6144; }
   #calendarViewBtn {
     margin-top: 8px;
     width: 100%;
@@ -318,16 +368,25 @@
   }
   .cal-day.empty { background: transparent; }
   .cal-day.is-today { outline: 2px solid #d98c2b; }
-  .cal-day-dots { display: flex; gap: 3px; margin-top: 3px; }
-  .cal-dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
-  .notte-dot { background: var(--notte); }
-  .giorno-dot { background: var(--giorno); }
+  .cal-day-top { display: flex; align-items: center; gap: 3px; }
+  .cal-day-num { font-weight: 700; }
+  .cal-type-icons { font-size: 0.65rem; }
+  .cal-role-badges { display: flex; flex-wrap: wrap; gap: 2px; justify-content: center; margin-top: 3px; max-width: 100%; }
+  .cal-role-badge {
+    font-size: 0.5rem;
+    font-weight: 800;
+    color: white;
+    border-radius: 4px;
+    padding: 1px 3px;
+    line-height: 1.3;
+  }
   .cal-legend {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
-    gap: 16px;
+    gap: 10px 14px;
     margin-top: 12px;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     color: #b0b0b0;
     align-items: center;
   }
@@ -671,6 +730,13 @@
     </div>
     <button id="todayBtn">📍 Chi c'è di turno oggi</button>
     <button id="exportIcsBtn">📅 Esporta i miei turni nel calendario</button>
+    <div id="exportPanel">
+      <div id="exportPanelList"></div>
+      <div class="export-panel-actions">
+        <button type="button" id="exportSelectAllBtn">Seleziona tutti</button>
+        <button type="button" id="exportConfirmBtn">Esporta selezionati</button>
+      </div>
+    </div>
     <button id="calendarViewBtn">🗓️ Vista calendario</button>
     <div class="heli-track-strip">
       <button type="button" id="heliTrackBtn">🚁 Tracciamento</button>
@@ -709,8 +775,13 @@
     </div>
     <div class="cal-grid" id="calGrid"></div>
     <div class="cal-legend">
-      <span><span class="cal-dot notte-dot"></span> Notte</span>
-      <span><span class="cal-dot giorno-dot"></span> Giorno</span>
+      <span>☀️ Giorno</span>
+      <span>🌙 Notte</span>
+      <span><span class="cal-role-badge" style="background:var(--operatore)">OP</span> Operatore</span>
+      <span><span class="cal-role-badge" style="background:var(--sa1)">S1</span> SA1</span>
+      <span><span class="cal-role-badge" style="background:var(--sa2)">S2</span> SA2</span>
+      <span><span class="cal-role-badge" style="background:var(--cinofilo)">CI</span> Cinofilo</span>
+      <span><span class="cal-role-badge" style="background:var(--avif)">AV</span> AVIF</span>
     </div>
   </div>
   <div id="empty" style="display:none;">Nessun turno trovato con questi filtri.</div>
@@ -1070,13 +1141,16 @@ function renderCalendar() {
   let startWeekday = firstDay.getDay(); // 0=domenica
   startWeekday = startWeekday === 0 ? 6 : startWeekday - 1; // lunedì=0
 
-  // mappa giorno -> tipi di turno presenti quel giorno per questo mese
+  // mappa giorno -> elenco di turni (ruolo + tipo) presenti quel giorno per questo mese
   const dayMap = {};
   personShifts.filter(s => s.month === monthLabel).forEach(s => {
     const dayNum = parseInt(s.date.split('/')[0], 10);
-    if (!dayMap[dayNum]) dayMap[dayNum] = new Set();
-    dayMap[dayNum].add(s.type);
+    if (!dayMap[dayNum]) dayMap[dayNum] = [];
+    dayMap[dayNum].push({ role: s.role, type: s.type });
   });
+
+  const ROLE_ABBR = { Operatore: 'OP', SA1: 'S1', SA2: 'S2', Cinofilo: 'CI', AVIF: 'AV' };
+  const ROLE_COLOR_VAR = { Operatore: '--operatore', SA1: '--sa1', SA2: '--sa2', Cinofilo: '--cinofilo', AVIF: '--avif' };
 
   const now = new Date();
   const todayKeyStr = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
@@ -1095,10 +1169,17 @@ function renderCalendar() {
     cell.className = 'cal-day';
     if (`${year}-${monthNum}-${d}` === todayKeyStr) cell.classList.add('is-today');
 
-    const dotsHtml = dayMap[d]
-      ? `<div class="cal-day-dots">${[...dayMap[d]].map(t => `<span class="cal-dot ${t}-dot"></span>`).join('')}</div>`
-      : '';
-    cell.innerHTML = `<div>${d}</div>${dotsHtml}`;
+    const entries = dayMap[d] || [];
+    const types = [...new Set(entries.map(e => e.type))];
+    const typeIconsHtml = types.map(t => t === 'notte' ? '🌙' : '☀️').join('');
+    const roleBadgesHtml = entries.map(e =>
+      `<span class="cal-role-badge" style="background:var(${ROLE_COLOR_VAR[e.role] || '--muted'})">${ROLE_ABBR[e.role] || '?'}</span>`
+    ).join('');
+
+    cell.innerHTML = `
+      <div class="cal-day-top"><span class="cal-day-num">${d}</span><span class="cal-type-icons">${typeIconsHtml}</span></div>
+      <div class="cal-role-badges">${roleBadgesHtml}</div>
+    `;
     grid.appendChild(cell);
   }
 }
@@ -1416,8 +1497,45 @@ document.getElementById('exportIcsBtn').addEventListener('click', () => {
     return;
   }
 
-  let ics = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//SAV//Turni//IT\r\nCALSCALE:GREGORIAN\r\n';
+  const panel = document.getElementById('exportPanel');
+  const list = document.getElementById('exportPanelList');
+  list.innerHTML = '';
+
   myShifts.forEach((s, i) => {
+    const label = s.type === 'notte'
+      ? `🌙 Notte ${s.date} (${s.month})`
+      : `☀️ Giorno ${s.date} (${s.month})`;
+    const row = document.createElement('label');
+    row.className = 'export-item';
+    row.innerHTML = `<input type="checkbox" checked data-idx="${i}"> ${label} — ${s.role}`;
+    list.appendChild(row);
+  });
+
+  panel.dataset.shiftsJson = JSON.stringify(myShifts);
+  panel.classList.add('visible');
+});
+
+document.getElementById('exportSelectAllBtn').addEventListener('click', () => {
+  const checkboxes = document.querySelectorAll('#exportPanelList input[type="checkbox"]');
+  const allChecked = [...checkboxes].every(c => c.checked);
+  checkboxes.forEach(c => { c.checked = !allChecked; });
+  document.getElementById('exportSelectAllBtn').textContent = allChecked ? 'Seleziona tutti' : 'Deseleziona tutti';
+});
+
+document.getElementById('exportConfirmBtn').addEventListener('click', () => {
+  const panel = document.getElementById('exportPanel');
+  const myShifts = JSON.parse(panel.dataset.shiftsJson);
+  const checkboxes = [...document.querySelectorAll('#exportPanelList input[type="checkbox"]')];
+  const selectedShifts = checkboxes.filter(c => c.checked).map(c => myShifts[parseInt(c.dataset.idx, 10)]);
+
+  if (selectedShifts.length === 0) {
+    alert('Seleziona almeno un turno da esportare.');
+    return;
+  }
+
+  const selectedName = sel.value;
+  let ics = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//SAV//Turni//IT\r\nCALSCALE:GREGORIAN\r\n';
+  selectedShifts.forEach((s, i) => {
     const [start, end] = shiftRange(s);
     const uid = `sav-turno-${s.date.replace(/\//g, '')}-${s.type}-${s.role}-${i}@turnisav`;
     ics += 'BEGIN:VEVENT\r\n';
@@ -1440,6 +1558,7 @@ document.getElementById('exportIcsBtn').addEventListener('click', () => {
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+  panel.classList.remove('visible');
 });
 
 // --- Invia posizione GPS alla centrale via WhatsApp ---
