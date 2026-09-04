@@ -962,6 +962,24 @@ const PHONE_NUMBERS = {
   "RASPO PATRICK": "+393356385850"
 };
 
+// Normalizza un nome per una ricerca "tollerante" a lettere accentate corrotte
+// (es. "FRAN?OIS" invece di "FRANÇOIS", bug di codifica noto da alcune estrazioni automatiche)
+function normalizeNameForLookup(name) {
+  return name
+    .toUpperCase()
+    .replace(/Ç/g, 'C')
+    .replace(/\?/g, 'C')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+const PHONE_NUMBERS_NORMALIZED = {};
+Object.keys(PHONE_NUMBERS).forEach(key => {
+  PHONE_NUMBERS_NORMALIZED[normalizeNameForLookup(key)] = PHONE_NUMBERS[key];
+});
+function getPhoneNumber(name) {
+  return PHONE_NUMBERS[name] || PHONE_NUMBERS_NORMALIZED[normalizeNameForLookup(name)] || null;
+}
+
 function waNumber(n) {
   return n.replace(/[^\d+]/g, '').replace(/^\+/, '');
 }
@@ -1194,7 +1212,8 @@ function render() {
   // Trovo il prossimo turno futuro, solo quando è selezionato un nominativo specifico
   let nextShiftRef = null;
   if (selectedName) {
-    nextShiftRef = filtered.find(s => dateKey(s.date) >= tKey) || null;
+    const now = new Date();
+    nextShiftRef = filtered.find(s => shiftRange(s)[0] > now) || null;
   }
 
   let currentMonth = null;
@@ -1248,9 +1267,9 @@ function render() {
           ${selectedName ? '<button type="button" class="swap-shift-btn" title="Richiedi cambio turno">🔄</button>' : ''}
         </div>
         <div class="contact-row">
-          ${PHONE_NUMBERS[s.name]
-            ? `<a class="contact-btn call-btn" href="tel:${PHONE_NUMBERS[s.name]}">📞 Chiama</a>
-               <a class="contact-btn wa-btn" href="https://wa.me/${waNumber(PHONE_NUMBERS[s.name])}" target="_blank" rel="noopener">💬 WhatsApp</a>`
+          ${getPhoneNumber(s.name)
+            ? `<a class="contact-btn call-btn" href="tel:${getPhoneNumber(s.name)}">📞 Chiama</a>
+               <a class="contact-btn wa-btn" href="https://wa.me/${waNumber(getPhoneNumber(s.name))}" target="_blank" rel="noopener">💬 WhatsApp</a>`
             : `<span class="no-number">Numero non disponibile</span>`
           }
         </div>
