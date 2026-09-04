@@ -1486,6 +1486,13 @@ document.getElementById('exportIcsBtn').addEventListener('click', () => {
     alert('Seleziona prima il nominativo');
     return;
   }
+
+  const panelToggle = document.getElementById('exportPanel');
+  if (panelToggle.classList.contains('visible')) {
+    panelToggle.classList.remove('visible');
+    return;
+  }
+
   const now = new Date();
   const myShifts = SHIFTS.filter(s => {
     if (s.name !== selectedName) return false;
