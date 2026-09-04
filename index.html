@@ -798,11 +798,13 @@
     <div class="cal-legend">
       <span>☀️ Giorno</span>
       <span>🌙 Notte</span>
+      <span>🏔️ Addestramento</span>
       <span><span class="cal-role-badge" style="background:var(--operatore)">OP</span> Operatore</span>
       <span><span class="cal-role-badge" style="background:var(--sa1)">S1</span> SA1</span>
       <span><span class="cal-role-badge" style="background:var(--sa2)">S2</span> SA2</span>
       <span><span class="cal-role-badge" style="background:var(--cinofilo)">CI</span> Cinofilo</span>
       <span><span class="cal-role-badge" style="background:var(--avif)">AV</span> AVIF</span>
+      <span><span class="cal-role-badge" style="background:var(--addestramento)">AD</span> Addestramento</span>
     </div>
   </div>
   <div id="empty" style="display:none;">Nessun turno trovato con questi filtri.</div>
@@ -1184,8 +1186,8 @@ function renderCalendar() {
     dayMap[dayNum].push({ role: s.role, type: s.type });
   });
 
-  const ROLE_ABBR = { Operatore: 'OP', SA1: 'S1', SA2: 'S2', Cinofilo: 'CI', AVIF: 'AV' };
-  const ROLE_COLOR_VAR = { Operatore: '--operatore', SA1: '--sa1', SA2: '--sa2', Cinofilo: '--cinofilo', AVIF: '--avif' };
+  const ROLE_ABBR = { Operatore: 'OP', SA1: 'S1', SA2: 'S2', Cinofilo: 'CI', AVIF: 'AV', Addestramento: 'AD' };
+  const ROLE_COLOR_VAR = { Operatore: '--operatore', SA1: '--sa1', SA2: '--sa2', Cinofilo: '--cinofilo', AVIF: '--avif', Addestramento: '--addestramento' };
 
   const now = new Date();
   const todayKeyStr = `${now.getFullYear()}-${now.getMonth()}-${now.getDate()}`;
@@ -1206,7 +1208,11 @@ function renderCalendar() {
 
     const entries = dayMap[d] || [];
     const types = [...new Set(entries.map(e => e.type))];
-    const typeIconsHtml = types.map(t => t === 'notte' ? '🌙' : '☀️').join('');
+    const typeIconsHtml = types.map(t => {
+      if (t === 'notte') return '🌙';
+      if (t === 'addestramento_cinofilo' || t === 'addestramento_te' || t === 'addestramento_te_2gg') return '🏔️';
+      return '☀️';
+    }).join('');
     const roleBadgesHtml = entries.map(e =>
       `<span class="cal-role-badge" style="background:var(${ROLE_COLOR_VAR[e.role] || '--muted'})">${ROLE_ABBR[e.role] || '?'}</span>`
     ).join('');
@@ -1461,6 +1467,7 @@ function render() {
     if (dismissBtn) {
       dismissBtn.addEventListener('click', (e) => {
         e.stopPropagation();
+        if (!confirm('Confermi la rimozione di questo appuntamento dal tuo calendario?')) return;
         dismissedTrainings.add(trainingId(s));
         saveDismissedTrainings(dismissedTrainings);
         card.remove();
