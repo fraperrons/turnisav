@@ -16,7 +16,7 @@
     --sa2: #a63d40;
     --cinofilo: #6b4e9b;
     --avif: #c77d1e;
-    --addestramento: #2f8f7a;
+    --addestramento: #b5476b;
     --operatore: #4a6fa5;
     --bg: #000000;
     --card: #ffffff;
@@ -649,6 +649,39 @@
   .badge.AVIF { background: var(--avif); color: black; }
   #empty { text-align: center; color: var(--muted); padding: 30px; font-size: 0.9rem; }
   footer { text-align: center; color: var(--muted); font-size: 0.72rem; margin-top: 30px; padding: 0 16px; word-wrap: break-word; }
+  #confirmModalOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 300;
+    align-items: center;
+    justify-content: center;
+  }
+  #confirmModalOverlay.visible { display: flex; }
+  #confirmModalBox {
+    background: #2a2a2a;
+    border-radius: 14px;
+    padding: 22px;
+    max-width: 320px;
+    width: calc(100% - 48px);
+    text-align: center;
+  }
+  #confirmModalText { color: #eee; font-size: 0.95rem; margin: 0 0 18px; }
+  .confirm-modal-actions { display: flex; gap: 10px; }
+  #confirmModalCancel, #confirmModalOk {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    font-weight: 700;
+    font-size: 0.88rem;
+    cursor: pointer;
+  }
+  #confirmModalCancel { background: #444; color: #eee; }
+  #confirmModalCancel:hover { background: #555; }
+  #confirmModalOk { background: #a63d40; color: white; }
+  #confirmModalOk:hover { background: #8a3134; }
   #reportBox {
     max-width: 760px;
     margin: 30px auto 0;
@@ -798,7 +831,6 @@
     <div class="cal-legend">
       <span>☀️ Giorno</span>
       <span>🌙 Notte</span>
-      <span>🏔️ Addestramento</span>
       <span><span class="cal-role-badge" style="background:var(--operatore)">OP</span> Operatore</span>
       <span><span class="cal-role-badge" style="background:var(--sa1)">S1</span> SA1</span>
       <span><span class="cal-role-badge" style="background:var(--sa2)">S2</span> SA2</span>
@@ -808,6 +840,15 @@
     </div>
   </div>
   <div id="empty" style="display:none;">Nessun turno trovato con questi filtri.</div>
+  <div id="confirmModalOverlay">
+    <div id="confirmModalBox">
+      <p id="confirmModalText"></p>
+      <div class="confirm-modal-actions">
+        <button type="button" id="confirmModalCancel">Annulla</button>
+        <button type="button" id="confirmModalOk">Conferma</button>
+      </div>
+    </div>
+  </div>
   <div id="reportBox">
     <button type="button" id="reportToggleBtn">🐞 Segnala un errore</button>
     <div id="reportForm">
@@ -1106,6 +1147,30 @@ function saveSelectedName(name) {
 function loadSelectedName() {
   try { return localStorage.getItem('sav_selected_name') || ''; } catch (e) { return ''; }
 }
+// Popup di conferma personalizzato (al posto di confirm() nativo, che mostra il dominio del sito)
+function showConfirmModal(message) {
+  return new Promise((resolve) => {
+    const overlay = document.getElementById('confirmModalOverlay');
+    document.getElementById('confirmModalText').textContent = message;
+    overlay.classList.add('visible');
+
+    const okBtn = document.getElementById('confirmModalOk');
+    const cancelBtn = document.getElementById('confirmModalCancel');
+
+    function cleanup(result) {
+      overlay.classList.remove('visible');
+      okBtn.removeEventListener('click', onOk);
+      cancelBtn.removeEventListener('click', onCancel);
+      resolve(result);
+    }
+    function onOk() { cleanup(true); }
+    function onCancel() { cleanup(false); }
+
+    okBtn.addEventListener('click', onOk);
+    cancelBtn.addEventListener('click', onCancel);
+  });
+}
+
 const savedName = loadSelectedName();
 if (savedName && names.includes(savedName)) {
   sel.value = savedName;
@@ -1208,11 +1273,7 @@ function renderCalendar() {
 
     const entries = dayMap[d] || [];
     const types = [...new Set(entries.map(e => e.type))];
-    const typeIconsHtml = types.map(t => {
-      if (t === 'notte') return '🌙';
-      if (t === 'addestramento_cinofilo' || t === 'addestramento_te' || t === 'addestramento_te_2gg') return '🏔️';
-      return '☀️';
-    }).join('');
+    const typeIconsHtml = types.map(t => t === 'notte' ? '🌙' : '☀️').join('');
     const roleBadgesHtml = entries.map(e =>
       `<span class="cal-role-badge" style="background:var(${ROLE_COLOR_VAR[e.role] || '--muted'})">${ROLE_ABBR[e.role] || '?'}</span>`
     ).join('');
@@ -1465,9 +1526,10 @@ function render() {
 
     const dismissBtn = card.querySelector('.dismiss-training-btn');
     if (dismissBtn) {
-      dismissBtn.addEventListener('click', (e) => {
+      dismissBtn.addEventListener('click', async (e) => {
         e.stopPropagation();
-        if (!confirm('Confermi la rimozione di questo appuntamento dal tuo calendario?')) return;
+        const ok = await showConfirmModal('Confermi la rimozione di questo appuntamento dal tuo calendario?');
+        if (!ok) return;
         dismissedTrainings.add(trainingId(s));
         saveDismissedTrainings(dismissedTrainings);
         card.remove();
