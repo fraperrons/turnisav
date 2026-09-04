@@ -521,20 +521,21 @@
   }
   #sendLocationBtn:hover { background: #223a40; }
   #sendLocationBtn:disabled { background: #ccc; cursor: not-allowed; }
-  .heli-track-strip {
-    margin-top: 8px;
-  }
   #heliTrackBtn {
-    width: 100%;
-    padding: 11px;
-    border-radius: 8px;
+    width: 48px;
+    height: 48px;
+    padding: 0;
+    border-radius: 10px;
     border: none;
     background: #c99a1e;
     color: black;
-    font-size: 0.9rem;
+    font-size: 1.4rem;
     font-weight: 700;
     cursor: pointer;
-    line-height: 1.4;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
   }
   #heliTrackBtn:hover { background: #a87e17; }
   .experimental-tag {
@@ -850,8 +851,14 @@
       </div>
     </div>
     <button id="calendarViewBtn">🗓️ Vista calendario</button>
-    <div class="heli-track-strip">
-      <button type="button" id="heliTrackBtn">🚁 Tracciamento</button>
+    <button id="trainingSummaryBtn">📋 Calendario addestramenti</button>
+    <div id="trainingSummaryPanel">
+      <div class="ts-filters">
+        <div class="ts-chip active" data-cat="Operatore">Operatore</div>
+        <div class="ts-chip active" data-cat="TE">TE</div>
+        <div class="ts-chip active" data-cat="Cinofilo">Cinofili</div>
+      </div>
+      <div id="trainingSummaryContent"></div>
     </div>
     <select id="heliSelect">
       <option value="">— Seleziona la targa —</option>
@@ -868,16 +875,8 @@
           <svg viewBox="0 0 24 24" width="30" height="30"><path fill="#ffffff" d="M12.031 6.172c-3.181 0-5.767 2.586-5.768 5.766-.001 1.298.38 2.27 1.019 3.287l-.539 1.972 2.021-.531c.978.58 1.911.928 3.257.929 3.178 0 5.766-2.587 5.767-5.766.001-3.187-2.575-5.658-5.757-5.657zm3.392 8.244c-.144.405-.837.774-1.17.824-.299.045-.677.063-1.092-.069-.252-.08-.575-.187-.988-.365-1.739-.751-2.874-2.502-2.961-2.617-.087-.116-.708-.94-.708-1.793s.448-1.273.607-1.446c.159-.173.346-.217.462-.217l.332.006c.106.005.249-.04.39.298.144.347.491 1.2.534 1.287.043.087.072.188.014.304-.058.116-.087.188-.173.289l-.26.304c-.087.086-.177.18-.076.354.101.174.449.741.964 1.201.663.591 1.221.774 1.394.86.173.087.274.072.376-.043.101-.116.433-.506.549-.68.116-.173.231-.145.39-.087s1.011.477 1.184.564c.173.087.289.13.332.202.043.072.043.419-.101.824z"/></svg>
         </a>
         <button id="sendLocationBtn" title="Invia la mia posizione alla centrale" aria-label="Invia la mia posizione alla centrale">📍</button>
+        <button type="button" id="heliTrackBtn" title="Tracciamento elicottero" aria-label="Tracciamento elicottero">🚁</button>
       </div>
-    </div>
-    <button id="trainingSummaryBtn">📋 Calendario addestramenti</button>
-    <div id="trainingSummaryPanel">
-      <div class="ts-filters">
-        <div class="ts-chip active" data-cat="Operatore">Operatore</div>
-        <div class="ts-chip active" data-cat="TE">TE</div>
-        <div class="ts-chip active" data-cat="Cinofilo">Cinofili</div>
-      </div>
-      <div id="trainingSummaryContent"></div>
     </div>
     <label class="past-toggle-row">
       <input type="checkbox" id="showPastToggle">
