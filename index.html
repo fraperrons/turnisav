@@ -326,6 +326,64 @@
   }
   #calendarViewBtn:hover { background: #543d7a; }
   #calendarViewBtn.active { background: #3f2c5c; }
+  #trainingSummaryBtn {
+    margin-top: 10px;
+    width: 100%;
+    padding: 11px;
+    border-radius: 8px;
+    border: none;
+    background: #444;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  #trainingSummaryBtn:hover { background: #555; }
+  #trainingSummaryBtn.active { background: #2d2d2d; }
+  #trainingSummaryPanel {
+    display: none;
+    margin-top: 10px;
+    background: #1a1a1a;
+    border-radius: 10px;
+    padding: 14px;
+  }
+  #trainingSummaryPanel.visible { display: block; }
+  .ts-filters {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+  }
+  .ts-chip {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: 2px solid #555;
+    color: #999;
+    background: transparent;
+  }
+  .ts-chip.active[data-cat="Operatore"] { background: var(--operatore); border-color: var(--operatore); color: white; }
+  .ts-chip.active[data-cat="TE"] { background: var(--addestramento); border-color: var(--addestramento); color: white; }
+  .ts-chip.active[data-cat="Cinofilo"] { background: var(--cinofilo); border-color: var(--cinofilo); color: white; }
+  .ts-cat-title {
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 800;
+    margin: 14px 0 8px;
+  }
+  .ts-cat-title:first-child { margin-top: 0; }
+  .ts-train-block {
+    background: #2a2a2a;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 8px;
+  }
+  .ts-train-name { color: #eee; font-size: 0.82rem; font-weight: 700; margin-bottom: 4px; }
+  .ts-train-dates { display: flex; flex-wrap: wrap; gap: 5px; }
+  .ts-date-chip { color: white; font-size: 0.72rem; font-weight: 700; padding: 3px 8px; border-radius: 12px; }
+  .ts-empty { color: #999; font-size: 0.82rem; font-style: italic; text-align: center; padding: 10px 0; }
   .cal-nav {
     display: flex;
     align-items: center;
@@ -812,6 +870,15 @@
         <button id="sendLocationBtn" title="Invia la mia posizione alla centrale" aria-label="Invia la mia posizione alla centrale">📍</button>
       </div>
     </div>
+    <button id="trainingSummaryBtn">📋 Calendario addestramenti</button>
+    <div id="trainingSummaryPanel">
+      <div class="ts-filters">
+        <div class="ts-chip active" data-cat="Operatore">Operatore</div>
+        <div class="ts-chip active" data-cat="TE">TE</div>
+        <div class="ts-chip active" data-cat="Cinofilo">Cinofili</div>
+      </div>
+      <div id="trainingSummaryContent"></div>
+    </div>
     <label class="past-toggle-row">
       <input type="checkbox" id="showPastToggle">
       Mostra anche i turni passati
@@ -832,8 +899,8 @@
       <span>☀️ Giorno</span>
       <span>🌙 Notte</span>
       <span><span class="cal-role-badge" style="background:var(--operatore)">OP</span> Operatore</span>
-      <span><span class="cal-role-badge" style="background:var(--sa1)">S1</span> SA1</span>
-      <span><span class="cal-role-badge" style="background:var(--sa2)">S2</span> SA2</span>
+      <span><span class="cal-role-badge" style="background:var(--sa1)">SA1</span> SA1</span>
+      <span><span class="cal-role-badge" style="background:var(--sa2)">SA2</span> SA2</span>
       <span><span class="cal-role-badge" style="background:var(--cinofilo)">CI</span> Cinofilo</span>
       <span><span class="cal-role-badge" style="background:var(--avif)">AV</span> AVIF</span>
       <span><span class="cal-role-badge" style="background:var(--addestramento)">AD</span> Addestramento</span>
@@ -1251,7 +1318,7 @@ function renderCalendar() {
     dayMap[dayNum].push({ role: s.role, type: s.type });
   });
 
-  const ROLE_ABBR = { Operatore: 'OP', SA1: 'S1', SA2: 'S2', Cinofilo: 'CI', AVIF: 'AV', Addestramento: 'AD' };
+  const ROLE_ABBR = { Operatore: 'OP', SA1: 'SA1', SA2: 'SA2', Cinofilo: 'CI', AVIF: 'AV', Addestramento: 'AD' };
   const ROLE_COLOR_VAR = { Operatore: '--operatore', SA1: '--sa1', SA2: '--sa2', Cinofilo: '--cinofilo', AVIF: '--avif', Addestramento: '--addestramento' };
 
   const now = new Date();
@@ -1285,6 +1352,111 @@ function renderCalendar() {
     grid.appendChild(cell);
   }
 }
+
+// --- Calendario addestramenti (riepilogo informativo, senza nominativo) ---
+const MONTH_ABBR_IT = {
+  Gennaio: 'gen', Febbraio: 'feb', Marzo: 'mar', Aprile: 'apr', Maggio: 'mag', Giugno: 'giu',
+  Luglio: 'lug', Agosto: 'ago', Settembre: 'set', Ottobre: 'ott', Novembre: 'nov', Dicembre: 'dic'
+};
+const trainingSummaryActiveCats = new Set(['Operatore', 'TE', 'Cinofilo']);
+let trainingSummaryOpen = false;
+
+function categoryForType(type) {
+  if (type === 'addestramento_cinofilo') return 'Cinofilo';
+  if (type === 'addestramento_te' || type === 'addestramento_te_2gg') return 'TE';
+  if (type === 'addestramento_operatore') return 'Operatore';
+  return null;
+}
+
+function renderTrainingSummary() {
+  const seen = new Set();
+  const grouped = {}; // categoria -> attività -> [{label, sortKey}]
+
+  SHIFTS.forEach(s => {
+    const category = categoryForType(s.type);
+    if (!category) return;
+    const dedupeKey = `${category}|${s.activity}|${s.month}|${s.date}|${s.type}`;
+    if (seen.has(dedupeKey)) return;
+    seen.add(dedupeKey);
+
+    if (!grouped[category]) grouped[category] = {};
+    if (!grouped[category][s.activity]) grouped[category][s.activity] = [];
+
+    const [d, mo, yy] = s.date.split('/').map(Number);
+    const monthAbbr = MONTH_ABBR_IT[s.month.split(' ')[0]] || '';
+    let label;
+    if (s.type === 'addestramento_te_2gg') {
+      label = `${s.dayStart}-${d} ${monthAbbr}`;
+    } else {
+      label = `${d} ${monthAbbr}`;
+    }
+    grouped[category][s.activity].push({ label, sortKey: yy * 10000 + mo * 100 + d });
+  });
+
+  const CAT_ORDER = ['Operatore', 'TE', 'Cinofilo'];
+  const CAT_LABEL = { Operatore: '🚑 Operatore', TE: '⛰️ Tecnici Specializzati (TE)', Cinofilo: '🐕 Cinofili' };
+
+  const content = document.getElementById('trainingSummaryContent');
+  content.innerHTML = '';
+
+  const activeCatsWithData = CAT_ORDER.filter(c => trainingSummaryActiveCats.has(c));
+
+  if (activeCatsWithData.length === 0) {
+    content.innerHTML = '<div class="ts-empty">Seleziona almeno una categoria</div>';
+    return;
+  }
+
+  let anyContent = false;
+  activeCatsWithData.forEach(cat => {
+    const activities = grouped[cat];
+    const title = document.createElement('div');
+    title.className = 'ts-cat-title';
+    title.textContent = CAT_LABEL[cat];
+    content.appendChild(title);
+
+    if (!activities || Object.keys(activities).length === 0) {
+      const empty = document.createElement('div');
+      empty.className = 'ts-empty';
+      empty.textContent = 'Nessun addestramento disponibile per ora';
+      content.appendChild(empty);
+      return;
+    }
+    anyContent = true;
+
+    Object.keys(activities).forEach(activityName => {
+      const dates = activities[activityName].sort((a, b) => a.sortKey - b.sortKey);
+      const block = document.createElement('div');
+      block.className = 'ts-train-block';
+      block.innerHTML = `
+        <div class="ts-train-name">${activityName}</div>
+        <div class="ts-train-dates">${dates.map(d => `<span class="ts-date-chip" style="background:var(--${cat === 'TE' ? 'addestramento' : cat.toLowerCase()})">${d.label}</span>`).join('')}</div>
+      `;
+      content.appendChild(block);
+    });
+  });
+}
+
+const trainingSummaryBtn = document.getElementById('trainingSummaryBtn');
+trainingSummaryBtn.addEventListener('click', () => {
+  trainingSummaryOpen = !trainingSummaryOpen;
+  document.getElementById('trainingSummaryPanel').classList.toggle('visible', trainingSummaryOpen);
+  trainingSummaryBtn.classList.toggle('active', trainingSummaryOpen);
+  if (trainingSummaryOpen) renderTrainingSummary();
+});
+
+document.querySelectorAll('.ts-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    const cat = chip.dataset.cat;
+    if (trainingSummaryActiveCats.has(cat)) {
+      trainingSummaryActiveCats.delete(cat);
+      chip.classList.remove('active');
+    } else {
+      trainingSummaryActiveCats.add(cat);
+      chip.classList.add('active');
+    }
+    renderTrainingSummary();
+  });
+});
 
 document.getElementById('calPrevBtn').addEventListener('click', () => {
   calCurrentMonthIdx--;
