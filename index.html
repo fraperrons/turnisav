@@ -16,6 +16,7 @@
     --sa2: #a63d40;
     --cinofilo: #6b4e9b;
     --avif: #c77d1e;
+    --addestramento: #2f8f7a;
     --operatore: #4a6fa5;
     --bg: #000000;
     --card: #ffffff;
@@ -159,6 +160,7 @@
   .role-chip.active[data-role="SA2"] { background: var(--sa2); border-color: var(--sa2); color: white; }
   .role-chip.active[data-role="Cinofilo"] { background: var(--cinofilo); border-color: var(--cinofilo); color: white; }
   .role-chip.active[data-role="AVIF"] { background: var(--avif); border-color: var(--avif); color: black; }
+  .role-chip.active[data-role="Addestramento"] { background: var(--addestramento); border-color: var(--addestramento); color: white; }
 
   #footerCount {
     display: block;
@@ -554,6 +556,22 @@
     padding: 0;
   }
   .swap-shift-btn:hover { background: #dde2e8; }
+  .dismiss-training-btn {
+    border: none;
+    background: #f4dede;
+    color: #a63d40;
+    font-size: 0.75rem;
+    font-weight: 800;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  .dismiss-training-btn:hover { background: #edc6c6; }
   @keyframes pulse-highlight {
     0%, 100% { background: var(--card); }
     50% { background: #fff3e0; }
@@ -622,6 +640,8 @@
   }
   .badge.notte { background: var(--notte); }
   .badge.giorno { background: var(--giorno); }
+  .badge.addestramento_cinofilo { background: #4a2c6d; }
+  .badge.addestramento_te, .badge.addestramento_te_2gg { background: var(--addestramento); }
   .badge.Operatore { background: var(--operatore); }
   .badge.SA1 { background: var(--sa1); }
   .badge.SA2 { background: var(--sa2); }
@@ -727,6 +747,7 @@
       <div class="role-chip active" data-role="SA2">SA2</div>
       <div class="role-chip active" data-role="Cinofilo">Cinofilo</div>
       <div class="role-chip active" data-role="AVIF">AVIF</div>
+      <div class="role-chip active" data-role="Addestramento">Add.</div>
     </div>
     <button id="todayBtn">📍 Chi c'è di turno oggi</button>
     <button id="exportIcsBtn">📅 Esporta i miei turni nel calendario</button>
@@ -974,7 +995,7 @@ refreshBtn.addEventListener('click', () => {
 
 
 function initApp() {
-const activeRoles = new Set(['Operatore','SA1','SA2','Cinofilo','AVIF']);
+const activeRoles = new Set(['Operatore','SA1','SA2','Cinofilo','AVIF','Addestramento']);
 
 // Numeri di telefono per contatto rapido — compila con "NOME COGNOME": "+39..."
 const PHONE_NUMBERS = {
@@ -1087,6 +1108,20 @@ const savedName = loadSelectedName();
 if (savedName && names.includes(savedName)) {
   sel.value = savedName;
 }
+
+// Cancellazione locale degli addestramenti non pertinenti (solo su questo dispositivo)
+const TRAINING_TYPES = ['addestramento_cinofilo', 'addestramento_te', 'addestramento_te_2gg'];
+function trainingId(s) {
+  return [s.month, s.date, s.type, s.role, s.name, s.activity || ''].join('|');
+}
+function loadDismissedTrainings() {
+  try { return new Set(JSON.parse(localStorage.getItem('sav_dismissed_trainings') || '[]')); }
+  catch (e) { return new Set(); }
+}
+function saveDismissedTrainings(set) {
+  try { localStorage.setItem('sav_dismissed_trainings', JSON.stringify([...set])); } catch (e) {}
+}
+let dismissedTrainings = loadDismissedTrainings();
 
 const exportIcsBtnEl = document.getElementById('exportIcsBtn');
 const calendarViewBtnEl = document.getElementById('calendarViewBtn');
@@ -1239,6 +1274,25 @@ function shiftRange(s) {
     const end = new Date(endDateBase);
     end.setHours(7, 0, 0, 0);
     return [start, end];
+  } else if (s.type === 'addestramento_cinofilo') {
+    const [h, m] = (s.time || '8:00').split(':').map(Number);
+    const start = new Date(endDateBase);
+    start.setHours(h, m, 0, 0);
+    const end = new Date(endDateBase);
+    end.setHours(h + 4, m, 0, 0); // durata stimata 4 ore, non specificata nella comunicazione
+    return [start, end];
+  } else if (s.type === 'addestramento_te') {
+    const start = new Date(endDateBase);
+    start.setHours(8, 0, 0, 0);
+    const end = new Date(endDateBase);
+    end.setHours(17, 0, 0, 0); // durata stimata, non specificata nella comunicazione
+    return [start, end];
+  } else if (s.type === 'addestramento_te_2gg') {
+    const start = new Date(new Date(2000 + yy, mo - 1, s.dayStart));
+    start.setHours(8, 0, 0, 0);
+    const end = new Date(endDateBase);
+    end.setHours(17, 0, 0, 0);
+    return [start, end];
   } else {
     const start = new Date(endDateBase);
     start.setHours(7, 0, 0, 0);
@@ -1266,12 +1320,13 @@ function render() {
     (!selectedName || s.name === selectedName) &&
     activeRoles.has(s.role) &&
     (!selectedMonth || s.month === selectedMonth) &&
-    (selectedMonth || showPast || dateKey(s.date) >= tKey)
+    (selectedMonth || showPast || dateKey(s.date) >= tKey) &&
+    !(TRAINING_TYPES.includes(s.type) && dismissedTrainings.has(trainingId(s)))
   );
 
   // Ordine di visualizzazione fisso all'interno di ogni stesso giorno/turno:
   // Operatore, SA1, SA1, Cinofilo, SA2, SA2, AVIF, AVIF — indipendente dall'ordine nei dati
-  const ROLE_ORDER = { Operatore: 0, SA1: 1, Cinofilo: 2, SA2: 3, AVIF: 4 };
+  const ROLE_ORDER = { Operatore: 0, SA1: 1, Cinofilo: 2, SA2: 3, AVIF: 4, Addestramento: 5 };
   filtered.sort((a, b) => {
     if (a.month !== b.month || a.date !== b.date || a.type !== b.type) return 0;
     return (ROLE_ORDER[a.role] ?? 5) - (ROLE_ORDER[b.role] ?? 5);
@@ -1327,6 +1382,13 @@ function render() {
       const startWd = WD_ABBR[startDateObj.getDay()];
       const endWd = WD_ABBR[endDateObj.getDay()];
       dateBoxHtml = `<div class="wd-range">${startWd} - ${endWd}</div><div class="daterange">${prevDay} - ${d}</div>`;
+    } else if (s.type === 'addestramento_te_2gg') {
+      const [d, mo, yy] = s.date.split('/').map(Number);
+      const endDateObj = new Date(2000 + yy, mo - 1, d);
+      const startDateObj = new Date(2000 + yy, mo - 1, s.dayStart);
+      const startWd = WD_ABBR[startDateObj.getDay()];
+      const endWd = WD_ABBR[endDateObj.getDay()];
+      dateBoxHtml = `<div class="wd-range">${startWd} - ${endWd}</div><div class="daterange">${s.dayStart} - ${d}</div>`;
     } else {
       const [d, mo, yy] = s.date.split('/').map(Number);
       const dateObj = new Date(2000 + yy, mo - 1, d);
@@ -1341,11 +1403,17 @@ function render() {
       <div class="details">
         <div class="name clickable-name">${s.name} <span class="tap-hint">📞</span></div>
         <div class="badges">
-          <span class="badge ${s.type}">${s.type === 'notte' ? '🌙 Notte' : '☀️ Giorno'}</span>
+          <span class="badge ${s.type}">${
+            s.type === 'notte' ? '🌙 Notte' :
+            s.type === 'addestramento_cinofilo' ? `📚 Addestramento (${s.activity}, ore ${s.time})` :
+            (s.type === 'addestramento_te' || s.type === 'addestramento_te_2gg') ? `🏔️ Addestramento ${s.activity}` :
+            '☀️ Giorno'
+          }</span>
           <span class="badge ${s.role}">${s.role}</span>
           ${isActiveNow(s) ? '<span class="active-now-badge">🔴 In corso ora</span>' : ''}
           ${s === nextShiftRef ? '<span class="next-shift-badge">⭐ Prossimo turno</span>' : ''}
           ${selectedName ? '<button type="button" class="swap-shift-btn" title="Richiedi cambio turno">🔄</button>' : ''}
+          ${TRAINING_TYPES.includes(s.type) ? '<button type="button" class="dismiss-training-btn" title="Non è il mio turno, nascondi">✕</button>' : ''}
         </div>
         <div class="contact-row">
           ${getPhoneNumber(s.name)
@@ -1366,22 +1434,36 @@ function render() {
     if (swapBtn) {
       swapBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        const dayLabel = s.type === 'notte'
+        const isRangeType = s.type === 'notte' || s.type === 'addestramento_te_2gg';
+        const dayLabel = isRangeType
           ? card.querySelector('.daterange').textContent
           : card.querySelector('.day-full').textContent;
-        const wdLabel = s.type === 'notte'
+        const wdLabel = isRangeType
           ? card.querySelector('.wd-range').textContent
           : card.querySelector('.wd-top').textContent;
-        const turnoLabel = s.type === 'notte' ? 'notte' : 'giorno';
+        const turnoLabel = s.type === 'notte' ? 'notte'
+          : s.type === 'addestramento_cinofilo' ? `addestramento cinofilo (${s.activity})`
+          : (s.type === 'addestramento_te' || s.type === 'addestramento_te_2gg') ? `addestramento ${s.activity}`
+          : 'giorno';
         const monthName = s.month.split(' ')[0];
         let msg;
         if (s.type === 'notte') {
           const dayLabelClean = dayLabel.replace(/-/g, '').replace(/\s+/g, ' ').trim();
           msg = `Ciao a tutti! Avrei bisogno di un cambio per il turno del ${dayLabelClean} ${monthName} — notte. Chi può darmi una mano? Grazie.`;
         } else {
-          msg = `Ciao a tutti! Avrei bisogno di un cambio per il turno di ${wdLabel} ${dayLabel} ${monthName} — giorno. Chi può darmi una mano? Grazie.`;
+          msg = `Ciao a tutti! Avrei bisogno di un cambio per il turno di ${wdLabel} ${dayLabel} ${monthName} — ${turnoLabel}. Chi può darmi una mano? Grazie.`;
         }
         window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank', 'noopener');
+      });
+    }
+
+    const dismissBtn = card.querySelector('.dismiss-training-btn');
+    if (dismissBtn) {
+      dismissBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dismissedTrainings.add(trainingId(s));
+        saveDismissedTrainings(dismissedTrainings);
+        card.remove();
       });
     }
     resultsEl.appendChild(card);
@@ -1454,7 +1536,7 @@ document.getElementById('todayBtn').addEventListener('click', () => {
   sel.value = '';
   monthFilterEl.value = '';
   activeRoles.clear();
-  ['Operatore', 'SA1', 'SA2', 'Cinofilo', 'AVIF'].forEach(r => activeRoles.add(r));
+  ['Operatore', 'SA1', 'SA2', 'Cinofilo', 'AVIF', 'Addestramento'].forEach(r => activeRoles.add(r));
   document.querySelectorAll('.role-chip').forEach(chip => chip.classList.add('active'));
 
   render();
