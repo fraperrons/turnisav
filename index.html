@@ -1045,10 +1045,12 @@ if ('serviceWorker' in navigator) {
 }
 
 function loadShiftsData() {
-  return fetch('./turni_data.json', { cache: 'no-store' })
-    .then(r => r.json())
-    .then(data => {
-      SHIFTS = data;
+  return Promise.all([
+    fetch('./turni_data.json', { cache: 'no-store' }).then(r => r.json()),
+    fetch('./addestramenti_data.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : []).catch(() => [])
+  ])
+    .then(([turni, addestramenti]) => {
+      SHIFTS = turni.concat(addestramenti);
       if (typeof initApp === 'function' && !window.__appInitialized) {
         window.__appInitialized = true;
         initApp();
