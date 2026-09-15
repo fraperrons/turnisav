@@ -1665,7 +1665,7 @@ let scOtherShiftsList = [];
 
 function formatShiftLabel(s) {
   const tipo = s.type === 'notte' ? 'Notte' : 'Giorno';
-  return `${s.date} (${s.month}) — ${tipo}, ${s.role}`;
+  return `${s.date} — ${tipo} ${s.role}`;
 }
 
 function personFutureRegularShifts(name) {
