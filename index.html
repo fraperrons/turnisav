@@ -326,6 +326,93 @@
   }
   #calendarViewBtn:hover { background: #543d7a; }
   #calendarViewBtn.active { background: #3f2c5c; }
+  #swapCheckBtn {
+    margin-top: 8px;
+    width: 100%;
+    padding: 11px;
+    border-radius: 8px;
+    border: none;
+    background: #a05a2c;
+    color: white;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  #swapCheckBtn:hover { background: #854a23; }
+  #swapCheckBtn.active { background: #663a1a; }
+  #swapCheckPanel {
+    display: none;
+    margin-top: 10px;
+    background: #1a1a1a;
+    border-radius: 10px;
+    padding: 14px;
+  }
+  #swapCheckPanel.visible { display: block; }
+  .sc-label {
+    display: block;
+    font-size: 0.72rem;
+    color: #b0b0b0;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    margin: 12px 0 4px;
+  }
+  .sc-label:first-child { margin-top: 0; }
+  #swapCheckPanel select {
+    width: 100%;
+    padding: 9px;
+    border-radius: 8px;
+    border: 1px solid #444;
+    background: #2a2a2a;
+    color: #eee;
+    font-size: 0.85rem;
+  }
+  #scVerifyBtn {
+    width: 100%;
+    margin-top: 14px;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    background: #4a6b8a;
+    color: white;
+    font-weight: 700;
+    font-size: 0.88rem;
+    cursor: pointer;
+  }
+  #scVerifyBtn:hover { background: #3d5a75; }
+  #scResult { margin-top: 14px; }
+  .sc-outcome {
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .sc-outcome.ok { background: #1f4a2e; color: #a8e6bb; }
+  .sc-outcome.fail { background: #4a1f22; color: #f0a8ab; }
+  .sc-reason { font-weight: 400; font-size: 0.8rem; margin-top: 6px; display: block; }
+  #scCopyPecBtn {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    background: #3b7a57;
+    color: white;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+  }
+  #scCopyPecBtn:hover { background: #2e6144; }
+  #scPecPreview {
+    margin-top: 10px;
+    background: #2a2a2a;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 0.78rem;
+    color: #ccc;
+    white-space: pre-wrap;
+    max-height: 200px;
+    overflow-y: auto;
+  }
   #trainingSummaryBtn {
     margin-top: 10px;
     width: 100%;
@@ -690,6 +777,20 @@
     color: white;
   }
   .call-btn { background: var(--sa1); }
+  #personContactBar {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    background: #2a2a2a;
+    border-radius: 10px;
+    padding: 10px 12px;
+    margin-bottom: 14px;
+  }
+  #personContactBar.visible { display: flex; }
+  .person-contact-label { color: #ddd; font-size: 0.82rem; font-weight: 700; }
+  .person-contact-buttons { display: flex; gap: 8px; }
   .wa-btn { background: #25D366; }
   .no-number { font-size: 0.78rem; color: var(--muted); font-style: italic; }
   .badges { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
@@ -832,6 +933,13 @@
       </div>
       <div id="searchResults"></div>
     </div>
+    <div id="personContactBar">
+      <span class="person-contact-label">📇 Contatti — <span id="personContactName"></span></span>
+      <div class="person-contact-buttons">
+        <a id="personCallBtn" class="contact-btn call-btn" href="#">📞 Chiama</a>
+        <a id="personWaBtn" class="contact-btn wa-btn" href="#" target="_blank" rel="noopener">💬 WhatsApp</a>
+      </div>
+    </div>
     <label>Ruolo</label>
     <div class="role-filters" id="roleFilters">
       <div class="role-chip active" data-role="Operatore">Operatore</div>
@@ -851,6 +959,23 @@
       </div>
     </div>
     <button id="calendarViewBtn">🗓️ Vista calendario</button>
+    <button id="swapCheckBtn">🔀 Verifica cambio</button>
+    <div id="swapCheckPanel">
+      <label class="sc-label">Il tuo turno da cambiare</label>
+      <select id="scMyShift"></select>
+
+      <label class="sc-label">Nominativo con cui cambiare</label>
+      <select id="scOtherName">
+        <option value="">— Seleziona —</option>
+      </select>
+
+      <label class="sc-label">Il suo turno</label>
+      <select id="scOtherShift"><option value="">— Seleziona prima il nominativo —</option></select>
+
+      <button type="button" id="scVerifyBtn">Verifica</button>
+
+      <div id="scResult"></div>
+    </div>
     <button id="trainingSummaryBtn">📋 Calendario addestramenti</button>
     <div id="trainingSummaryPanel">
       <div class="ts-filters">
@@ -1496,11 +1621,199 @@ document.getElementById('calNextBtn').addEventListener('click', () => {
 function updateExportBtnVisibility() {
   exportIcsBtnEl.style.display = sel.value ? 'block' : 'none';
   calendarViewBtnEl.style.display = sel.value ? 'block' : 'none';
+  document.getElementById('swapCheckBtn').style.display = sel.value ? 'block' : 'none';
   if (!sel.value && calendarViewActive) {
     toggleCalendarView(false);
   }
+  if (!sel.value) {
+    document.getElementById('swapCheckPanel').classList.remove('visible');
+    document.getElementById('swapCheckBtn').classList.remove('active');
+  }
+
+  const contactBar = document.getElementById('personContactBar');
+  if (sel.value) {
+    const num = getPhoneNumber(sel.value);
+    document.getElementById('personContactName').textContent = sel.value;
+    const callBtn = document.getElementById('personCallBtn');
+    const waBtn = document.getElementById('personWaBtn');
+    if (num) {
+      callBtn.href = `tel:${num}`;
+      waBtn.href = `https://wa.me/${waNumber(num)}`;
+      callBtn.style.display = 'inline-block';
+      waBtn.style.display = 'inline-block';
+    } else {
+      callBtn.style.display = 'none';
+      waBtn.style.display = 'none';
+    }
+    contactBar.classList.add('visible');
+  } else {
+    contactBar.classList.remove('visible');
+  }
 }
 updateExportBtnVisibility();
+
+// --- Verifica cambio turno ---
+const swapCheckBtn = document.getElementById('swapCheckBtn');
+const swapCheckPanel = document.getElementById('swapCheckPanel');
+const scMyShiftEl = document.getElementById('scMyShift');
+const scOtherNameEl = document.getElementById('scOtherName');
+const scOtherShiftEl = document.getElementById('scOtherShift');
+const scResultEl = document.getElementById('scResult');
+
+let scMyShiftsList = [];
+let scOtherShiftsList = [];
+
+function formatShiftLabel(s) {
+  const tipo = s.type === 'notte' ? 'Notte' : 'Giorno';
+  return `${s.date} (${s.month}) — ${tipo}, ${s.role}`;
+}
+
+function personFutureRegularShifts(name) {
+  const now = new Date();
+  return SHIFTS.filter(s => s.name === name && (s.type === 'notte' || s.type === 'giorno') && shiftRange(s)[1] > now);
+}
+
+function populateMyShiftDropdown() {
+  scMyShiftsList = personFutureRegularShifts(sel.value);
+  scMyShiftEl.innerHTML = '';
+  scMyShiftsList.forEach((s, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = formatShiftLabel(s);
+    scMyShiftEl.appendChild(opt);
+  });
+}
+
+function populateOtherNameDropdown() {
+  scOtherNameEl.innerHTML = '<option value="">— Seleziona —</option>';
+  names.filter(n => n !== sel.value).forEach(n => {
+    const opt = document.createElement('option');
+    opt.value = n;
+    opt.textContent = n;
+    scOtherNameEl.appendChild(opt);
+  });
+}
+
+swapCheckBtn.addEventListener('click', () => {
+  const isVisible = swapCheckPanel.classList.toggle('visible');
+  swapCheckBtn.classList.toggle('active', isVisible);
+  if (isVisible) {
+    populateMyShiftDropdown();
+    populateOtherNameDropdown();
+    scOtherShiftEl.innerHTML = '<option value="">— Seleziona prima il nominativo —</option>';
+    scResultEl.innerHTML = '';
+  }
+});
+
+scOtherNameEl.addEventListener('change', () => {
+  const otherName = scOtherNameEl.value;
+  scResultEl.innerHTML = '';
+  if (!otherName) {
+    scOtherShiftEl.innerHTML = '<option value="">— Seleziona prima il nominativo —</option>';
+    return;
+  }
+  scOtherShiftsList = personFutureRegularShifts(otherName);
+  scOtherShiftEl.innerHTML = '';
+  if (scOtherShiftsList.length === 0) {
+    scOtherShiftEl.innerHTML = '<option value="">Nessun turno futuro disponibile</option>';
+    return;
+  }
+  scOtherShiftsList.forEach((s, i) => {
+    const opt = document.createElement('option');
+    opt.value = i;
+    opt.textContent = formatShiftLabel(s);
+    scOtherShiftEl.appendChild(opt);
+  });
+});
+
+document.getElementById('scVerifyBtn').addEventListener('click', () => {
+  scResultEl.innerHTML = '';
+  const myShift = scMyShiftsList[parseInt(scMyShiftEl.value, 10)];
+  const otherName = scOtherNameEl.value;
+  const otherShift = scOtherShiftsList[parseInt(scOtherShiftEl.value, 10)];
+
+  if (!myShift || !otherName || !otherShift) {
+    scResultEl.innerHTML = '<div class="sc-outcome fail">⚠️ Completa tutte le selezioni prima di verificare.</div>';
+    return;
+  }
+
+  const myName = sel.value;
+
+  // Simulo lo scambio per entrambe le persone e controllo se qualche coppia di turni
+  // risulta "attaccata" (fine dell'uno = inizio esatto dell'altro, zero riposo in mezzo).
+  function findAdjacentConflict(personName, excludeShift, addShift) {
+    const now = new Date();
+    const shifts = SHIFTS.filter(s =>
+      s.name === personName && s !== excludeShift &&
+      (s.type === 'notte' || s.type === 'giorno') &&
+      shiftRange(s)[1] > now
+    );
+    shifts.push(addShift);
+    for (let i = 0; i < shifts.length; i++) {
+      for (let j = 0; j < shifts.length; j++) {
+        if (i === j) continue;
+        const [, endI] = shiftRange(shifts[i]);
+        const [startJ] = shiftRange(shifts[j]);
+        if (endI.getTime() === startJ.getTime()) {
+          return { a: shifts[i], b: shifts[j] };
+        }
+      }
+    }
+    return null;
+  }
+
+  const myConflictPair = findAdjacentConflict(myName, myShift, otherShift);
+  const otherConflictPair = findAdjacentConflict(otherName, otherShift, myShift);
+
+  if (!myConflictPair && !otherConflictPair) {
+    scResultEl.innerHTML = `
+      <div class="sc-outcome ok">✅ Cambio verificato, nessun conflitto trovato.</div>
+      <button type="button" id="scCopyPecBtn">📋 Copia testo per PEC</button>
+      <div id="scPecPreview"></div>
+    `;
+    document.getElementById('scCopyPecBtn').addEventListener('click', () => {
+      const testo = buildPecText(myName, myShift, otherName, otherShift);
+      document.getElementById('scPecPreview').textContent = testo;
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(testo).then(() => {
+          showToast('✅ Testo copiato');
+        }).catch(() => {
+          showToast('⚠️ Copia manualmente il testo qui sotto');
+        });
+      } else {
+        showToast('⚠️ Copia manualmente il testo qui sotto');
+      }
+    });
+  } else {
+    function describePair(personName, pair) {
+      const tipoA = pair.a.type === 'notte' ? 'notte' : 'giorno';
+      const tipoB = pair.b.type === 'notte' ? 'notte' : 'giorno';
+      return `<span class="sc-reason">${personName}: il turno ${tipoA} del ${pair.a.date} finirebbe esattamente quando inizia il turno ${tipoB} del ${pair.b.date} — nessun riposo tra i due.</span>`;
+    }
+    let reasons = '';
+    if (myConflictPair) reasons += describePair(myName, myConflictPair);
+    if (otherConflictPair) reasons += describePair(otherName, otherConflictPair);
+    scResultEl.innerHTML = `<div class="sc-outcome fail">❌ Cambio non possibile — turni attaccati senza riposo.${reasons}</div>`;
+  }
+});
+
+function buildPecText(nameA, shiftA, nameB, shiftB) {
+  const tipoA = shiftA.type === 'notte' ? 'notte' : 'giorno';
+  const tipoB = shiftB.type === 'notte' ? 'notte' : 'giorno';
+  return `Alla cortese attenzione della Direzione Soccorso Alpino Valdostano
+
+Oggetto: richiesta scambio turno
+
+Con la presente il sottoscritto ${nameA} richiede, con il consenso di ${nameB}, lo scambio dei seguenti turni di servizio:
+
+- ${nameA} cede il turno del ${shiftA.date} (${shiftA.month}, turno ${tipoA}, ruolo ${shiftA.role}) a ${nameB}
+- ${nameB} cede il turno del ${shiftB.date} (${shiftB.month}, turno ${tipoB}, ruolo ${shiftB.role}) a ${nameA}
+
+Si resta in attesa di cortese conferma.
+
+Cordiali saluti,
+${nameA}`;
+}
 
 document.querySelectorAll('.role-chip').forEach(chip => {
   chip.addEventListener('click', () => {
@@ -1665,7 +1978,7 @@ function render() {
         ${dateBoxHtml}
       </div>
       <div class="details">
-        <div class="name clickable-name">${s.name} <span class="tap-hint">📞</span></div>
+        <div class="name${selectedName ? '' : ' clickable-name'}">${s.name}${selectedName ? '' : ' <span class="tap-hint">📞</span>'}</div>
         <div class="badges">
           <span class="badge ${s.type}">${
             s.type === 'notte' ? '🌙 Notte' :
@@ -1679,20 +1992,22 @@ function render() {
           ${selectedName ? '<button type="button" class="swap-shift-btn" title="Richiedi cambio turno">🔄</button>' : ''}
           ${TRAINING_TYPES.includes(s.type) ? '<button type="button" class="dismiss-training-btn" title="Non è il mio turno, nascondi">✕</button>' : ''}
         </div>
-        <div class="contact-row">
+        ${selectedName ? '' : `<div class="contact-row">
           ${getPhoneNumber(s.name)
             ? `<a class="contact-btn call-btn" href="tel:${getPhoneNumber(s.name)}">📞 Chiama</a>
                <a class="contact-btn wa-btn" href="https://wa.me/${waNumber(getPhoneNumber(s.name))}" target="_blank" rel="noopener">💬 WhatsApp</a>`
             : `<span class="no-number">Numero non disponibile</span>`
           }
-        </div>
+        </div>`}
       </div>
     `;
     const nameEl = card.querySelector('.clickable-name');
     const contactRow = card.querySelector('.contact-row');
-    nameEl.addEventListener('click', () => {
-      contactRow.classList.toggle('visible');
-    });
+    if (nameEl && contactRow) {
+      nameEl.addEventListener('click', () => {
+        contactRow.classList.toggle('visible');
+      });
+    }
 
     const swapBtn = card.querySelector('.swap-shift-btn');
     if (swapBtn) {
