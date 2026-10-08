@@ -454,6 +454,7 @@
   .ts-chip.active[data-cat="Operatore"] { background: var(--operatore); border-color: var(--operatore); color: white; }
   .ts-chip.active[data-cat="TE"] { background: var(--addestramento); border-color: var(--addestramento); color: white; }
   .ts-chip.active[data-cat="Cinofilo"] { background: var(--cinofilo); border-color: var(--cinofilo); color: white; }
+  .ts-chip.active[data-cat="Sanitari"] { background: #2f7d7a; border-color: #2f7d7a; color: white; }
   .ts-cat-title {
     color: white;
     font-size: 0.85rem;
@@ -802,6 +803,7 @@
   .badge.giorno { background: var(--giorno); }
   .badge.addestramento_cinofilo { background: #4a2c6d; }
   .badge.addestramento_te, .badge.addestramento_te_2gg { background: var(--addestramento); }
+  .badge.addestramento_sanitario { background: #2f7d7a; }
   .badge.Operatore { background: var(--operatore); }
   .badge.SA1 { background: var(--sa1); }
   .badge.SA2 { background: var(--sa2); }
@@ -982,6 +984,7 @@
         <div class="ts-chip active" data-cat="Operatore">Operatore</div>
         <div class="ts-chip active" data-cat="TE">TE</div>
         <div class="ts-chip active" data-cat="Cinofilo">Cinofili</div>
+        <div class="ts-chip active" data-cat="Sanitari">Sanitari</div>
       </div>
       <div id="trainingSummaryContent"></div>
     </div>
@@ -1394,7 +1397,7 @@ if (savedName && names.includes(savedName)) {
 }
 
 // Cancellazione locale degli addestramenti non pertinenti (solo su questo dispositivo)
-const TRAINING_TYPES = ['addestramento_cinofilo', 'addestramento_te', 'addestramento_te_2gg'];
+const TRAINING_TYPES = ['addestramento_cinofilo', 'addestramento_te', 'addestramento_te_2gg', 'addestramento_sanitario'];
 function trainingId(s) {
   return [s.month, s.date, s.type, s.role, s.name, s.activity || ''].join('|');
 }
@@ -1508,13 +1511,14 @@ const MONTH_ABBR_IT = {
   Gennaio: 'gen', Febbraio: 'feb', Marzo: 'mar', Aprile: 'apr', Maggio: 'mag', Giugno: 'giu',
   Luglio: 'lug', Agosto: 'ago', Settembre: 'set', Ottobre: 'ott', Novembre: 'nov', Dicembre: 'dic'
 };
-const trainingSummaryActiveCats = new Set(['Operatore', 'TE', 'Cinofilo']);
+const trainingSummaryActiveCats = new Set(['Operatore', 'TE', 'Cinofilo', 'Sanitari']);
 let trainingSummaryOpen = false;
 
 function categoryForType(type) {
   if (type === 'addestramento_cinofilo') return 'Cinofilo';
   if (type === 'addestramento_te' || type === 'addestramento_te_2gg') return 'TE';
   if (type === 'addestramento_operatore') return 'Operatore';
+  if (type === 'addestramento_sanitario') return 'Sanitari';
   return null;
 }
 
@@ -1543,8 +1547,8 @@ function renderTrainingSummary() {
     grouped[category][s.activity].push({ label, sortKey: yy * 10000 + mo * 100 + d });
   });
 
-  const CAT_ORDER = ['Operatore', 'TE', 'Cinofilo'];
-  const CAT_LABEL = { Operatore: '🚑 Operatore', TE: '⛰️ Tecnici Specializzati (TE)', Cinofilo: '🐕 Cinofili' };
+  const CAT_ORDER = ['Operatore', 'TE', 'Cinofilo', 'Sanitari'];
+  const CAT_LABEL = { Operatore: '🚑 Operatore', TE: '⛰️ Tecnici Specializzati (TE)', Cinofilo: '🐕 Cinofili', Sanitari: '🩺 Sanitari' };
 
   const content = document.getElementById('trainingSummaryContent');
   content.innerHTML = '';
@@ -1802,12 +1806,12 @@ function buildPecText(nameA, shiftA, nameB, shiftB) {
   const tipoB = shiftB.type === 'notte' ? 'notte' : 'giorno';
   return `Alla cortese attenzione della Direzione Soccorso Alpino Valdostano
 
-Oggetto: richiesta scambio turno
+Oggetto: comunicazione cambio turno
 
-Con la presente il sottoscritto ${nameA} richiede, con il consenso di ${nameB}, lo scambio dei seguenti turni di servizio:
+Con la presente il sottoscritto ${nameA} comunica il seguente cambio turno di servizio con ${nameB}:
 
-- ${nameA} cede il turno del ${shiftA.date} (${shiftA.month}, turno ${tipoA}, ruolo ${shiftA.role}) a ${nameB}
-- ${nameB} cede il turno del ${shiftB.date} (${shiftB.month}, turno ${tipoB}, ruolo ${shiftB.role}) a ${nameA}
+- ${nameA} farà il turno del ${shiftB.date} (${shiftB.month}, turno ${tipoB}, ruolo ${shiftB.role})
+- ${nameB} farà il turno del ${shiftA.date} (${shiftA.month}, turno ${tipoA}, ruolo ${shiftA.role})
 
 Si resta in attesa di cortese conferma.
 
@@ -1857,6 +1861,12 @@ function shiftRange(s) {
     start.setHours(h, m, 0, 0);
     const end = new Date(endDateBase);
     end.setHours(h + 4, m, 0, 0); // durata stimata 4 ore, non specificata nella comunicazione
+    return [start, end];
+  } else if (s.type === 'addestramento_sanitario') {
+    const start = new Date(endDateBase);
+    start.setHours(8, 0, 0, 0);
+    const end = new Date(endDateBase);
+    end.setHours(18, 0, 0, 0); // 8:00-18:00 come da convocazione
     return [start, end];
   } else if (s.type === 'addestramento_te') {
     const start = new Date(endDateBase);
@@ -1984,6 +1994,7 @@ function render() {
             s.type === 'notte' ? '🌙 Notte' :
             s.type === 'addestramento_cinofilo' ? `📚 Addestramento (${s.activity}, ore ${s.time})` :
             (s.type === 'addestramento_te' || s.type === 'addestramento_te_2gg') ? `🏔️ Addestramento ${s.activity}` :
+            s.type === 'addestramento_sanitario' ? `🩺 ${s.activity} (ore 8-18)` :
             '☀️ Giorno'
           }</span>
           <span class="badge ${s.role}">${s.role}</span>
@@ -2023,6 +2034,7 @@ function render() {
         const turnoLabel = s.type === 'notte' ? 'notte'
           : s.type === 'addestramento_cinofilo' ? `addestramento cinofilo (${s.activity})`
           : (s.type === 'addestramento_te' || s.type === 'addestramento_te_2gg') ? `addestramento ${s.activity}`
+          : s.type === 'addestramento_sanitario' ? `aggiornamento ${s.activity}`
           : 'giorno';
         const monthName = s.month.split(' ')[0];
         let msg;
