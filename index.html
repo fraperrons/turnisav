@@ -466,6 +466,11 @@
   .sc-pec-head { margin-top: 12px; font-size: 0.75rem; color: var(--muted-chiaro); line-height: 1.5; word-break: break-all; }
   .sc-pec-head b { color: var(--rope); }
   .sc-pec-warn { margin-top: 8px; font-size: 0.78rem; color: var(--amber); }
+  /* L'avviso della cessione: si vede, ma non e' un muro. Ambra come gli altri
+     avvisi, e va a capo da solo — dentro un elenco a tendina una frase lunga
+     si taglia, qui no, nemmeno su un telefono da 375 punti. */
+  .sc-give-warn { margin-top: 8px; font-size: 0.8rem; line-height: 1.35; color: var(--amber); }
+  .sc-give-warn:empty { display: none; }
   /* "Copia testo" è la via di scampo, non l'azione principale: resta petrolio. */
   #scCopyPecBtn {
     width: 100%;
@@ -1072,6 +1077,8 @@
       <select id="scOtherName">
         <option value="">— Seleziona —</option>
       </select>
+
+      <div id="scGiveWarn" class="sc-give-warn"></div>
 
       <label class="sc-label" id="scOtherShiftLabel">Il suo turno</label>
       <select id="scOtherShift"><option value="">— Seleziona prima il nominativo —</option></select>
@@ -1786,6 +1793,8 @@ function setScMode(mode) {
   document.getElementById('scOtherShiftLabel').style.display = give ? 'none' : '';
   scOtherShiftEl.style.display = give ? 'none' : '';
   scResultEl.innerHTML = '';
+  if (!give) populateOtherShiftDropdown();
+  aggiornaAvvisoCessione();
 }
 document.getElementById('scModeSwap').addEventListener('click', () => setScMode('cambio'));
 document.getElementById('scModeGive').addEventListener('click', () => setScMode('cessione'));
@@ -1807,6 +1816,27 @@ function formatShiftLabel(s) {
   const tipo = s.type === 'notte' ? 'Notte' : 'Giorno';
   return `${shiftDateLabel(s)} — ${tipo} ${s.role}`;
 }
+
+// >>> GRUPPI DI SCAMBIO - una tabella sola, scritta in due file: il test li confronta
+// Regola decisa dal SAV: SA1 e SA2 si incrociano fra loro; ogni altro ruolo si
+// scambia solo con se stesso. Un ruolo che non e' in questa tabella NON e'
+// scambiabile ne' cedibile: si rifiuta, non si indovina. Aggiungere o
+// spostare una regola e' una riga.
+const GRUPPI_SCAMBIO = { Operatore: 'Operatore', SA1: 'SA', SA2: 'SA', Cinofilo: 'Cinofilo', AVIF: 'AVIF' };
+function gruppoDelRuolo(role) { return Object.prototype.hasOwnProperty.call(GRUPPI_SCAMBIO, role) ? GRUPPI_SCAMBIO[role] : null; }
+function ruoliScambiabili(a, b) { const g = gruppoDelRuolo(a); return g !== null && g === gruppoDelRuolo(b); }
+// I ruoli dello stesso gruppo, per poterli dire per esteso: «solo con altri
+// SA1» sarebbe falso, perche' anche un SA2 va bene.
+function compagniDiGruppo(role) { const g = gruppoDelRuolo(role); return g === null ? [] : Object.keys(GRUPPI_SCAMBIO).filter(r => GRUPPI_SCAMBIO[r] === g); }
+function nomiGruppo(role) { const c = compagniDiGruppo(role); if (c.length === 0) return role; if (c.length === 1) return c[0]; return c.slice(0, -1).join(', ') + ' o ' + c[c.length - 1]; }
+function motivoRuoliDiversi(a, b) {
+  if (gruppoDelRuolo(a) === null) return 'I turni ' + a + ' non si possono scambiare.';
+  if (gruppoDelRuolo(b) === null) return 'I turni ' + b + ' non si possono scambiare.';
+  const soli = compagniDiGruppo(a).length === 1;
+  return 'I turni ' + a + ' si possono scambiare solo con ' + (soli ? 'altri turni ' + a : 'turni ' + nomiGruppo(a)) + ': ' + b + ' è un altro ruolo.';
+}
+function motivoRuoloNonCedibile(role) { return 'I turni ' + role + ' non si possono cedere.'; }
+// <<< GRUPPI DI SCAMBIO
 
 function personFutureRegularShifts(name) {
   const now = new Date();
@@ -1846,17 +1876,30 @@ swapCheckBtn.addEventListener('click', () => {
   }
 });
 
-scOtherNameEl.addEventListener('change', () => {
+// Nel secondo elenco entrano solo i turni scambiabili con quello scelto
+// sopra: un cambio fra ruoli diversi non si puo' nemmeno comporre. La regola
+// pero' si rifa' alla «Verifica» e di nuovo nel server: un elenco corto non e'
+// una garanzia, e' solo una cortesia.
+function populateOtherShiftDropdown() {
   const otherName = scOtherNameEl.value;
-  scResultEl.innerHTML = '';
   if (!otherName) {
+    scOtherShiftsList = [];
     scOtherShiftEl.innerHTML = '<option value="">— Seleziona prima il nominativo —</option>';
     return;
   }
-  scOtherShiftsList = personFutureRegularShifts(otherName);
+  const mio = scMyShiftsList[parseInt(scMyShiftEl.value, 10)];
+  const tutti = personFutureRegularShifts(otherName);
+  scOtherShiftsList = mio ? tutti.filter(s => ruoliScambiabili(mio.role, s.role)) : tutti;
   scOtherShiftEl.innerHTML = '';
   if (scOtherShiftsList.length === 0) {
-    scOtherShiftEl.innerHTML = '<option value="">Nessun turno futuro disponibile</option>';
+    // Mai un elenco vuoto e muto: chi legge deve capire perche' non c'e' niente.
+    // Corto: su un telefono la scritta dentro un elenco a tendina si taglia,
+    // e il nome di chi e' in questo momento scelto sta gia' nel campo sopra.
+    const perche = !mio ? 'Nessun turno futuro disponibile'
+      : tutti.length === 0 ? 'Nessun turno futuro'
+      : gruppoDelRuolo(mio.role) === null ? 'I turni ' + mio.role + ' non si scambiano'
+      : 'Nessun turno ' + nomiGruppo(mio.role) + ' da scambiare';
+    scOtherShiftEl.innerHTML = '<option value="">' + perche + '</option>';
     return;
   }
   scOtherShiftsList.forEach((s, i) => {
@@ -1865,7 +1908,33 @@ scOtherNameEl.addEventListener('change', () => {
     opt.textContent = formatShiftLabel(s);
     scOtherShiftEl.appendChild(opt);
   });
-});
+}
+
+// L'AVVISO DELLA CESSIONE: avvertire, non bloccare.
+// L'elenco dei nominativi resta INTERO e non si tocca. I turni sono un orario,
+// non un elenco di abilitazioni: chi e' appena stato abilitato, o e' stato
+// fermo per un infortunio, non ha turni di quel ruolo e sarebbe escluso a
+// torto. Pero' se nei dati non ne ha mai fatto uno val la pena dirlo, prima
+// che parta una PEC. Si guarda tutto il periodo pubblicato, passato compreso:
+// un turno fatto a settembre dice che quella persona quel ruolo lo fa.
+function aggiornaAvvisoCessione() {
+  const avviso = document.getElementById('scGiveWarn');
+  avviso.textContent = '';
+  if (scMode !== 'cessione') return;
+  const chi = scOtherNameEl.value;
+  const mio = scMyShiftsList[parseInt(scMyShiftEl.value, 10)];
+  // Di un ruolo fuori tabella non si avvisa: lo rifiuta la «Verifica», e un
+  // avviso in piu' direbbe la stessa cosa due volte con parole diverse.
+  if (!chi || !mio || gruppoDelRuolo(mio.role) === null) return;
+  const suoi = SHIFTS.filter(s => s.name === chi && (s.type === 'notte' || s.type === 'giorno'));
+  if (suoi.some(s => ruoliScambiabili(mio.role, s.role))) return;
+  avviso.textContent = '⚠️ ' + chi + ' non risulta avere turni ' + nomiGruppo(mio.role) + '. Controlla che possa farlo.';
+}
+
+scOtherNameEl.addEventListener('change', () => { scResultEl.innerHTML = ''; populateOtherShiftDropdown(); aggiornaAvvisoCessione(); });
+// Se cambio il MIO turno, il secondo elenco non puo' restare quello di prima:
+// il ruolo e' cambiato, e con lui l'elenco di chi ci si puo' scambiare.
+scMyShiftEl.addEventListener('change', () => { scResultEl.innerHTML = ''; populateOtherShiftDropdown(); aggiornaAvvisoCessione(); });
 
 document.getElementById('scVerifyBtn').addEventListener('click', () => {
   scResultEl.innerHTML = '';
@@ -1876,6 +1945,10 @@ document.getElementById('scVerifyBtn').addEventListener('click', () => {
   if (scMode === 'cessione') {
     if (!myShift || !otherName) {
       scResultEl.innerHTML = '<div class="sc-outcome fail">⚠️ Scegli il turno da cedere e a chi cederlo.</div>';
+      return;
+    }
+    if (gruppoDelRuolo(myShift.role) === null) {
+      scResultEl.innerHTML = '<div class="sc-outcome fail">❌ Cessione non possibile — ruolo non cedibile.<span class="sc-reason">' + motivoRuoloNonCedibile(myShift.role) + '</span></div>';
       return;
     }
     const me = sel.value;
@@ -1909,6 +1982,11 @@ document.getElementById('scVerifyBtn').addEventListener('click', () => {
   }
 
   const myName = sel.value;
+
+  if (!ruoliScambiabili(myShift.role, otherShift.role)) {
+    scResultEl.innerHTML = '<div class="sc-outcome fail">❌ Cambio non possibile — ruoli diversi.<span class="sc-reason">' + motivoRuoliDiversi(myShift.role, otherShift.role) + '</span></div>';
+    return;
+  }
 
   // Simulo lo scambio per entrambe le persone e controllo se qualche coppia di turni
   // risulta "attaccata" (fine dell'uno = inizio esatto dell'altro, zero riposo in mezzo).
