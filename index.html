@@ -2122,6 +2122,9 @@ async function preparePec(myName, myShift, otherName, otherShift) {
     const ok = await showConfirmModal('Inviare ora la PEC dalla tua casella al SAV, con l\'altro tecnico in copia?');
     if (!ok) return;
     const btn = document.getElementById('scSendPecBtn');
+    // Ogni invio parte pulito: l'errore del tentativo precedente se ne va,
+    // altrimenti resta sotto un bottone che dice «PEC inviata».
+    area.querySelectorAll('.sc-send-error').forEach(el => el.remove());
     btn.disabled = true; btn.textContent = 'Invio in corso…';
     try {
       const r = await pecApi('invia', { token: data.token, password: passEl.value });
@@ -2131,11 +2134,11 @@ async function preparePec(myName, myShift, otherName, otherShift) {
         showToast(r.dryRun ? '✅ Prova: non spedita' : '✅ PEC inviata');
       } else {
         btn.disabled = false; btn.textContent = '📨 Invia PEC';
-        area.insertAdjacentHTML('beforeend', `<div class="sc-outcome fail" style="margin-top:10px;">❌ ${r.error}</div>`);
+        area.insertAdjacentHTML('beforeend', `<div class="sc-outcome fail sc-send-error" style="margin-top:10px;">❌ ${r.error}</div>`);
       }
     } catch (e) {
       btn.disabled = false; btn.textContent = '📨 Invia PEC';
-      area.insertAdjacentHTML('beforeend', '<div class="sc-outcome fail" style="margin-top:10px;">❌ Server non raggiungibile. Riprova o copia il testo.</div>');
+      area.insertAdjacentHTML('beforeend', '<div class="sc-outcome fail sc-send-error" style="margin-top:10px;">❌ Server non raggiungibile. Riprova o copia il testo.</div>');
     }
   });
 }
