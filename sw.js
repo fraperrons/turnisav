@@ -1,4 +1,6 @@
-const CACHE_NAME = 'turni-sav-v1';
+// v2 (28/10/2026): veste Prusik — carattere, colori e icone nuovi. Cambiare
+// questo nome e' cio' che fa riscaricare tutto ai telefoni che hanno gia' l'app.
+const CACHE_NAME = 'turni-sav-v2';
 const CORE_ASSETS = [
   './',
   './index.html',
