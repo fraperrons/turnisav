@@ -2049,8 +2049,10 @@ async function pecApi(action, payload) {
   return data;
 }
 
-function showCopyFallback(area, myName, myShift, otherName, otherShift, motivo) {
-  const testo = buildPecText(myName, myShift, otherName, otherShift);
+function showCopyFallback(area, myName, myShift, otherName, otherShift, motivo, testoDalServer) {
+  // Quando il testo l'ha gia' composto il server si copia QUELLO: e' la frase
+  // che sarebbe partita, non una ricostruzione che le somiglia.
+  const testo = testoDalServer || buildPecText(myName, myShift, otherName, otherShift);
   area.innerHTML = `
     <div class="sc-pec-warn">${motivo}</div>
     <div id="scPecPreview"></div>
@@ -2089,6 +2091,16 @@ async function preparePec(myName, myShift, otherName, otherShift) {
     } else {
       area.innerHTML = `<div class="sc-outcome fail">❌ ${data.error}</div>`;
     }
+    return;
+  }
+  // Il server ci dice soltanto si' o no, mai da quale gestore parte la PEC.
+  // Se e' no, niente password e niente «Invia»: resta il testo da copiare,
+  // che funziona con qualunque gestore. Struttura e colori sono quelli di
+  // sempre: cambia solo quello che si vede.
+  if (data.puoInviare === false) {
+    showCopyFallback(area, myName, myShift, otherName, otherShift,
+      'Il tuo gestore di posta non è ancora supportato per l\'invio dall\'app: copia il testo e invialo dalla tua PEC.',
+      data.text);
     return;
   }
   area.innerHTML = `
