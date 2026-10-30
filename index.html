@@ -2647,7 +2647,7 @@ document.getElementById('exportConfirmBtn').addEventListener('click', () => {
     ics += `DTSTART:${toICSDate(start)}\r\n`;
     ics += `DTEND:${toICSDate(end)}\r\n`;
     ics += `SUMMARY:${testoIcs(shiftTitle(s))}\r\n`;
-    ics += `DESCRIPTION:${testoIcs('Soccorso Alpino Valdostano — turno ' + s.role)}\r\n`;
+    ics += `DESCRIPTION:${testoIcs(descrizioneIcs(s))}\r\n`;
     ics += 'END:VEVENT\r\n';
   });
   ics += 'END:VCALENDAR\r\n';
@@ -2681,6 +2681,26 @@ function shiftTitle(s) {
   if (s.role === 'Cinofilo' && s.type !== 'notte') return 'Cinofilo';
   const sigla = { Operatore: 'OP', Cinofilo: 'CI' }[s.role] || s.role;
   return sigla + ' ' + icon;
+}
+
+/* LA DESCRIZIONE DICE QUELLO CHE IL TITOLO NON PUÒ, e non è un doppione: nel
+   calendario del telefono il titolo sta in una riga stretta e si tronca, la
+   descrizione si apre. Quindi lì i nomi vanno per intero, c'è la parola
+   giorno o notte, e quando il turno ha un orario suo c'è anche quello —
+   altrimenti un AVIF sembrerebbe 07-19 a chi apre l'evento.
+   Per gli addestramenti si scrive l'attività VERA, anche per i sanitari che
+   nel titolo sono «Sanitari»: il titolo resta corto, la descrizione dice
+   tutto. */
+function descrizioneIcs(s) {
+  const ente = 'Soccorso Alpino Valdostano — ';
+  if (s.type && s.type.indexOf('addestramento') === 0) {
+    return ente + 'addestramento' + (s.activity ? ' ' + s.activity : '');
+  }
+  const quando = s.type === 'notte' ? 'notte' : 'giorno';
+  const o = orarioDichiarato(s);
+  const hm = d => d.getHours() + ':' + String(d.getMinutes()).padStart(2, '0');
+  const orario = o ? ' (' + hm(o[0]) + '–' + hm(o[1]) + ')' : '';
+  return ente + 'turno ' + s.role + ' ' + quando + orario;
 }
 
 /* Il testo di un campo iCalendar: la virgola e il punto e virgola separano i
