@@ -2602,12 +2602,13 @@ document.getElementById('exportIcsBtn').addEventListener('click', () => {
   list.innerHTML = '';
 
   myShifts.forEach((s, i) => {
-    const label = s.type === 'notte'
-      ? `🌙 Notte ${s.date} (${s.month})`
-      : `☀️ Giorno ${s.date} (${s.month})`;
+    // LA STESSA PAROLA DELL'EVENTO: chi sceglie qui deve riconoscere nel
+    // telefono quello che ha scelto. Il ruolo non si ripete in fondo, perché
+    // la sigla lo dice già.
+    const label = `${shiftTitle(s)} — ${s.date} (${s.month})`;
     const row = document.createElement('label');
     row.className = 'export-item';
-    row.innerHTML = `<input type="checkbox" checked data-idx="${i}"> ${label} — ${s.role}`;
+    row.innerHTML = `<input type="checkbox" checked data-idx="${i}"> ${label}`;
     list.appendChild(row);
   });
 
@@ -2645,7 +2646,7 @@ document.getElementById('exportConfirmBtn').addEventListener('click', () => {
     ics += `DTSTAMP:${toICSDate(new Date())}\r\n`;
     ics += `DTSTART:${toICSDate(start)}\r\n`;
     ics += `DTEND:${toICSDate(end)}\r\n`;
-    ics += `SUMMARY:${testoIcs(titoloIcs(s))}\r\n`;
+    ics += `SUMMARY:${testoIcs(shiftTitle(s))}\r\n`;
     ics += `DESCRIPTION:${testoIcs('Soccorso Alpino Valdostano — turno ' + s.role)}\r\n`;
     ics += 'END:VEVENT\r\n';
   });
@@ -2667,11 +2668,19 @@ document.getElementById('exportConfirmBtn').addEventListener('click', () => {
    sito. Un turno che sullo schermo è «☀️ Giorno SA1» non deve chiamarsi in un
    altro modo nel telefono, altrimenti chi confronta i due non riconosce lo
    stesso turno. */
-function titoloIcs(s) {
-  if (TRAINING_TYPES.includes(s.type)) {
-    return '📋 Addestramento' + (s.activity ? ' ' + s.activity : '');
+function shiftTitle(s) {
+  if (s.type && s.type.indexOf('addestramento') === 0) {
+    const tipo = s.type === 'addestramento_sanitario' ? 'Sanitari' : (s.activity || '');
+    return '📋 Addestramento' + (tipo ? ' ' + tipo : '');
   }
-  return (s.type === 'notte' ? '🌙 Notte ' : '☀️ Giorno ') + s.role;
+  const icon = s.type === 'notte' ? '🌙' : '☀️';
+  /* IL CINOFILO VA NUDO, e non è una svista: provato su una simulazione del
+     calendario del telefono, dove i nomi lunghi si troncano, «Cinofilo ☀️»
+     perdeva l'icona e si leggeva peggio del nome da solo. Se un giorno
+     esistesse un cinofilo di notte, lì la sigla serve: «CI 🌙». */
+  if (s.role === 'Cinofilo' && s.type !== 'notte') return 'Cinofilo';
+  const sigla = { Operatore: 'OP', Cinofilo: 'CI' }[s.role] || s.role;
+  return sigla + ' ' + icon;
 }
 
 /* Il testo di un campo iCalendar: la virgola e il punto e virgola separano i
