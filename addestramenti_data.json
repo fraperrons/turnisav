@@ -165,33 +165,6 @@
   "wd": "Mercoledì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "AMERIO MARCO",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "7/1/26",
-  "wd": "Mercoledì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "AVOYER ERIK",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "7/1/26",
-  "wd": "Mercoledì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "BASTRENTAZ CLAUDIO",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "7/1/26",
-  "wd": "Mercoledì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "BLANCHET LUCA",
   "activity": "Valanghe"
  },
@@ -300,15 +273,6 @@
   "wd": "Mercoledì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "CROCI MARIO",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "7/1/26",
-  "wd": "Mercoledì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "EPINEY STEFANO",
   "activity": "Valanghe"
  },
@@ -319,15 +283,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "FAVRE EMRIK",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "7/1/26",
-  "wd": "Mercoledì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "FERRARI CLAUDIO",
   "activity": "Valanghe"
  },
  {
@@ -381,15 +336,6 @@
   "wd": "Mercoledì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "MARZANI FABIO",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "7/1/26",
-  "wd": "Mercoledì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "MEZZAVILLA ALESSANDRO",
   "activity": "Valanghe"
  },
@@ -408,34 +354,7 @@
   "wd": "Mercoledì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "OLLIER DANIELE",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "7/1/26",
-  "wd": "Mercoledì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "ORIGONE SIMONE",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "7/1/26",
-  "wd": "Mercoledì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "OTTOZ FABIO",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "7/1/26",
-  "wd": "Mercoledì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "PANZERI FILIPPO",
   "activity": "Valanghe"
  },
  {
@@ -471,15 +390,6 @@
   "wd": "Mercoledì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "PERRUCHON LAURENT",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "7/1/26",
-  "wd": "Mercoledì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "PERRUQUET JEROME",
   "activity": "Valanghe"
  },
@@ -490,15 +400,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "PICCO PIETRO",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "7/1/26",
-  "wd": "Mercoledì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "PIZZI MATTEO",
   "activity": "Valanghe"
  },
  {
@@ -525,25 +426,7 @@
   "wd": "Mercoledì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "RASORE DAVIDE",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "7/1/26",
-  "wd": "Mercoledì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "RASPO PATRICK",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "7/1/26",
-  "wd": "Mercoledì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "RATTI FRANCESCO",
   "activity": "Valanghe"
  },
  {
@@ -589,15 +472,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "SCAVAZZA SIMONE",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "7/1/26",
-  "wd": "Mercoledì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "SEGHEZZI MARCO",
   "activity": "Valanghe"
  },
  {
@@ -802,33 +676,6 @@
   "wd": "Giovedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "AMERIO MARCO",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "8/1/26",
-  "wd": "Giovedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "AVOYER ERIK",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "8/1/26",
-  "wd": "Giovedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "BASTRENTAZ CLAUDIO",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "8/1/26",
-  "wd": "Giovedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "BLANCHET LUCA",
   "activity": "Valanghe"
  },
@@ -937,15 +784,6 @@
   "wd": "Giovedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "CROCI MARIO",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "8/1/26",
-  "wd": "Giovedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "EPINEY STEFANO",
   "activity": "Valanghe"
  },
@@ -956,15 +794,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "FAVRE EMRIK",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "8/1/26",
-  "wd": "Giovedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "FERRARI CLAUDIO",
   "activity": "Valanghe"
  },
  {
@@ -1018,15 +847,6 @@
   "wd": "Giovedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "MARZANI FABIO",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "8/1/26",
-  "wd": "Giovedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "MEZZAVILLA ALESSANDRO",
   "activity": "Valanghe"
  },
@@ -1045,34 +865,7 @@
   "wd": "Giovedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "OLLIER DANIELE",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "8/1/26",
-  "wd": "Giovedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "ORIGONE SIMONE",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "8/1/26",
-  "wd": "Giovedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "OTTOZ FABIO",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "8/1/26",
-  "wd": "Giovedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "PANZERI FILIPPO",
   "activity": "Valanghe"
  },
  {
@@ -1108,15 +901,6 @@
   "wd": "Giovedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "PERRUCHON LAURENT",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "8/1/26",
-  "wd": "Giovedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "PERRUQUET JEROME",
   "activity": "Valanghe"
  },
@@ -1127,15 +911,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "PICCO PIETRO",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "8/1/26",
-  "wd": "Giovedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "PIZZI MATTEO",
   "activity": "Valanghe"
  },
  {
@@ -1162,25 +937,7 @@
   "wd": "Giovedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "RASORE DAVIDE",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "8/1/26",
-  "wd": "Giovedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "RASPO PATRICK",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "8/1/26",
-  "wd": "Giovedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "RATTI FRANCESCO",
   "activity": "Valanghe"
  },
  {
@@ -1226,15 +983,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "SCAVAZZA SIMONE",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "8/1/26",
-  "wd": "Giovedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "SEGHEZZI MARCO",
   "activity": "Valanghe"
  },
  {
@@ -1279,33 +1027,6 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "AMERIO MARCO",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "26/1/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "AVOYER ERIK",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "26/1/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "BASTRENTAZ CLAUDIO",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "26/1/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "BLANCHET LUCA",
   "activity": "Valanghe"
  },
@@ -1414,15 +1135,6 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "CROCI MARIO",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "26/1/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "EPINEY STEFANO",
   "activity": "Valanghe"
  },
@@ -1433,15 +1145,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "FAVRE EMRIK",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "26/1/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "FERRARI CLAUDIO",
   "activity": "Valanghe"
  },
  {
@@ -1495,15 +1198,6 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "MARZANI FABIO",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "26/1/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "MEZZAVILLA ALESSANDRO",
   "activity": "Valanghe"
  },
@@ -1522,34 +1216,7 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "OLLIER DANIELE",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "26/1/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "ORIGONE SIMONE",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "26/1/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "OTTOZ FABIO",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "26/1/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "PANZERI FILIPPO",
   "activity": "Valanghe"
  },
  {
@@ -1585,15 +1252,6 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "PERRUCHON LAURENT",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "26/1/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "PERRUQUET JEROME",
   "activity": "Valanghe"
  },
@@ -1604,15 +1262,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "PICCO PIETRO",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "26/1/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "PIZZI MATTEO",
   "activity": "Valanghe"
  },
  {
@@ -1639,25 +1288,7 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "RASORE DAVIDE",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "26/1/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "RASPO PATRICK",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "26/1/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "RATTI FRANCESCO",
   "activity": "Valanghe"
  },
  {
@@ -1703,15 +1334,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "SCAVAZZA SIMONE",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "26/1/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "SEGHEZZI MARCO",
   "activity": "Valanghe"
  },
  {
@@ -1916,33 +1538,6 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "AMERIO MARCO",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "27/1/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "AVOYER ERIK",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "27/1/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "BASTRENTAZ CLAUDIO",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "27/1/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "BLANCHET LUCA",
   "activity": "Valanghe"
  },
@@ -2051,15 +1646,6 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "CROCI MARIO",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "27/1/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "EPINEY STEFANO",
   "activity": "Valanghe"
  },
@@ -2070,15 +1656,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "FAVRE EMRIK",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "27/1/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "FERRARI CLAUDIO",
   "activity": "Valanghe"
  },
  {
@@ -2132,15 +1709,6 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "MARZANI FABIO",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "27/1/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "MEZZAVILLA ALESSANDRO",
   "activity": "Valanghe"
  },
@@ -2159,34 +1727,7 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "OLLIER DANIELE",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "27/1/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "ORIGONE SIMONE",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "27/1/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "OTTOZ FABIO",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "27/1/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "PANZERI FILIPPO",
   "activity": "Valanghe"
  },
  {
@@ -2222,15 +1763,6 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "PERRUCHON LAURENT",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "27/1/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "PERRUQUET JEROME",
   "activity": "Valanghe"
  },
@@ -2241,15 +1773,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "PICCO PIETRO",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "27/1/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "PIZZI MATTEO",
   "activity": "Valanghe"
  },
  {
@@ -2276,25 +1799,7 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "RASORE DAVIDE",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "27/1/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "RASPO PATRICK",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "27/1/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "RATTI FRANCESCO",
   "activity": "Valanghe"
  },
  {
@@ -2340,15 +1845,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "SCAVAZZA SIMONE",
-  "activity": "Valanghe"
- },
- {
-  "month": "Gennaio 2026",
-  "date": "27/1/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "SEGHEZZI MARCO",
   "activity": "Valanghe"
  },
  {
@@ -3033,33 +2529,6 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "AMERIO MARCO",
-  "activity": "Notturno"
- },
- {
-  "month": "Maggio 2026",
-  "date": "25/5/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "AVOYER ERIK",
-  "activity": "Notturno"
- },
- {
-  "month": "Maggio 2026",
-  "date": "25/5/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "BASTRENTAZ CLAUDIO",
-  "activity": "Notturno"
- },
- {
-  "month": "Maggio 2026",
-  "date": "25/5/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "BLANCHET LUCA",
   "activity": "Notturno"
  },
@@ -3168,15 +2637,6 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "CROCI MARIO",
-  "activity": "Notturno"
- },
- {
-  "month": "Maggio 2026",
-  "date": "25/5/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "EPINEY STEFANO",
   "activity": "Notturno"
  },
@@ -3187,15 +2647,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "FAVRE EMRIK",
-  "activity": "Notturno"
- },
- {
-  "month": "Maggio 2026",
-  "date": "25/5/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "FERRARI CLAUDIO",
   "activity": "Notturno"
  },
  {
@@ -3249,15 +2700,6 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "MARZANI FABIO",
-  "activity": "Notturno"
- },
- {
-  "month": "Maggio 2026",
-  "date": "25/5/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "MEZZAVILLA ALESSANDRO",
   "activity": "Notturno"
  },
@@ -3276,34 +2718,7 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "OLLIER DANIELE",
-  "activity": "Notturno"
- },
- {
-  "month": "Maggio 2026",
-  "date": "25/5/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "ORIGONE SIMONE",
-  "activity": "Notturno"
- },
- {
-  "month": "Maggio 2026",
-  "date": "25/5/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "OTTOZ FABIO",
-  "activity": "Notturno"
- },
- {
-  "month": "Maggio 2026",
-  "date": "25/5/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "PANZERI FILIPPO",
   "activity": "Notturno"
  },
  {
@@ -3339,15 +2754,6 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "PERRUCHON LAURENT",
-  "activity": "Notturno"
- },
- {
-  "month": "Maggio 2026",
-  "date": "25/5/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "PERRUQUET JEROME",
   "activity": "Notturno"
  },
@@ -3358,15 +2764,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "PICCO PIETRO",
-  "activity": "Notturno"
- },
- {
-  "month": "Maggio 2026",
-  "date": "25/5/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "PIZZI MATTEO",
   "activity": "Notturno"
  },
  {
@@ -3393,25 +2790,7 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "RASORE DAVIDE",
-  "activity": "Notturno"
- },
- {
-  "month": "Maggio 2026",
-  "date": "25/5/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "RASPO PATRICK",
-  "activity": "Notturno"
- },
- {
-  "month": "Maggio 2026",
-  "date": "25/5/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "RATTI FRANCESCO",
   "activity": "Notturno"
  },
  {
@@ -3457,15 +2836,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "SCAVAZZA SIMONE",
-  "activity": "Notturno"
- },
- {
-  "month": "Maggio 2026",
-  "date": "25/5/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "SEGHEZZI MARCO",
   "activity": "Notturno"
  },
  {
@@ -3510,33 +2880,6 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "AMERIO MARCO",
-  "activity": "Notturno"
- },
- {
-  "month": "Maggio 2026",
-  "date": "26/5/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "AVOYER ERIK",
-  "activity": "Notturno"
- },
- {
-  "month": "Maggio 2026",
-  "date": "26/5/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "BASTRENTAZ CLAUDIO",
-  "activity": "Notturno"
- },
- {
-  "month": "Maggio 2026",
-  "date": "26/5/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "BLANCHET LUCA",
   "activity": "Notturno"
  },
@@ -3645,15 +2988,6 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "CROCI MARIO",
-  "activity": "Notturno"
- },
- {
-  "month": "Maggio 2026",
-  "date": "26/5/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "EPINEY STEFANO",
   "activity": "Notturno"
  },
@@ -3664,15 +2998,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "FAVRE EMRIK",
-  "activity": "Notturno"
- },
- {
-  "month": "Maggio 2026",
-  "date": "26/5/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "FERRARI CLAUDIO",
   "activity": "Notturno"
  },
  {
@@ -3726,15 +3051,6 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "MARZANI FABIO",
-  "activity": "Notturno"
- },
- {
-  "month": "Maggio 2026",
-  "date": "26/5/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "MEZZAVILLA ALESSANDRO",
   "activity": "Notturno"
  },
@@ -3753,34 +3069,7 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "OLLIER DANIELE",
-  "activity": "Notturno"
- },
- {
-  "month": "Maggio 2026",
-  "date": "26/5/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "ORIGONE SIMONE",
-  "activity": "Notturno"
- },
- {
-  "month": "Maggio 2026",
-  "date": "26/5/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "OTTOZ FABIO",
-  "activity": "Notturno"
- },
- {
-  "month": "Maggio 2026",
-  "date": "26/5/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "PANZERI FILIPPO",
   "activity": "Notturno"
  },
  {
@@ -3816,15 +3105,6 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "PERRUCHON LAURENT",
-  "activity": "Notturno"
- },
- {
-  "month": "Maggio 2026",
-  "date": "26/5/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "PERRUQUET JEROME",
   "activity": "Notturno"
  },
@@ -3835,15 +3115,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "PICCO PIETRO",
-  "activity": "Notturno"
- },
- {
-  "month": "Maggio 2026",
-  "date": "26/5/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "PIZZI MATTEO",
   "activity": "Notturno"
  },
  {
@@ -3870,25 +3141,7 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "RASORE DAVIDE",
-  "activity": "Notturno"
- },
- {
-  "month": "Maggio 2026",
-  "date": "26/5/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "RASPO PATRICK",
-  "activity": "Notturno"
- },
- {
-  "month": "Maggio 2026",
-  "date": "26/5/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "RATTI FRANCESCO",
   "activity": "Notturno"
  },
  {
@@ -3934,15 +3187,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "SCAVAZZA SIMONE",
-  "activity": "Notturno"
- },
- {
-  "month": "Maggio 2026",
-  "date": "26/5/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "SEGHEZZI MARCO",
   "activity": "Notturno"
  },
  {
@@ -3987,36 +3231,6 @@
   "wd": "LUN-MAR",
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
-  "name": "AMERIO MARCO",
-  "activity": "Montagna Estiva",
-  "dayStart": 8
- },
- {
-  "month": "Giugno 2026",
-  "date": "9/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "AVOYER ERIK",
-  "activity": "Montagna Estiva",
-  "dayStart": 8
- },
- {
-  "month": "Giugno 2026",
-  "date": "9/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "BASTRENTAZ CLAUDIO",
-  "activity": "Montagna Estiva",
-  "dayStart": 8
- },
- {
-  "month": "Giugno 2026",
-  "date": "9/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
   "name": "BLANCHET LUCA",
   "activity": "Montagna Estiva",
   "dayStart": 8
@@ -4137,16 +3351,6 @@
   "wd": "LUN-MAR",
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
-  "name": "CROCI MARIO",
-  "activity": "Montagna Estiva",
-  "dayStart": 8
- },
- {
-  "month": "Giugno 2026",
-  "date": "9/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
   "name": "EPINEY STEFANO",
   "activity": "Montagna Estiva",
   "dayStart": 8
@@ -4158,16 +3362,6 @@
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
   "name": "FAVRE EMRIK",
-  "activity": "Montagna Estiva",
-  "dayStart": 8
- },
- {
-  "month": "Giugno 2026",
-  "date": "9/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "FERRARI CLAUDIO",
   "activity": "Montagna Estiva",
   "dayStart": 8
  },
@@ -4227,16 +3421,6 @@
   "wd": "LUN-MAR",
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
-  "name": "MARZANI FABIO",
-  "activity": "Montagna Estiva",
-  "dayStart": 8
- },
- {
-  "month": "Giugno 2026",
-  "date": "9/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
   "name": "MEZZAVILLA ALESSANDRO",
   "activity": "Montagna Estiva",
   "dayStart": 8
@@ -4257,37 +3441,7 @@
   "wd": "LUN-MAR",
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
-  "name": "OLLIER DANIELE",
-  "activity": "Montagna Estiva",
-  "dayStart": 8
- },
- {
-  "month": "Giugno 2026",
-  "date": "9/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
   "name": "ORIGONE SIMONE",
-  "activity": "Montagna Estiva",
-  "dayStart": 8
- },
- {
-  "month": "Giugno 2026",
-  "date": "9/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "OTTOZ FABIO",
-  "activity": "Montagna Estiva",
-  "dayStart": 8
- },
- {
-  "month": "Giugno 2026",
-  "date": "9/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "PANZERI FILIPPO",
   "activity": "Montagna Estiva",
   "dayStart": 8
  },
@@ -4327,16 +3481,6 @@
   "wd": "LUN-MAR",
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
-  "name": "PERRUCHON LAURENT",
-  "activity": "Montagna Estiva",
-  "dayStart": 8
- },
- {
-  "month": "Giugno 2026",
-  "date": "9/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
   "name": "PERRUQUET JEROME",
   "activity": "Montagna Estiva",
   "dayStart": 8
@@ -4348,16 +3492,6 @@
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
   "name": "PICCO PIETRO",
-  "activity": "Montagna Estiva",
-  "dayStart": 8
- },
- {
-  "month": "Giugno 2026",
-  "date": "9/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "PIZZI MATTEO",
   "activity": "Montagna Estiva",
   "dayStart": 8
  },
@@ -4387,27 +3521,7 @@
   "wd": "LUN-MAR",
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
-  "name": "RASORE DAVIDE",
-  "activity": "Montagna Estiva",
-  "dayStart": 8
- },
- {
-  "month": "Giugno 2026",
-  "date": "9/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
   "name": "RASPO PATRICK",
-  "activity": "Montagna Estiva",
-  "dayStart": 8
- },
- {
-  "month": "Giugno 2026",
-  "date": "9/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "RATTI FRANCESCO",
   "activity": "Montagna Estiva",
   "dayStart": 8
  },
@@ -4458,16 +3572,6 @@
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
   "name": "SCAVAZZA SIMONE",
-  "activity": "Montagna Estiva",
-  "dayStart": 8
- },
- {
-  "month": "Giugno 2026",
-  "date": "9/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "SEGHEZZI MARCO",
   "activity": "Montagna Estiva",
   "dayStart": 8
  },
@@ -4517,36 +3621,6 @@
   "wd": "MER-GIO",
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
-  "name": "AMERIO MARCO",
-  "activity": "Montagna Estiva",
-  "dayStart": 10
- },
- {
-  "month": "Giugno 2026",
-  "date": "11/6/26",
-  "wd": "MER-GIO",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "AVOYER ERIK",
-  "activity": "Montagna Estiva",
-  "dayStart": 10
- },
- {
-  "month": "Giugno 2026",
-  "date": "11/6/26",
-  "wd": "MER-GIO",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "BASTRENTAZ CLAUDIO",
-  "activity": "Montagna Estiva",
-  "dayStart": 10
- },
- {
-  "month": "Giugno 2026",
-  "date": "11/6/26",
-  "wd": "MER-GIO",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
   "name": "BLANCHET LUCA",
   "activity": "Montagna Estiva",
   "dayStart": 10
@@ -4667,16 +3741,6 @@
   "wd": "MER-GIO",
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
-  "name": "CROCI MARIO",
-  "activity": "Montagna Estiva",
-  "dayStart": 10
- },
- {
-  "month": "Giugno 2026",
-  "date": "11/6/26",
-  "wd": "MER-GIO",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
   "name": "EPINEY STEFANO",
   "activity": "Montagna Estiva",
   "dayStart": 10
@@ -4688,16 +3752,6 @@
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
   "name": "FAVRE EMRIK",
-  "activity": "Montagna Estiva",
-  "dayStart": 10
- },
- {
-  "month": "Giugno 2026",
-  "date": "11/6/26",
-  "wd": "MER-GIO",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "FERRARI CLAUDIO",
   "activity": "Montagna Estiva",
   "dayStart": 10
  },
@@ -4757,16 +3811,6 @@
   "wd": "MER-GIO",
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
-  "name": "MARZANI FABIO",
-  "activity": "Montagna Estiva",
-  "dayStart": 10
- },
- {
-  "month": "Giugno 2026",
-  "date": "11/6/26",
-  "wd": "MER-GIO",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
   "name": "MEZZAVILLA ALESSANDRO",
   "activity": "Montagna Estiva",
   "dayStart": 10
@@ -4787,37 +3831,7 @@
   "wd": "MER-GIO",
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
-  "name": "OLLIER DANIELE",
-  "activity": "Montagna Estiva",
-  "dayStart": 10
- },
- {
-  "month": "Giugno 2026",
-  "date": "11/6/26",
-  "wd": "MER-GIO",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
   "name": "ORIGONE SIMONE",
-  "activity": "Montagna Estiva",
-  "dayStart": 10
- },
- {
-  "month": "Giugno 2026",
-  "date": "11/6/26",
-  "wd": "MER-GIO",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "OTTOZ FABIO",
-  "activity": "Montagna Estiva",
-  "dayStart": 10
- },
- {
-  "month": "Giugno 2026",
-  "date": "11/6/26",
-  "wd": "MER-GIO",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "PANZERI FILIPPO",
   "activity": "Montagna Estiva",
   "dayStart": 10
  },
@@ -4857,16 +3871,6 @@
   "wd": "MER-GIO",
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
-  "name": "PERRUCHON LAURENT",
-  "activity": "Montagna Estiva",
-  "dayStart": 10
- },
- {
-  "month": "Giugno 2026",
-  "date": "11/6/26",
-  "wd": "MER-GIO",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
   "name": "PERRUQUET JEROME",
   "activity": "Montagna Estiva",
   "dayStart": 10
@@ -4878,16 +3882,6 @@
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
   "name": "PICCO PIETRO",
-  "activity": "Montagna Estiva",
-  "dayStart": 10
- },
- {
-  "month": "Giugno 2026",
-  "date": "11/6/26",
-  "wd": "MER-GIO",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "PIZZI MATTEO",
   "activity": "Montagna Estiva",
   "dayStart": 10
  },
@@ -4917,27 +3911,7 @@
   "wd": "MER-GIO",
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
-  "name": "RASORE DAVIDE",
-  "activity": "Montagna Estiva",
-  "dayStart": 10
- },
- {
-  "month": "Giugno 2026",
-  "date": "11/6/26",
-  "wd": "MER-GIO",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
   "name": "RASPO PATRICK",
-  "activity": "Montagna Estiva",
-  "dayStart": 10
- },
- {
-  "month": "Giugno 2026",
-  "date": "11/6/26",
-  "wd": "MER-GIO",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "RATTI FRANCESCO",
   "activity": "Montagna Estiva",
   "dayStart": 10
  },
@@ -4988,16 +3962,6 @@
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
   "name": "SCAVAZZA SIMONE",
-  "activity": "Montagna Estiva",
-  "dayStart": 10
- },
- {
-  "month": "Giugno 2026",
-  "date": "11/6/26",
-  "wd": "MER-GIO",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "SEGHEZZI MARCO",
   "activity": "Montagna Estiva",
   "dayStart": 10
  },
@@ -5207,33 +4171,6 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "AMERIO MARCO",
-  "activity": "Notturno"
- },
- {
-  "month": "Giugno 2026",
-  "date": "15/6/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "AVOYER ERIK",
-  "activity": "Notturno"
- },
- {
-  "month": "Giugno 2026",
-  "date": "15/6/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "BASTRENTAZ CLAUDIO",
-  "activity": "Notturno"
- },
- {
-  "month": "Giugno 2026",
-  "date": "15/6/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "BLANCHET LUCA",
   "activity": "Notturno"
  },
@@ -5342,15 +4279,6 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "CROCI MARIO",
-  "activity": "Notturno"
- },
- {
-  "month": "Giugno 2026",
-  "date": "15/6/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "EPINEY STEFANO",
   "activity": "Notturno"
  },
@@ -5361,15 +4289,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "FAVRE EMRIK",
-  "activity": "Notturno"
- },
- {
-  "month": "Giugno 2026",
-  "date": "15/6/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "FERRARI CLAUDIO",
   "activity": "Notturno"
  },
  {
@@ -5423,15 +4342,6 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "MARZANI FABIO",
-  "activity": "Notturno"
- },
- {
-  "month": "Giugno 2026",
-  "date": "15/6/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "MEZZAVILLA ALESSANDRO",
   "activity": "Notturno"
  },
@@ -5450,34 +4360,7 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "OLLIER DANIELE",
-  "activity": "Notturno"
- },
- {
-  "month": "Giugno 2026",
-  "date": "15/6/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "ORIGONE SIMONE",
-  "activity": "Notturno"
- },
- {
-  "month": "Giugno 2026",
-  "date": "15/6/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "OTTOZ FABIO",
-  "activity": "Notturno"
- },
- {
-  "month": "Giugno 2026",
-  "date": "15/6/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "PANZERI FILIPPO",
   "activity": "Notturno"
  },
  {
@@ -5513,15 +4396,6 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "PERRUCHON LAURENT",
-  "activity": "Notturno"
- },
- {
-  "month": "Giugno 2026",
-  "date": "15/6/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "PERRUQUET JEROME",
   "activity": "Notturno"
  },
@@ -5532,15 +4406,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "PICCO PIETRO",
-  "activity": "Notturno"
- },
- {
-  "month": "Giugno 2026",
-  "date": "15/6/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "PIZZI MATTEO",
   "activity": "Notturno"
  },
  {
@@ -5567,25 +4432,7 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "RASORE DAVIDE",
-  "activity": "Notturno"
- },
- {
-  "month": "Giugno 2026",
-  "date": "15/6/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "RASPO PATRICK",
-  "activity": "Notturno"
- },
- {
-  "month": "Giugno 2026",
-  "date": "15/6/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "RATTI FRANCESCO",
   "activity": "Notturno"
  },
  {
@@ -5631,15 +4478,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "SCAVAZZA SIMONE",
-  "activity": "Notturno"
- },
- {
-  "month": "Giugno 2026",
-  "date": "15/6/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "SEGHEZZI MARCO",
   "activity": "Notturno"
  },
  {
@@ -5684,33 +4522,6 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "AMERIO MARCO",
-  "activity": "Notturno"
- },
- {
-  "month": "Giugno 2026",
-  "date": "16/6/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "AVOYER ERIK",
-  "activity": "Notturno"
- },
- {
-  "month": "Giugno 2026",
-  "date": "16/6/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "BASTRENTAZ CLAUDIO",
-  "activity": "Notturno"
- },
- {
-  "month": "Giugno 2026",
-  "date": "16/6/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "BLANCHET LUCA",
   "activity": "Notturno"
  },
@@ -5819,15 +4630,6 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "CROCI MARIO",
-  "activity": "Notturno"
- },
- {
-  "month": "Giugno 2026",
-  "date": "16/6/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "EPINEY STEFANO",
   "activity": "Notturno"
  },
@@ -5838,15 +4640,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "FAVRE EMRIK",
-  "activity": "Notturno"
- },
- {
-  "month": "Giugno 2026",
-  "date": "16/6/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "FERRARI CLAUDIO",
   "activity": "Notturno"
  },
  {
@@ -5900,15 +4693,6 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "MARZANI FABIO",
-  "activity": "Notturno"
- },
- {
-  "month": "Giugno 2026",
-  "date": "16/6/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "MEZZAVILLA ALESSANDRO",
   "activity": "Notturno"
  },
@@ -5927,34 +4711,7 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "OLLIER DANIELE",
-  "activity": "Notturno"
- },
- {
-  "month": "Giugno 2026",
-  "date": "16/6/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "ORIGONE SIMONE",
-  "activity": "Notturno"
- },
- {
-  "month": "Giugno 2026",
-  "date": "16/6/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "OTTOZ FABIO",
-  "activity": "Notturno"
- },
- {
-  "month": "Giugno 2026",
-  "date": "16/6/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "PANZERI FILIPPO",
   "activity": "Notturno"
  },
  {
@@ -5990,15 +4747,6 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "PERRUCHON LAURENT",
-  "activity": "Notturno"
- },
- {
-  "month": "Giugno 2026",
-  "date": "16/6/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "PERRUQUET JEROME",
   "activity": "Notturno"
  },
@@ -6009,15 +4757,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "PICCO PIETRO",
-  "activity": "Notturno"
- },
- {
-  "month": "Giugno 2026",
-  "date": "16/6/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "PIZZI MATTEO",
   "activity": "Notturno"
  },
  {
@@ -6044,25 +4783,7 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "RASORE DAVIDE",
-  "activity": "Notturno"
- },
- {
-  "month": "Giugno 2026",
-  "date": "16/6/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "RASPO PATRICK",
-  "activity": "Notturno"
- },
- {
-  "month": "Giugno 2026",
-  "date": "16/6/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "RATTI FRANCESCO",
   "activity": "Notturno"
  },
  {
@@ -6108,15 +4829,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "SCAVAZZA SIMONE",
-  "activity": "Notturno"
- },
- {
-  "month": "Giugno 2026",
-  "date": "16/6/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "SEGHEZZI MARCO",
   "activity": "Notturno"
  },
  {
@@ -6161,36 +4873,6 @@
   "wd": "LUN-MAR",
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
-  "name": "AMERIO MARCO",
-  "activity": "Montagna Estiva",
-  "dayStart": 22
- },
- {
-  "month": "Giugno 2026",
-  "date": "23/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "AVOYER ERIK",
-  "activity": "Montagna Estiva",
-  "dayStart": 22
- },
- {
-  "month": "Giugno 2026",
-  "date": "23/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "BASTRENTAZ CLAUDIO",
-  "activity": "Montagna Estiva",
-  "dayStart": 22
- },
- {
-  "month": "Giugno 2026",
-  "date": "23/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
   "name": "BLANCHET LUCA",
   "activity": "Montagna Estiva",
   "dayStart": 22
@@ -6311,16 +4993,6 @@
   "wd": "LUN-MAR",
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
-  "name": "CROCI MARIO",
-  "activity": "Montagna Estiva",
-  "dayStart": 22
- },
- {
-  "month": "Giugno 2026",
-  "date": "23/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
   "name": "EPINEY STEFANO",
   "activity": "Montagna Estiva",
   "dayStart": 22
@@ -6332,16 +5004,6 @@
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
   "name": "FAVRE EMRIK",
-  "activity": "Montagna Estiva",
-  "dayStart": 22
- },
- {
-  "month": "Giugno 2026",
-  "date": "23/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "FERRARI CLAUDIO",
   "activity": "Montagna Estiva",
   "dayStart": 22
  },
@@ -6401,16 +5063,6 @@
   "wd": "LUN-MAR",
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
-  "name": "MARZANI FABIO",
-  "activity": "Montagna Estiva",
-  "dayStart": 22
- },
- {
-  "month": "Giugno 2026",
-  "date": "23/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
   "name": "MEZZAVILLA ALESSANDRO",
   "activity": "Montagna Estiva",
   "dayStart": 22
@@ -6431,37 +5083,7 @@
   "wd": "LUN-MAR",
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
-  "name": "OLLIER DANIELE",
-  "activity": "Montagna Estiva",
-  "dayStart": 22
- },
- {
-  "month": "Giugno 2026",
-  "date": "23/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
   "name": "ORIGONE SIMONE",
-  "activity": "Montagna Estiva",
-  "dayStart": 22
- },
- {
-  "month": "Giugno 2026",
-  "date": "23/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "OTTOZ FABIO",
-  "activity": "Montagna Estiva",
-  "dayStart": 22
- },
- {
-  "month": "Giugno 2026",
-  "date": "23/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "PANZERI FILIPPO",
   "activity": "Montagna Estiva",
   "dayStart": 22
  },
@@ -6501,16 +5123,6 @@
   "wd": "LUN-MAR",
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
-  "name": "PERRUCHON LAURENT",
-  "activity": "Montagna Estiva",
-  "dayStart": 22
- },
- {
-  "month": "Giugno 2026",
-  "date": "23/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
   "name": "PERRUQUET JEROME",
   "activity": "Montagna Estiva",
   "dayStart": 22
@@ -6522,16 +5134,6 @@
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
   "name": "PICCO PIETRO",
-  "activity": "Montagna Estiva",
-  "dayStart": 22
- },
- {
-  "month": "Giugno 2026",
-  "date": "23/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "PIZZI MATTEO",
   "activity": "Montagna Estiva",
   "dayStart": 22
  },
@@ -6561,27 +5163,7 @@
   "wd": "LUN-MAR",
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
-  "name": "RASORE DAVIDE",
-  "activity": "Montagna Estiva",
-  "dayStart": 22
- },
- {
-  "month": "Giugno 2026",
-  "date": "23/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
   "name": "RASPO PATRICK",
-  "activity": "Montagna Estiva",
-  "dayStart": 22
- },
- {
-  "month": "Giugno 2026",
-  "date": "23/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "RATTI FRANCESCO",
   "activity": "Montagna Estiva",
   "dayStart": 22
  },
@@ -6632,16 +5214,6 @@
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
   "name": "SCAVAZZA SIMONE",
-  "activity": "Montagna Estiva",
-  "dayStart": 22
- },
- {
-  "month": "Giugno 2026",
-  "date": "23/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "SEGHEZZI MARCO",
   "activity": "Montagna Estiva",
   "dayStart": 22
  },
@@ -6691,36 +5263,6 @@
   "wd": "LUN-MAR",
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
-  "name": "AMERIO MARCO",
-  "activity": "Montagna Estiva",
-  "dayStart": 29
- },
- {
-  "month": "Giugno 2026",
-  "date": "30/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "AVOYER ERIK",
-  "activity": "Montagna Estiva",
-  "dayStart": 29
- },
- {
-  "month": "Giugno 2026",
-  "date": "30/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "BASTRENTAZ CLAUDIO",
-  "activity": "Montagna Estiva",
-  "dayStart": 29
- },
- {
-  "month": "Giugno 2026",
-  "date": "30/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
   "name": "BLANCHET LUCA",
   "activity": "Montagna Estiva",
   "dayStart": 29
@@ -6841,16 +5383,6 @@
   "wd": "LUN-MAR",
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
-  "name": "CROCI MARIO",
-  "activity": "Montagna Estiva",
-  "dayStart": 29
- },
- {
-  "month": "Giugno 2026",
-  "date": "30/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
   "name": "EPINEY STEFANO",
   "activity": "Montagna Estiva",
   "dayStart": 29
@@ -6862,16 +5394,6 @@
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
   "name": "FAVRE EMRIK",
-  "activity": "Montagna Estiva",
-  "dayStart": 29
- },
- {
-  "month": "Giugno 2026",
-  "date": "30/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "FERRARI CLAUDIO",
   "activity": "Montagna Estiva",
   "dayStart": 29
  },
@@ -6931,16 +5453,6 @@
   "wd": "LUN-MAR",
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
-  "name": "MARZANI FABIO",
-  "activity": "Montagna Estiva",
-  "dayStart": 29
- },
- {
-  "month": "Giugno 2026",
-  "date": "30/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
   "name": "MEZZAVILLA ALESSANDRO",
   "activity": "Montagna Estiva",
   "dayStart": 29
@@ -6961,37 +5473,7 @@
   "wd": "LUN-MAR",
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
-  "name": "OLLIER DANIELE",
-  "activity": "Montagna Estiva",
-  "dayStart": 29
- },
- {
-  "month": "Giugno 2026",
-  "date": "30/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
   "name": "ORIGONE SIMONE",
-  "activity": "Montagna Estiva",
-  "dayStart": 29
- },
- {
-  "month": "Giugno 2026",
-  "date": "30/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "OTTOZ FABIO",
-  "activity": "Montagna Estiva",
-  "dayStart": 29
- },
- {
-  "month": "Giugno 2026",
-  "date": "30/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "PANZERI FILIPPO",
   "activity": "Montagna Estiva",
   "dayStart": 29
  },
@@ -7031,16 +5513,6 @@
   "wd": "LUN-MAR",
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
-  "name": "PERRUCHON LAURENT",
-  "activity": "Montagna Estiva",
-  "dayStart": 29
- },
- {
-  "month": "Giugno 2026",
-  "date": "30/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
   "name": "PERRUQUET JEROME",
   "activity": "Montagna Estiva",
   "dayStart": 29
@@ -7052,16 +5524,6 @@
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
   "name": "PICCO PIETRO",
-  "activity": "Montagna Estiva",
-  "dayStart": 29
- },
- {
-  "month": "Giugno 2026",
-  "date": "30/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "PIZZI MATTEO",
   "activity": "Montagna Estiva",
   "dayStart": 29
  },
@@ -7091,27 +5553,7 @@
   "wd": "LUN-MAR",
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
-  "name": "RASORE DAVIDE",
-  "activity": "Montagna Estiva",
-  "dayStart": 29
- },
- {
-  "month": "Giugno 2026",
-  "date": "30/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
   "name": "RASPO PATRICK",
-  "activity": "Montagna Estiva",
-  "dayStart": 29
- },
- {
-  "month": "Giugno 2026",
-  "date": "30/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "RATTI FRANCESCO",
   "activity": "Montagna Estiva",
   "dayStart": 29
  },
@@ -7162,16 +5604,6 @@
   "type": "addestramento_te_2gg",
   "role": "Addestramento",
   "name": "SCAVAZZA SIMONE",
-  "activity": "Montagna Estiva",
-  "dayStart": 29
- },
- {
-  "month": "Giugno 2026",
-  "date": "30/6/26",
-  "wd": "LUN-MAR",
-  "type": "addestramento_te_2gg",
-  "role": "Addestramento",
-  "name": "SEGHEZZI MARCO",
   "activity": "Montagna Estiva",
   "dayStart": 29
  },
@@ -8025,33 +6457,6 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "AMERIO MARCO",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Novembre 2026",
-  "date": "23/11/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "AVOYER ERIK",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Novembre 2026",
-  "date": "23/11/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "BASTRENTAZ CLAUDIO",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Novembre 2026",
-  "date": "23/11/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "BLANCHET LUCA",
   "activity": "Montagna Autunnale"
  },
@@ -8160,15 +6565,6 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "CROCI MARIO",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Novembre 2026",
-  "date": "23/11/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "EPINEY STEFANO",
   "activity": "Montagna Autunnale"
  },
@@ -8179,15 +6575,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "FAVRE EMRIK",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Novembre 2026",
-  "date": "23/11/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "FERRARI CLAUDIO",
   "activity": "Montagna Autunnale"
  },
  {
@@ -8241,15 +6628,6 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "MARZANI FABIO",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Novembre 2026",
-  "date": "23/11/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "MEZZAVILLA ALESSANDRO",
   "activity": "Montagna Autunnale"
  },
@@ -8268,34 +6646,7 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "OLLIER DANIELE",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Novembre 2026",
-  "date": "23/11/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "ORIGONE SIMONE",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Novembre 2026",
-  "date": "23/11/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "OTTOZ FABIO",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Novembre 2026",
-  "date": "23/11/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "PANZERI FILIPPO",
   "activity": "Montagna Autunnale"
  },
  {
@@ -8331,15 +6682,6 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "PERRUCHON LAURENT",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Novembre 2026",
-  "date": "23/11/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "PERRUQUET JEROME",
   "activity": "Montagna Autunnale"
  },
@@ -8350,15 +6692,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "PICCO PIETRO",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Novembre 2026",
-  "date": "23/11/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "PIZZI MATTEO",
   "activity": "Montagna Autunnale"
  },
  {
@@ -8385,25 +6718,7 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "RASORE DAVIDE",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Novembre 2026",
-  "date": "23/11/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "RASPO PATRICK",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Novembre 2026",
-  "date": "23/11/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "RATTI FRANCESCO",
   "activity": "Montagna Autunnale"
  },
  {
@@ -8449,15 +6764,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "SCAVAZZA SIMONE",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Novembre 2026",
-  "date": "23/11/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "SEGHEZZI MARCO",
   "activity": "Montagna Autunnale"
  },
  {
@@ -8502,33 +6808,6 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "AMERIO MARCO",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Novembre 2026",
-  "date": "24/11/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "AVOYER ERIK",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Novembre 2026",
-  "date": "24/11/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "BASTRENTAZ CLAUDIO",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Novembre 2026",
-  "date": "24/11/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "BLANCHET LUCA",
   "activity": "Montagna Autunnale"
  },
@@ -8637,15 +6916,6 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "CROCI MARIO",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Novembre 2026",
-  "date": "24/11/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "EPINEY STEFANO",
   "activity": "Montagna Autunnale"
  },
@@ -8656,15 +6926,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "FAVRE EMRIK",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Novembre 2026",
-  "date": "24/11/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "FERRARI CLAUDIO",
   "activity": "Montagna Autunnale"
  },
  {
@@ -8718,15 +6979,6 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "MARZANI FABIO",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Novembre 2026",
-  "date": "24/11/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "MEZZAVILLA ALESSANDRO",
   "activity": "Montagna Autunnale"
  },
@@ -8745,34 +6997,7 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "OLLIER DANIELE",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Novembre 2026",
-  "date": "24/11/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "ORIGONE SIMONE",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Novembre 2026",
-  "date": "24/11/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "OTTOZ FABIO",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Novembre 2026",
-  "date": "24/11/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "PANZERI FILIPPO",
   "activity": "Montagna Autunnale"
  },
  {
@@ -8808,15 +7033,6 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "PERRUCHON LAURENT",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Novembre 2026",
-  "date": "24/11/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "PERRUQUET JEROME",
   "activity": "Montagna Autunnale"
  },
@@ -8827,15 +7043,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "PICCO PIETRO",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Novembre 2026",
-  "date": "24/11/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "PIZZI MATTEO",
   "activity": "Montagna Autunnale"
  },
  {
@@ -8862,25 +7069,7 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "RASORE DAVIDE",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Novembre 2026",
-  "date": "24/11/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "RASPO PATRICK",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Novembre 2026",
-  "date": "24/11/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "RATTI FRANCESCO",
   "activity": "Montagna Autunnale"
  },
  {
@@ -8926,15 +7115,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "SCAVAZZA SIMONE",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Novembre 2026",
-  "date": "24/11/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "SEGHEZZI MARCO",
   "activity": "Montagna Autunnale"
  },
  {
@@ -9299,33 +7479,6 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "AMERIO MARCO",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Dicembre 2026",
-  "date": "14/12/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "AVOYER ERIK",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Dicembre 2026",
-  "date": "14/12/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "BASTRENTAZ CLAUDIO",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Dicembre 2026",
-  "date": "14/12/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "BLANCHET LUCA",
   "activity": "Montagna Autunnale"
  },
@@ -9434,15 +7587,6 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "CROCI MARIO",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Dicembre 2026",
-  "date": "14/12/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "EPINEY STEFANO",
   "activity": "Montagna Autunnale"
  },
@@ -9453,15 +7597,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "FAVRE EMRIK",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Dicembre 2026",
-  "date": "14/12/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "FERRARI CLAUDIO",
   "activity": "Montagna Autunnale"
  },
  {
@@ -9515,15 +7650,6 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "MARZANI FABIO",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Dicembre 2026",
-  "date": "14/12/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "MEZZAVILLA ALESSANDRO",
   "activity": "Montagna Autunnale"
  },
@@ -9542,34 +7668,7 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "OLLIER DANIELE",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Dicembre 2026",
-  "date": "14/12/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "ORIGONE SIMONE",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Dicembre 2026",
-  "date": "14/12/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "OTTOZ FABIO",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Dicembre 2026",
-  "date": "14/12/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "PANZERI FILIPPO",
   "activity": "Montagna Autunnale"
  },
  {
@@ -9605,15 +7704,6 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "PERRUCHON LAURENT",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Dicembre 2026",
-  "date": "14/12/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "PERRUQUET JEROME",
   "activity": "Montagna Autunnale"
  },
@@ -9624,15 +7714,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "PICCO PIETRO",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Dicembre 2026",
-  "date": "14/12/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "PIZZI MATTEO",
   "activity": "Montagna Autunnale"
  },
  {
@@ -9659,25 +7740,7 @@
   "wd": "Lunedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "RASORE DAVIDE",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Dicembre 2026",
-  "date": "14/12/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "RASPO PATRICK",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Dicembre 2026",
-  "date": "14/12/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "RATTI FRANCESCO",
   "activity": "Montagna Autunnale"
  },
  {
@@ -9723,15 +7786,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "SCAVAZZA SIMONE",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Dicembre 2026",
-  "date": "14/12/26",
-  "wd": "Lunedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "SEGHEZZI MARCO",
   "activity": "Montagna Autunnale"
  },
  {
@@ -9776,33 +7830,6 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "AMERIO MARCO",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Dicembre 2026",
-  "date": "15/12/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "AVOYER ERIK",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Dicembre 2026",
-  "date": "15/12/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "BASTRENTAZ CLAUDIO",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Dicembre 2026",
-  "date": "15/12/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "BLANCHET LUCA",
   "activity": "Montagna Autunnale"
  },
@@ -9911,15 +7938,6 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "CROCI MARIO",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Dicembre 2026",
-  "date": "15/12/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "EPINEY STEFANO",
   "activity": "Montagna Autunnale"
  },
@@ -9930,15 +7948,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "FAVRE EMRIK",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Dicembre 2026",
-  "date": "15/12/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "FERRARI CLAUDIO",
   "activity": "Montagna Autunnale"
  },
  {
@@ -9992,15 +8001,6 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "MARZANI FABIO",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Dicembre 2026",
-  "date": "15/12/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "MEZZAVILLA ALESSANDRO",
   "activity": "Montagna Autunnale"
  },
@@ -10019,34 +8019,7 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "OLLIER DANIELE",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Dicembre 2026",
-  "date": "15/12/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "ORIGONE SIMONE",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Dicembre 2026",
-  "date": "15/12/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "OTTOZ FABIO",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Dicembre 2026",
-  "date": "15/12/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "PANZERI FILIPPO",
   "activity": "Montagna Autunnale"
  },
  {
@@ -10082,15 +8055,6 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "PERRUCHON LAURENT",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Dicembre 2026",
-  "date": "15/12/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "PERRUQUET JEROME",
   "activity": "Montagna Autunnale"
  },
@@ -10101,15 +8065,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "PICCO PIETRO",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Dicembre 2026",
-  "date": "15/12/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "PIZZI MATTEO",
   "activity": "Montagna Autunnale"
  },
  {
@@ -10136,25 +8091,7 @@
   "wd": "Martedì",
   "type": "addestramento_te",
   "role": "Addestramento",
-  "name": "RASORE DAVIDE",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Dicembre 2026",
-  "date": "15/12/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
   "name": "RASPO PATRICK",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Dicembre 2026",
-  "date": "15/12/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "RATTI FRANCESCO",
   "activity": "Montagna Autunnale"
  },
  {
@@ -10200,15 +8137,6 @@
   "type": "addestramento_te",
   "role": "Addestramento",
   "name": "SCAVAZZA SIMONE",
-  "activity": "Montagna Autunnale"
- },
- {
-  "month": "Dicembre 2026",
-  "date": "15/12/26",
-  "wd": "Martedì",
-  "type": "addestramento_te",
-  "role": "Addestramento",
-  "name": "SEGHEZZI MARCO",
   "activity": "Montagna Autunnale"
  },
  {
