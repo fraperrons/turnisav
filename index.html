@@ -311,6 +311,26 @@
   }
   #exportIcsBtn:hover { background: #1E525B; }
   #exportIcsBtn:disabled { background: var(--ink-sotto); color: var(--muted-chiaro); cursor: not-allowed; }
+  /* SINCRONIZZAZIONE CALENDARIO — il pulsante. Sta sotto quello dell'export
+     e ne copia lo stile: sono due modi di portarsi i turni sul telefono, e
+     la differenza non e' il colore, e' che questo si fa una volta sola.
+     Nasce nascosto, e lo accende il codice solo per chi ha un calendario in
+     calendari.json: senza questo, nell'istante fra il disegno della pagina e
+     la lettura del file comparirebbe a tutti. */
+  #calSyncBtn {
+    display: none;
+    margin-top: 8px;
+    width: 100%;
+    padding: 11px;
+    border-radius: 10px;
+    border: none;
+    background: var(--ink-su);
+    color: var(--rope);
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+  #calSyncBtn:hover { background: #1E525B; }
   #exportPanel {
     display: none;
     margin-top: 8px;
@@ -954,6 +974,59 @@
      sta sul pulsante che apre l'invio, non sull'ultima domanda. */
   #confirmModalOk { background: var(--refuse); color: white; }
   #confirmModalOk:hover { background: #9E4526; }
+  /* SINCRONIZZAZIONE CALENDARIO — la finestra. Gli stessi valori di
+     #confirmModalOverlay, ma e' una finestra sua: quella fa una domanda
+     sola, risponde si'/no e NON si chiude toccando fuori, perche' la
+     domanda e' «mando la PEC?» e un tocco distratto non deve valere come
+     risposta. Qui non si decide niente di irreversibile -- si scegle dove
+     mandare un link -- quindi toccare fuori chiude. Due comportamenti
+     diversi, due finestre; lo stile e' lo stesso. */
+  #calSyncOverlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(13,42,47,0.7);
+    z-index: 300;
+    align-items: center;
+    justify-content: center;
+  }
+  #calSyncOverlay.visible { display: flex; }
+  #calSyncBox {
+    background: var(--ink);
+    border-radius: 14px;
+    padding: 22px;
+    max-width: 320px;
+    width: calc(100% - 48px);
+    box-sizing: border-box;
+    text-align: center;
+  }
+  #calSyncTitle { color: var(--rope); font-size: 1rem; font-weight: 700; margin: 0 0 10px; }
+  /* Il testo a sinistra e non centrato: sono quattro righe su un telefono,
+     e centrate si leggono male. */
+  #calSyncText { color: var(--muted-chiaro); font-size: 0.84rem; line-height: 1.45; margin: 0 0 18px; text-align: left; }
+  .cal-sync-actions { display: flex; flex-direction: column; gap: 10px; }
+  .cal-sync-actions button {
+    width: 100%;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    font-weight: 700;
+    font-size: 0.88rem;
+    cursor: pointer;
+    box-sizing: border-box;
+  }
+  /* AZIONE PRINCIPALE — ambra: su Android, e su un iPhone con l'account
+     Google, e' questa. */
+  #calSyncGoogle { background: var(--amber); color: var(--deep); }
+  #calSyncGoogle:hover { background: var(--amber-su); }
+  #calSyncGoogle span { display: block; font-weight: 400; font-size: 0.72rem; margin-top: 3px; }
+  #calSyncApple { background: var(--ink-su); color: var(--rope); }
+  #calSyncApple:hover { background: #1E525B; }
+  /* Annulla non e' un'azione e non ha un fondo: in colonna, un terzo
+     pulsante pieno sarebbe una terza cosa da leggere prima di capire che
+     sono due le strade. */
+  #calSyncCancel { background: none; color: var(--muted-chiaro); font-weight: 400; }
+  #calSyncCancel:hover { color: var(--rope); }
   #reportBox {
     max-width: 760px;
     margin: 30px auto 0;
@@ -1071,6 +1144,7 @@
         <button type="button" id="exportConfirmBtn">Esporta selezionati</button>
       </div>
     </div>
+    <button id="calSyncBtn">🔄 Attiva sincronizzazione calendario</button>
     <button id="calendarViewBtn">🗓️ Vista calendario</button>
     <button id="swapCheckBtn">🔀 Cambio o cessione turno</button>
     <div id="swapCheckPanel">
@@ -1157,6 +1231,17 @@
       <div class="confirm-modal-actions">
         <button type="button" id="confirmModalCancel">Annulla</button>
         <button type="button" id="confirmModalOk">Conferma</button>
+      </div>
+    </div>
+  </div>
+  <div id="calSyncOverlay">
+    <div id="calSyncBox">
+      <p id="calSyncTitle">Sincronizzazione calendario</p>
+      <p id="calSyncText">Basta farlo una volta: da quel momento i tuoi turni compaiono nel calendario del telefono e si aggiornano da soli quando cambiano (Google in genere entro un'ora; Apple può metterci di più). Il calendario è in sola lettura; per toglierlo, rimuovilo dal calendario del telefono. Fanno fede le comunicazioni ufficiali del SAV.</p>
+      <div class="cal-sync-actions">
+        <button type="button" id="calSyncGoogle">Google Calendar<span>Android, o iPhone con account Google</span></button>
+        <button type="button" id="calSyncApple">Calendario iPhone / Apple</button>
+        <button type="button" id="calSyncCancel">Annulla</button>
       </div>
     </div>
   </div>
@@ -1750,8 +1835,89 @@ document.getElementById('calNextBtn').addEventListener('click', () => {
 });
 
 
+// --- Sincronizzazione calendario (Google / Apple) ---
+// I link stanno in calendari.json, che NON si scrive da qui: lo pubblica lo
+// script che gira nell'account Google, e che per ogni tecnico tiene un
+// calendario «Turni SAV – NOME» in sola lettura, riallineato ogni ora.
+//
+// Il file puo' non esserci: e' arrivato dopo il sito, e lo script potrebbe
+// non averlo ancora pubblicato. Se manca, se non si legge o se non e' un
+// oggetto, il pulsante non compare e non si dice niente -- il sito resta
+// quello di prima, come per i turni AVIF.
+//
+// Una fetch a se' e non dentro loadShiftsData: i turni non dipendono da
+// questo file, e un file che non c'e' non deve far aspettare l'elenco.
+let CALENDARI = {};
+const calSyncBtnEl = document.getElementById('calSyncBtn');
+const calSyncOverlayEl = document.getElementById('calSyncOverlay');
+
+// Lo stesso raddrizzamento dei nomi che il sito fa sui turni. Se
+// l'estrazione automatica ha storto una lettera accentata, la chiave del
+// file e il nome nell'elenco non combacerebbero, e il pulsante mancherebbe
+// proprio a chi ha il nome difficile.
+function normCalName(n) {
+  return String(n).toUpperCase().replace(/Ç/g, 'C').replace(/\?/g, 'C').replace(/\s+/g, ' ').trim();
+}
+// Un calendario vale solo se ha ENTRAMBI i link: con uno solo, uno dei due
+// pulsanti aprirebbe «undefined».
+function calendariDi(nome) {
+  if (!nome) return null;
+  const buono = c => (c && typeof c === 'object' && c.google && c.ics) ? c : null;
+  const diretto = buono(CALENDARI[nome]);
+  if (diretto) return diretto;
+  const k = normCalName(nome);
+  for (const chiave in CALENDARI) {
+    if (normCalName(chiave) === k) {
+      const x = buono(CALENDARI[chiave]);
+      if (x) return x;
+    }
+  }
+  return null;
+}
+function updateCalSyncBtn() {
+  if (!calSyncBtnEl) return;
+  calSyncBtnEl.style.display = calendariDi(sel.value) ? 'block' : 'none';
+}
+fetch('./calendari.json', { cache: 'no-store' })
+  .then(r => (r.ok ? r.json() : {}))
+  .catch(() => ({}))
+  .then(m => {
+    CALENDARI = (m && typeof m === 'object' && !Array.isArray(m)) ? m : {};
+    updateCalSyncBtn();
+  })
+  .catch(() => {});
+
+function chiudiCalSync() { calSyncOverlayEl.classList.remove('visible'); }
+calSyncBtnEl.addEventListener('click', () => {
+  const c = calendariDi(sel.value);
+  if (!c) return;
+  // onclick e non addEventListener: la finestra si apre piu' volte, e con
+  // addEventListener alla terza apertura si aprirebbero tre schede.
+  document.getElementById('calSyncGoogle').onclick = () => {
+    window.open(c.google, '_blank', 'noopener');
+    chiudiCalSync();
+  };
+  document.getElementById('calSyncApple').onclick = () => {
+    // webcal:// al posto di https://: e' lo schema che il telefono riconosce
+    // come «iscriviti a questo calendario». Con https scaricherebbe un file
+    // una volta sola, e i turni non si aggiornerebbero mai piu'.
+    // Si NAVIGA e non si apre una scheda: con window.open, dove quello
+    // schema non ha un programma che lo gestisce (un portatile), resterebbe
+    // una scheda bianca aperta.
+    window.location.href = String(c.ics).replace(/^https?:\/\//, 'webcal://');
+    chiudiCalSync();
+  };
+  calSyncOverlayEl.classList.add('visible');
+});
+document.getElementById('calSyncCancel').addEventListener('click', chiudiCalSync);
+// Toccare fuori dal riquadro chiude. Il bersaglio deve essere l'overlay
+// STESSO: senza questo controllo, un tocco su un pulsante dentro il riquadro
+// risalirebbe fin qui e chiuderebbe la finestra due volte.
+calSyncOverlayEl.addEventListener('click', (e) => { if (e.target === calSyncOverlayEl) chiudiCalSync(); });
+
 function updateExportBtnVisibility() {
   exportIcsBtnEl.style.display = sel.value ? 'block' : 'none';
+  updateCalSyncBtn();
   calendarViewBtnEl.style.display = sel.value ? 'block' : 'none';
   document.getElementById('swapCheckBtn').style.display = sel.value ? 'block' : 'none';
   if (!sel.value && calendarViewActive) {
