@@ -147,6 +147,25 @@
   }
   #gate button:hover { background: var(--ink-su); }
   #gate .err { color: var(--refuse); font-size: 0.85rem; min-height: 18px; }
+  /* LA NOTA E IL SECONDO MODO DI ENTRARE: due aggiunte al riquadro
+     dell'accesso, nello stesso stile. Il riquadro non si sposta e non
+     cambia misura — quello che cambia e' solo che cosa c'e' dentro. */
+  #gate .gate-nota { font-size: 0.86rem; color: var(--ink-tenue, #5a6b70); line-height: 1.45; margin: -2px 0 10px; }
+  #gate .gate-alt {
+    background: none; border: none; color: var(--ink-tenue, #5a6b70);
+    font-size: 0.82rem; text-decoration: underline; cursor: pointer;
+    padding: 6px 0 0; margin: 0; width: auto; display: block;
+  }
+  #gate .gate-alt:hover { background: none; color: var(--ink); }
+  /* L'AVVISO DENTRO L'APP: una riga sopra i comandi, che compare solo
+     quando c'e' qualcosa da dire (scadenza vicina, prova agli sgoccioli,
+     transizione). Senza, non occupa niente e niente si sposta. */
+  #avvisoAccesso {
+    display: none; margin: 0 0 12px; padding: 9px 12px; border-radius: 10px;
+    background: var(--avviso-sfondo, #fdf4e4); color: var(--avviso-testo, #8a5a12);
+    font-size: 0.85rem; line-height: 1.4; border: 1px solid rgba(0,0,0,.06);
+  }
+  #avvisoAccesso.visible { display: block; }
 
   main {
     max-width: 760px;
@@ -1096,13 +1115,48 @@
 <div id="refreshToast"></div>
 
 <div id="gate">
-  <h2>🔒 Accesso squadra</h2>
-  <input type="password" id="pwInput" placeholder="Password">
-  <button onclick="checkPw()">Entra</button>
-  <div class="err" id="pwErr"></div>
+  <!-- LA SCHERMATA DI ACCESSO HA QUATTRO FACCE, e una sola alla volta:
+       entrare, scegliere la password da un link, la vecchia password della
+       squadra (solo durante la transizione), e il muro di chi ha l'accesso
+       finito. Sono quattro blocchi in uno stesso riquadro e non quattro
+       pagine: il riquadro e' quello di sempre, nello stesso posto. -->
+  <div id="gateAccesso">
+    <h2>🔒 Accesso</h2>
+    <input list="gNomi" id="gNome" autocomplete="username" placeholder="Il tuo nominativo" autocapitalize="characters">
+    <datalist id="gNomi"></datalist>
+    <input type="password" id="gPw" autocomplete="current-password" placeholder="La tua password">
+    <button type="button" id="gEntra">Entra</button>
+    <div class="err" id="gErr"></div>
+    <button type="button" class="gate-alt" id="gVaiCondivisa" hidden>Entra con la password della squadra</button>
+  </div>
+
+  <div id="gateCondivisa" hidden>
+    <h2>🔒 Password della squadra</h2>
+    <div class="gate-nota" id="gCondAvviso"></div>
+    <input type="password" id="gCondPw" placeholder="Password della squadra">
+    <button type="button" id="gCondEntra">Entra</button>
+    <div class="err" id="gCondErr"></div>
+    <button type="button" class="gate-alt" id="gVaiAccesso">Ho il mio accesso personale</button>
+  </div>
+
+  <div id="gateAttiva" hidden>
+    <h2 id="gAttivaTitolo">Scegli la tua password</h2>
+    <div class="gate-nota" id="gAttivaNota"></div>
+    <input type="password" id="gAttivaPw" autocomplete="new-password" placeholder="Nuova password (almeno 8 caratteri)">
+    <input type="password" id="gAttivaPw2" autocomplete="new-password" placeholder="Ripeti la password">
+    <button type="button" id="gAttivaOk">Salva ed entra</button>
+    <div class="err" id="gAttivaErr"></div>
+  </div>
+
+  <div id="gateBloccato" hidden>
+    <h2>Accesso non attivo</h2>
+    <div class="gate-nota" id="gBloccatoTesto"></div>
+    <button type="button" id="gBloccatoTorna">Torna all’accesso</button>
+  </div>
 </div>
 
 <main id="app">
+  <div id="avvisoAccesso"></div>
   <div class="controls">
     <label>NOMINATIVO</label>
     <select id="nameSelect">
@@ -1258,52 +1312,215 @@
 </main>
 
 <script>
-// Hash SHA-256 della password (invece del testo in chiaro nel codice sorgente).
-// Per cambiare la password: genera un nuovo hash (es. in console del browser:
-// crypto.subtle.digest('SHA-256', new TextEncoder().encode('nuovapassword')) ...)
-// e sostituisci il valore qui sotto.
-const PASSWORD_HASH = "d3f8230097dc1e0ba806ae79a4cbd84a233d1733df1e203976f0878adac1649a";
-const LOGIN_STORAGE_KEY = "sav_logged_in";
+/* ==================================================================
+   ACCESSI PERSONALI
+   ==================================================================
+   Fino al 2 novembre 2026 qui c'era l'hash di UNA password, condivisa fra
+   53 persone e controllata DAL BROWSER: chi apriva il sorgente della pagina
+   lo vedeva, e i file dei dati li scaricava chiunque conoscesse
+   l'indirizzo, senza passare da qui.
+   Adesso a decidere e' il server: questa pagina chiede, mostra e basta. Non
+   c'e' piu' nessun hash nel codice, e non c'e' niente da sapere per entrare
+   che non sia la propria password.
 
-async function sha256Hex(text) {
-  const data = new TextEncoder().encode(text);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  return [...new Uint8Array(hashBuffer)].map(b => b.toString(16).padStart(2, '0')).join('');
+   IL SEGNO DI «SONO DENTRO» E' UN COOKIE che questa pagina non puo'
+   nemmeno leggere (HttpOnly): non si finge di essere entrati scrivendo in
+   localStorage, come si poteva fare prima con `sav_logged_in`. */
+
+let IO = { entrato: false, nome: null, prova: false, condivisa: false, ruolo: 'tecnico' };
+
+/* I DATI ASPETTANO L'ACCESSO. Le tre letture (turni, ultimo aggiornamento,
+   calendari) partono gia' in fondo a questo file, dove sono sempre partite:
+   invece di spostarle -- e rischiare di cambiare l'ordine in cui la pagina
+   si costruisce -- si fanno aspettare qui. Senza accesso il server
+   risponderebbe 401, e l'app mostrerebbe un errore invece del cancello. */
+let apriLeSerrature;
+const ACCESSO = new Promise(r => { apriLeSerrature = r; });
+
+const gEl = id => document.getElementById(id);
+function mostraFaccia(quale) {
+  ['gateAccesso', 'gateCondivisa', 'gateAttiva', 'gateBloccato'].forEach(id => {
+    gEl(id).hidden = (id !== quale);
+  });
+  gEl('gate').style.display = 'block';
+  gEl('app').style.display = 'none';
 }
 
-function unlockApp() {
-  document.getElementById('gate').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
+async function chiamaAuth(rotta, corpo) {
+  const r = await fetch('api/auth/' + rotta, {
+    method: corpo ? 'POST' : 'GET',
+    credentials: 'same-origin',
+    cache: 'no-store',
+    headers: corpo ? { 'Content-Type': 'application/json' } : undefined,
+    body: corpo ? JSON.stringify(corpo) : undefined
+  });
+  let d = null;
+  try { d = await r.json(); } catch (e) {}
+  return { stato: r.status, d: d || {} };
 }
 
-async function checkPw() {
-  const val = document.getElementById('pwInput').value;
-  const hash = await sha256Hex(val);
-  if (hash === PASSWORD_HASH) {
-    try { localStorage.setItem(LOGIN_STORAGE_KEY, '1'); } catch (e) {}
-    unlockApp();
-  } else {
-    document.getElementById('pwErr').textContent = 'Password errata.';
+function unlockApp(stato) {
+  IO = {
+    entrato: true,
+    nome: (stato && stato.nome) || null,
+    prova: !!(stato && stato.prova),
+    condivisa: !!(stato && stato.condivisa),
+    ruolo: (stato && stato.ruolo) || 'tecnico'
+  };
+  gEl('gate').style.display = 'none';
+  gEl('app').style.display = 'block';
+  const avviso = stato && stato.avviso;
+  const box = gEl('avvisoAccesso');
+  if (avviso) { box.textContent = avviso; box.classList.add('visible'); }
+  else { box.textContent = ''; box.classList.remove('visible'); }
+  apriLeSerrature();
+}
+
+/* Il nominativo di chi entra si propone subito nella tendina: e' il suo, ed
+   e' quello che guarda nove volte su dieci. */
+function preselezionaNome() {
+  if (!IO.nome) return;
+  try {
+    const sel = document.getElementById('nameSelect');
+    if (sel && [...sel.options].some(o => o.value === IO.nome)) {
+      sel.value = IO.nome;
+      sel.dispatchEvent(new Event('change'));
+    }
+  } catch (e) {}
+}
+
+function mostraBloccato(testo) {
+  gEl('gBloccatoTesto').textContent = testo || 'Il tuo accesso non è attivo.';
+  mostraFaccia('gateBloccato');
+}
+
+/* ---------------- entrare ---------------- */
+async function entra() {
+  const nome = gEl('gNome').value.trim().toUpperCase();
+  const pw = gEl('gPw').value;
+  if (!nome || !pw) { gEl('gErr').textContent = 'Servono nominativo e password.'; return; }
+  gEl('gErr').textContent = '';
+  gEl('gEntra').disabled = true;
+  try {
+    const { stato, d } = await chiamaAuth('accesso', { nome, password: pw });
+    if (stato === 200 && d.ok) { gEl('gPw').value = ''; unlockApp({ ...d, condivisa: false }); preselezionaNome(); return; }
+    gEl('gErr').textContent = d.error || 'Accesso non riuscito.';
+  } catch (e) {
+    gEl('gErr').textContent = 'Nessuna connessione.';
+  } finally {
+    gEl('gEntra').disabled = false;
   }
 }
 
-// Resta collegato: se già autenticato su questo dispositivo, salta il gate
-(function checkRememberedLogin() {
-  try {
-    if (localStorage.getItem(LOGIN_STORAGE_KEY) === '1') {
-      unlockApp();
+async function entraCondivisa() {
+  const pw = gEl('gCondPw').value;
+  if (!pw) { gEl('gCondErr').textContent = 'Serve la password.'; return; }
+  gEl('gCondErr').textContent = '';
+  const { stato, d } = await chiamaAuth('condiviso', { password: pw });
+  if (stato === 200 && d.ok) { gEl('gCondPw').value = ''; unlockApp({ ...d, condivisa: true }); return; }
+  gEl('gCondErr').textContent = d.error || 'Password errata.';
+}
+
+/* ---------------- scegliere la password da un link ---------------- */
+async function apriLink(codice, tipo) {
+  const { stato, d } = await chiamaAuth('invito', { codice });
+  if (stato !== 200 || !d.ok) { mostraBloccato(d.error || 'Questo link non è valido.'); return; }
+  gEl('gAttivaTitolo').textContent = 'Ciao ' + d.nome;
+  gEl('gAttivaNota').textContent = d.tipo === 'prova'
+    ? 'Scegli la tua password: da adesso hai sette giorni di prova. La password è tua e non si condivide.'
+    : d.tipo === 'reimposta'
+      ? 'Scegli la tua nuova password. Quella di prima non vale più.'
+      : 'Scegli la tua password. È personale e non si condivide con i colleghi.';
+  mostraFaccia('gateAttiva');
+  gEl('gAttivaOk').onclick = async () => {
+    const a = gEl('gAttivaPw').value, b = gEl('gAttivaPw2').value;
+    if (a.length < 8) { gEl('gAttivaErr').textContent = 'La password deve avere almeno 8 caratteri.'; return; }
+    if (a !== b) { gEl('gAttivaErr').textContent = 'Le due password non coincidono.'; return; }
+    gEl('gAttivaErr').textContent = '';
+    gEl('gAttivaOk').disabled = true;
+    const r = await chiamaAuth('attiva', { codice, password: a });
+    gEl('gAttivaOk').disabled = false;
+    if (r.stato === 200 && r.d.ok && r.d.entrato) {
+      /* Il codice sparisce dall'indirizzo appena e' servito: un link usato
+         che resta nella cronologia del telefono e' una password scritta
+         nella barra degli indirizzi. */
+      history.replaceState(null, '', location.pathname + location.search);
+      gEl('gAttivaPw').value = ''; gEl('gAttivaPw2').value = '';
+      unlockApp({ nome: r.d.nome, prova: r.d.prova, condivisa: false });
+      preselezionaNome();
+      return;
     }
+    gEl('gAttivaErr').textContent = r.d.error || 'Non è stato possibile salvare la password.';
+  };
+}
+
+/* ---------------- uscire ---------------- */
+/**
+ * «Esci» chiude la sessione SUL SERVER e svuota quello che il telefono ha
+ * tenuto da parte.
+ *
+ * Senza la seconda meta' non sarebbe un'uscita: il service worker conserva
+ * l'ultimo quadro dei turni per farlo vedere senza rete, e quella copia
+ * resterebbe sul telefono di chi se n'e' andato.
+ */
+async function esci() {
+  try { await chiamaAuth('esci', {}); } catch (e) {}
+  try {
+    const chiavi = await caches.keys();
+    await Promise.all(chiavi.map(k => caches.delete(k)));
   } catch (e) {}
+  try {
+    localStorage.removeItem('sav_logged_in');
+    localStorage.removeItem('sav_selected_name');
+  } catch (e) {}
+  location.replace(location.pathname);
+}
+
+/* ---------------- l'avvio ---------------- */
+(async function avvia() {
+  const h = location.hash || '';
+  const m = h.match(/^#(attiva|prova)=(.+)$/);
+  if (m) { await apriLink(decodeURIComponent(m[2]), m[1]); return; }
+
+  let s;
+  try { s = (await chiamaAuth('stato')).d; }
+  catch (e) {
+    /* Senza rete non si puo' chiedere al server chi siamo. Non si fa
+       entrare nessuno: i dati che il telefono ha da parte sono di chi era
+       entrato, e il service worker non li da' senza una risposta buona. */
+    gEl('gErr').textContent = 'Nessuna connessione: riprova quando hai rete.';
+    mostraFaccia('gateAccesso');
+    return;
+  }
+
+  /* L'elenco dei nominativi arriva dal server insieme allo stato: e' quello
+     dei turni, e non c'e' niente di personale dentro un cognome in un
+     elenco che il SAV pubblica gia'. */
+  const dl = gEl('gNomi');
+  (s.nomi || []).forEach(n => { const o = document.createElement('option'); o.value = n; dl.appendChild(o); });
+
+  if (s.entrato) { unlockApp(s); preselezionaNome(); return; }
+  if (s.bloccato) { mostraBloccato(s.motivo); return; }
+
+  if (s.transizione && s.transizione.aperta) {
+    gEl('gVaiCondivisa').hidden = false;
+    gEl('gCondAvviso').textContent = 'Dal ' + s.transizione.dal + ' serve l’accesso personale: chiedi il tuo link a Francesco.';
+  }
+  mostraFaccia('gateAccesso');
 })();
 
-document.getElementById('pwInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') checkPw();
-});
+gEl('gEntra').addEventListener('click', entra);
+gEl('gPw').addEventListener('keydown', e => { if (e.key === 'Enter') entra(); });
+gEl('gNome').addEventListener('keydown', e => { if (e.key === 'Enter') gEl('gPw').focus(); });
+gEl('gCondEntra').addEventListener('click', entraCondivisa);
+gEl('gCondPw').addEventListener('keydown', e => { if (e.key === 'Enter') entraCondivisa(); });
+gEl('gVaiCondivisa').addEventListener('click', () => mostraFaccia('gateCondivisa'));
+gEl('gVaiAccesso').addEventListener('click', () => mostraFaccia('gateAccesso'));
+gEl('gBloccatoTorna').addEventListener('click', () => mostraFaccia('gateAccesso'));
 
 document.getElementById('logoutLink').addEventListener('click', (e) => {
   e.preventDefault();
-  try { localStorage.removeItem(LOGIN_STORAGE_KEY); } catch (err) {}
-  location.reload();
+  esci();
 });
 
 // --- Segnala un errore ---
@@ -1374,16 +1591,47 @@ if ('serviceWorker' in navigator) {
   });
 }
 
+/**
+ * Una lettura di dati, che sa distinguere «non c'è rete» da «non sei più tu».
+ *
+ * Il server risponde 401 o 403 quando la sessione è finita, la prova è
+ * scaduta o l'accesso è stato disattivato. In quel caso NON si mostra
+ * l'ultima copia salvata: si torna al cancello, col motivo. Mostrare i turni
+ * di 53 persone a chi non ha più l'accesso sarebbe esattamente la cosa che
+ * questi accessi personali devono impedire.
+ */
+function prendiDati(file) {
+  return fetch('./' + file, { cache: 'no-store', credentials: 'same-origin' }).then(r => {
+    if (r.status === 401 || r.status === 403) {
+      return r.json().catch(() => ({})).then(d => {
+        const e = new Error(d.error || 'Accesso non più valido.');
+        e.fuori = true; e.motivo = d.error;
+        throw e;
+      });
+    }
+    return r;
+  });
+}
+/* Se la sessione cade mentre l'app è aperta, si torna al cancello una volta
+   sola: due letture che falliscono insieme non devono dare due schermate. */
+let giaFuori = false;
+function seiFuori(e) {
+  if (!e || !e.fuori || giaFuori) return false;
+  giaFuori = true;
+  mostraBloccato(e.motivo || 'Il tuo accesso non è più valido.');
+  return true;
+}
+
 function loadShiftsData() {
-  return Promise.all([
-    fetch('./turni_data.json', { cache: 'no-store' }).then(r => r.json()),
-    fetch('./addestramenti_data.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : []).catch(() => []),
+  return ACCESSO.then(() => Promise.all([
+    prendiDati('turni_data.json').then(r => r.json()),
+    prendiDati('addestramenti_data.json').then(r => r.ok ? r.json() : []).catch(e => { if (e && e.fuori) throw e; return []; }),
     // I TURNI AVIF STANNO IN UN FILE LORO, e quel file può non esserci: è
     // arrivato dopo gli altri, e la catena che lo scrive potrebbe non averlo
     // ancora prodotto. Se manca o non si legge, lista vuota e nessun
     // messaggio — il sito resta quello di prima.
-    fetch('./turni_avif_data.json', { cache: 'no-store' }).then(r => r.ok ? r.json() : []).catch(() => [])
-  ])
+    prendiDati('turni_avif_data.json').then(r => r.ok ? r.json() : []).catch(e => { if (e && e.fuori) throw e; return []; })
+  ]))
     .then(([turni, addestramenti, avif]) => {
       SHIFTS = turni.concat(addestramenti, Array.isArray(avif) ? avif : []);
       // Se un'estrazione automatica corrompe una lettera accentata ("FRAN?OIS"), riporto il nome
@@ -1419,6 +1667,11 @@ function loadShiftsData() {
       if (typeof initApp === 'function' && !window.__appInitialized) {
         window.__appInitialized = true;
         initApp();
+        /* QUI e non appena si entra: la tendina dei nominativi la costruisce
+           `initApp`, e prima di adesso non esiste. Chiamarlo prima non dava
+           errore — non trovava l'opzione e lasciava «— Tutti —» — ed è il
+           genere di cosa che si vede solo guardando lo schermo. */
+        preselezionaNome();
       } else {
         window.__renderApp();
         const calVisible = document.getElementById('calendarView').style.display === 'block';
@@ -1426,6 +1679,7 @@ function loadShiftsData() {
       }
     })
     .catch(err => {
+      if (seiFuori(err)) throw err;
       console.error('Errore caricamento dati turni:', err);
       document.getElementById('results').innerHTML = '<p style="text-align:center;color:#a63d40;padding:30px;">Errore nel caricamento dei dati turni.</p>';
       throw err;
@@ -1433,7 +1687,8 @@ function loadShiftsData() {
 }
 
 function loadLastUpdate() {
-  return fetch('./last_update.json', { cache: 'no-store' })
+  return ACCESSO
+    .then(() => prendiDati('last_update.json'))
     .then(r => r.ok ? r.json() : null)
     .then(data => {
       if (!data || !data.timestamp) return;
@@ -1878,7 +2133,12 @@ function updateCalSyncBtn() {
   if (!calSyncBtnEl) return;
   calSyncBtnEl.style.display = calendariDi(sel.value) ? 'block' : 'none';
 }
-fetch('./calendari.json', { cache: 'no-store' })
+/* IL SERVER CONSEGNA SOLO LA VOCE DI CHI CHIEDE: da qui in giù il codice è
+   lo stesso di prima, ma l'oggetto che arriva ha una voce sola — la tua — e
+   durante la prova nessuna. Il pulsante quindi compare sul proprio
+   nominativo e su nessun altro, senza che questa pagina debba deciderlo. */
+ACCESSO
+  .then(() => prendiDati('calendari.json'))
   .then(r => (r.ok ? r.json() : {}))
   .catch(() => ({}))
   .then(m => {
@@ -2217,9 +2477,13 @@ document.getElementById('scVerifyBtn').addEventListener('click', () => {
 function shiftRef(s) { return { date: s.date, type: s.type, role: s.role }; }
 
 async function pecApi(action, payload) {
+  /* NIENTE PIU' X-Turni-Key: quella era l'hash della password di tutti, e
+     chiunque l'avesse poteva far partire una PEC a nome di chiunque. Adesso
+     vale il cookie della sessione, che il server collega a una persona. */
   const r = await fetch('api/pec/' + action, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'X-Turni-Key': PASSWORD_HASH },
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
   let data = null;
@@ -2250,6 +2514,17 @@ function showCopyFallback(area, myName, myShift, otherName, otherShift, motivo, 
 async function preparePec(myName, myShift, otherName, otherShift) {
   const area = document.getElementById('scPecArea');
   const prepBtn = document.getElementById('scPrepPecBtn');
+  /* LA PEC LA MANDA CHI LA MANDA. Il server lo pretende; qui si dice prima,
+     invece di far premere un pulsante che risponderebbe «non sei tu». La
+     verifica del cambio resta disponibile per chiunque — è utile sapere se
+     uno scambio si può fare — ma il testo si manda dalla propria casella, e
+     per gli altri resta quello da copiare. */
+  if (IO.nome && myName !== IO.nome) {
+    prepBtn.disabled = true;
+    showCopyFallback(area, myName, myShift, otherName, otherShift,
+      `⚠️ La PEC la può inviare solo ${myName}: tu sei entrato come ${IO.nome}. Copia il testo e passaglielo.`);
+    return;
+  }
   prepBtn.disabled = true;
   area.innerHTML = '<div class="sc-pec-head">Preparo il testo…</div>';
   let data;

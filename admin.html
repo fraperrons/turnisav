@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Turni SAV — Amministrazione</title>
+<link rel="stylesheet" href="font.css">
+<style>
+/* GLI STESSI OTTO COLORI DEL SITO, carattere per carattere: questa pagina è
+   un'altra stanza della stessa casa, non un'altra casa. */
+:root{
+  --deep:#0D2A2F; --ink:#12363C; --rope:#F5F1E8; --amber:#D2A03C; --paper:#F3F5F3;
+  --refuse:#B5502E; --refuse-scura:#9E4526; --muted:#57706B; --line:#D5DDDA;
+  --ink-sotto:#0F3036; --ink-su:#17424A; --line-scura:#24474E; --muted-chiaro:#A8BDB8;
+  --amber-su:#E0B14D; --ok:#2F7D55;
+  --sans:Outfit, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--deep);color:var(--rope);font-family:var(--sans);
+  font-size:15px;line-height:1.45;padding:0 0 40px;-webkit-text-size-adjust:100%}
+header{background:var(--ink);padding:14px 16px;display:flex;align-items:center;gap:10px}
+header h1{margin:0;font-size:1rem;font-weight:600;letter-spacing:.01em}
+header .chi{margin-left:auto;font-size:.78rem;color:var(--muted-chiaro)}
+main{padding:14px 16px;max-width:760px;margin:0 auto}
+.pannello{background:var(--ink);border-radius:14px;padding:14px;margin:0 0 14px}
+h2{font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted-chiaro);
+  margin:0 0 10px;font-weight:600}
+
+/* IL RIEPILOGO: pastiglie che vanno a capo da sole. Su 375 punti stanno in
+   tre per riga, e nessuna si taglia. */
+.conti{display:flex;flex-wrap:wrap;gap:7px}
+.conto{background:var(--ink-su);border-radius:10px;padding:7px 10px;min-width:74px;flex:1 0 auto}
+.conto b{display:block;font-size:1.25rem;line-height:1.1}
+.conto span{font-size:.7rem;color:var(--muted-chiaro);text-transform:uppercase;letter-spacing:.06em}
+.conto.urge b{color:var(--amber)}
+.conto.male b{color:var(--refuse)}
+
+input,select,button{font-family:inherit;font-size:1rem}
+input[type=text],input[type=date],select{
+  width:100%;padding:10px 12px;border-radius:10px;border:1px solid var(--line-scura);
+  background:var(--ink-su);color:var(--rope)}
+input::placeholder{color:var(--muted-chiaro)}
+.filtri{display:flex;gap:8px;flex-wrap:wrap}
+.filtri input{flex:1 1 160px}
+.filtri select{flex:0 1 170px}
+
+.btn{display:inline-block;padding:10px 14px;border-radius:10px;border:none;cursor:pointer;
+  background:var(--ink-su);color:var(--rope);font-weight:500}
+.btn:hover{background:var(--line-scura)}
+.btn.principale{background:var(--amber);color:var(--ink);font-weight:600}
+.btn.principale:hover{background:var(--amber-su)}
+.btn.pericolo{background:var(--refuse);color:#fff}
+.btn.piccolo{padding:7px 11px;font-size:.85rem}
+.btn[disabled]{opacity:.5;cursor:default}
+
+/* L'ELENCO: una scheda per nominativo, non una tabella. Una tabella con sei
+   colonne su un telefono si scorre di lato, e di lato non si legge. */
+.riga{background:var(--ink-sotto);border-radius:12px;padding:11px 12px;margin:0 0 9px}
+.riga .nome{font-weight:600;font-size:.98rem}
+.riga .dati{font-size:.79rem;color:var(--muted-chiaro);margin-top:3px;line-height:1.5}
+.riga .azioni{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px}
+.stato{display:inline-block;font-size:.7rem;font-weight:600;text-transform:uppercase;
+  letter-spacing:.06em;padding:2px 8px;border-radius:7px;margin-left:6px;vertical-align:1px}
+.s-attivo{background:rgba(47,125,85,.22);color:#7fcfa2}
+.s-in_prova{background:rgba(210,160,60,.2);color:var(--amber-su)}
+.s-invitato{background:rgba(168,189,184,.17);color:var(--muted-chiaro)}
+.s-non_attivo{background:rgba(168,189,184,.12);color:var(--muted-chiaro)}
+.s-disattivato{background:rgba(181,80,46,.22);color:#e39b7f}
+.s-scaduto{background:rgba(181,80,46,.3);color:#f0b49a}
+
+.vuoto{color:var(--muted-chiaro);text-align:center;padding:22px 0;font-size:.9rem}
+
+/* LA FINESTRA: le conferme stanno qui dentro e non in confirm() del browser.
+   Un confirm() su un telefono dice «prusik.it dice:», che sembra un errore
+   del sito, e non si può scrivere che cosa succede davvero. */
+.velo{position:fixed;inset:0;background:rgba(13,42,47,.82);display:none;
+  align-items:center;justify-content:center;padding:18px;z-index:50}
+.velo.visible{display:flex}
+.finestra{background:var(--ink);border-radius:16px;padding:18px;max-width:430px;width:100%;
+  max-height:86vh;overflow:auto}
+.finestra h3{margin:0 0 8px;font-size:1.03rem}
+.finestra p{margin:0 0 12px;font-size:.89rem;color:var(--muted-chiaro)}
+.finestra .pulsanti{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.finestra .pulsanti .btn{flex:1 1 auto}
+.linkbox{background:var(--ink-sotto);border-radius:10px;padding:10px;font-size:.76rem;
+  word-break:break-all;color:var(--muted-chiaro);margin:0 0 10px;font-family:ui-monospace,monospace}
+.campo{margin:0 0 10px}
+.campo label{display:block;font-size:.74rem;text-transform:uppercase;letter-spacing:.07em;
+  color:var(--muted-chiaro);margin:0 0 4px}
+
+.registro{font-size:.78rem;color:var(--muted-chiaro);max-height:260px;overflow:auto}
+.registro div{padding:5px 0;border-bottom:1px solid var(--line-scura)}
+.registro div:last-child{border-bottom:none}
+.registro b{color:var(--rope);font-weight:600}
+
+.avviso{background:rgba(181,80,46,.18);color:#f0b49a;border-radius:10px;padding:10px 12px;
+  font-size:.86rem;margin:0 0 12px}
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:22px;background:var(--ink-su);
+  color:var(--rope);padding:10px 16px;border-radius:11px;font-size:.87rem;opacity:0;
+  transition:opacity .2s;pointer-events:none;z-index:60;max-width:90vw;text-align:center}
+#toast.visible{opacity:1}
+@media (max-width:380px){ main{padding:12px 11px} .conto{min-width:68px} }
+</style>
+</head>
+<body>
+
+<header>
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 54 54" width="28" height="28" role="img" aria-label="Prusik"><rect width="54" height="54" rx="13" fill="#12363C"/><path d="M27 10V44" stroke="#F5F1E8" stroke-width="4" stroke-linecap="round"/><g fill="#D2A03C"><rect x="12" y="16" width="30" height="6" rx="3"/><rect x="12" y="25" width="30" height="6" rx="3"/><rect x="12" y="34" width="30" height="6" rx="3"/></g></svg>
+  <h1>Turni SAV — Accessi</h1>
+  <span class="chi" id="chiSono"></span>
+</header>
+
+<main>
+  <div id="nonAdmin" class="pannello" hidden>
+    <h2>Riservata</h2>
+    <p id="nonAdminTesto" style="margin:0 0 12px">Questa pagina è riservata all’amministratore.</p>
+    <a class="btn principale" href="./">Vai all’app</a>
+  </div>
+
+  <div id="tutto" hidden>
+    <div class="pannello">
+      <h2>A che punto siamo</h2>
+      <div class="conti" id="conti"></div>
+    </div>
+
+    <div class="pannello">
+      <h2>Nominativi</h2>
+      <div class="filtri">
+        <input type="text" id="cerca" placeholder="Cerca un nominativo…" autocomplete="off">
+        <select id="filtro">
+          <option value="">— Tutti gli stati —</option>
+          <option value="attivo">Attivi</option>
+          <option value="in_prova">In prova</option>
+          <option value="invitato">Invitati</option>
+          <option value="non_attivo">Non attivi</option>
+          <option value="disattivato">Disattivati</option>
+          <option value="scaduto">Scaduti</option>
+          <option value="in_scadenza">In scadenza (30 giorni)</option>
+        </select>
+      </div>
+      <div style="margin-top:10px"><button class="btn piccolo" id="csvBtn">⬇️ Esporta CSV</button></div>
+      <div id="elenco" style="margin-top:12px"></div>
+    </div>
+
+    <div class="pannello">
+      <h2>Registro</h2>
+      <div class="registro" id="registro"></div>
+    </div>
+  </div>
+</main>
+
+<div class="velo" id="velo"><div class="finestra" id="finestra"></div></div>
+<div id="toast"></div>
+
+<script>
+'use strict';
+/* LA PAGINA DI AMMINISTRAZIONE.
+   Non decide niente: chiede al server e mostra. Ogni azione è una chiamata a
+   /api/admin/, e il server controlla il ruolo a ogni singola richiesta — non
+   basta essere arrivati qui. Questa pagina è pubblica e non contiene dati:
+   a difendere sono le rotte. */
+
+const $ = (id) => document.getElementById(id);
+let RIGHE = [], RUBRICA = {}, CONFIG = {};
+
+function toast(t) {
+  const el = $('toast');
+  el.textContent = t; el.classList.add('visible');
+  setTimeout(() => el.classList.remove('visible'), 2600);
+}
+async function api(rotta, corpo) {
+  const r = await fetch('api/admin/' + rotta, {
+    method: corpo ? 'POST' : 'GET',
+    credentials: 'same-origin', cache: 'no-store',
+    headers: corpo ? { 'Content-Type': 'application/json' } : undefined,
+    body: corpo ? JSON.stringify(corpo) : undefined
+  });
+  let d = null; try { d = await r.json(); } catch (e) {}
+  return { stato: r.status, d: d || {} };
+}
+
+/* ---------------- la finestra ---------------- */
+function apriFinestra(html) { $('finestra').innerHTML = html; $('velo').classList.add('visible'); }
+function chiudiFinestra() { $('velo').classList.remove('visible'); $('finestra').innerHTML = ''; }
+$('velo').addEventListener('click', (e) => { if (e.target === $('velo')) chiudiFinestra(); });
+
+function conferma(titolo, testo, etichetta, pericolo, fai) {
+  apriFinestra(`<h3>${esc(titolo)}</h3><p>${testo}</p>
+    <div class="pulsanti">
+      <button class="btn" id="fNo">Annulla</button>
+      <button class="btn ${pericolo ? 'pericolo' : 'principale'}" id="fSi">${esc(etichetta)}</button>
+    </div>`);
+  $('fNo').onclick = chiudiFinestra;
+  $('fSi').onclick = async () => { $('fSi').disabled = true; await fai(); };
+}
+
+const esc = (s) => String(s == null ? '' : s)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+const dataIt = (s) => {
+  if (!s) return '—';
+  const p = String(s).slice(0, 10).split('-');
+  return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : s;
+};
+const quandoIt = (s) => {
+  if (!s) return 'mai';
+  const d = new Date(s);
+  return isNaN(d) ? '—' : d.toLocaleString('it-IT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+};
+
+/* ---------------- il quadro ---------------- */
+function disegnaConti(r) {
+  $('conti').innerHTML = [
+    ['attivi', r.attivi, ''], ['in prova', r.in_prova, ''], ['invitati', r.invitati, ''],
+    ['non attivi', r.non_attivi, ''], ['disattivati', r.disattivati, ''],
+    ['scaduti', r.scaduti, r.scaduti ? 'male' : ''],
+    ['in scadenza', r.in_scadenza, r.in_scadenza ? 'urge' : ''],
+    ['prove in chiusura', r.prove_in_scadenza, r.prove_in_scadenza ? 'urge' : '']
+  ].map(([t, n, c]) => `<div class="conto ${c}"><b>${n}</b><span>${t}</span></div>`).join('');
+}
+
+function etichettaStato(r) {
+  if (r.scaduto) return '<span class="stato s-scaduto">scaduto</span>';
+  const nomi = { attivo: 'attivo', in_prova: 'in prova', invitato: 'invitato', non_attivo: 'non attivo', disattivato: 'disattivato' };
+  return `<span class="stato s-${r.stato}">${nomi[r.stato] || r.stato}</span>`;
+}
+
+function disegnaElenco() {
+  const q = $('cerca').value.trim().toUpperCase();
+  const f = $('filtro').value;
+  const viste = RIGHE.filter((r) => {
+    if (q && r.nome.indexOf(q) < 0) return false;
+    if (!f) return true;
+    if (f === 'scaduto') return r.scaduto;
+    if (f === 'in_scadenza') return !r.scaduto && r.stato === 'attivo' && r.giorni !== null && r.giorni <= 30;
+    return !r.scaduto && r.stato === f;
+  });
+  if (!viste.length) { $('elenco').innerHTML = '<div class="vuoto">Nessun nominativo con questi filtri.</div>'; return; }
+  $('elenco').innerHTML = viste.map((r) => {
+    const dati = [];
+    if (r.contributo_il) dati.push('contributo ' + dataIt(r.contributo_il));
+    if (r.stato === 'in_prova' && r.prova_fino_al) dati.push('prova fino al ' + dataIt(r.prova_fino_al));
+    else if (r.scade_il) dati.push('scade il ' + dataIt(r.scade_il));
+    dati.push('ultimo accesso: ' + quandoIt(r.ultimo_accesso));
+    if (r.invito_aperto) dati.push('link ' + r.invito_aperto.tipo + ' aperto fino al ' + dataIt(r.invito_aperto.scade_il));
+    if (r.ruolo === 'amministratore') dati.push('amministratore');
+    return `<div class="riga">
+      <div class="nome">${esc(r.nome)}${etichettaStato(r)}</div>
+      <div class="dati">${esc(dati.join(' · '))}</div>
+      <div class="azioni">
+        <button class="btn piccolo" data-az="contributo" data-n="${esc(r.nome)}">Registra contributo</button>
+        <button class="btn piccolo" data-az="prova" data-n="${esc(r.nome)}">Link di prova</button>
+        <button class="btn piccolo" data-az="attivazione" data-n="${esc(r.nome)}">Link di attivazione</button>
+        <button class="btn piccolo" data-az="reimposta" data-n="${esc(r.nome)}">Nuovo link password</button>
+        ${r.stato === 'disattivato'
+          ? `<button class="btn piccolo" data-az="riattiva" data-n="${esc(r.nome)}">Riattiva</button>`
+          : `<button class="btn piccolo" data-az="disattiva" data-n="${esc(r.nome)}">Disattiva</button>`}
+      </div>
+    </div>`;
+  }).join('');
+  $('elenco').querySelectorAll('button[data-az]').forEach((b) => {
+    b.onclick = () => azione(b.dataset.az, b.dataset.n);
+  });
+}
+
+/* ---------------- le azioni ---------------- */
+const MESSAGGI = {
+  prova: (n, l) => `Ciao ${primoNome(n)}, puoi provare gratis l'app Turni SAV per 7 giorni: ${l}. Scegli una password solo tua. Se ti è utile, il contributo di 30 € la mantiene attiva per tutti.`,
+  attivazione: (n, l) => `Ciao ${primoNome(n)}, ecco il tuo accesso personale all'app Turni SAV: ${l}. Il link vale 7 giorni e si usa una volta: scegli una password che sia solo tua. Grazie per il contributo!`,
+  reimposta: (n, l) => `Ciao ${primoNome(n)}, ecco il link per rifare la tua password dell'app Turni SAV: ${l}. Vale 7 giorni e si usa una volta; quella di prima non funziona più.`
+};
+/* «Ciao PERRONE CAPANO FRANCESCO» non si scrive a nessuno: nell'elenco i
+   nominativi sono COGNOME NOME, e il nome è l'ultima parola. */
+function primoNome(n) {
+  const p = String(n).trim().split(/\s+/);
+  const x = p[p.length - 1] || n;
+  return x.charAt(0) + x.slice(1).toLowerCase();
+}
+function numeroDi(nome) {
+  if (RUBRICA[nome]) return RUBRICA[nome];
+  const norm = (s) => String(s).toUpperCase().replace(/Ç/g, 'C').replace(/\?/g, 'C').replace(/\s+/g, ' ').trim();
+  const k = norm(nome);
+  for (const c in RUBRICA) if (norm(c) === k) return RUBRICA[c];
+  return null;
+}
+
+async function azione(az, nome) {
+  if (az === 'contributo') return finestraContributo(nome);
+  if (az === 'disattiva') {
+    return conferma('Disattivare ' + nome + '?',
+      'Non potrà più entrare, e le sessioni aperte sui suoi dispositivi si chiudono subito. Si può riattivare in qualsiasi momento.',
+      'Disattiva', true, async () => {
+        const r = await api('disattiva', { nome });
+        chiudiFinestra();
+        toast(r.d.ok ? 'Disattivato' : (r.d.error || 'Non riuscito'));
+        await carica();
+      });
+  }
+  if (az === 'riattiva') {
+    return conferma('Riattivare ' + nome + '?',
+      'Tornerà nello stato che aveva prima: la password che aveva scelto vale ancora.',
+      'Riattiva', false, async () => {
+        const r = await api('riattiva', { nome });
+        chiudiFinestra();
+        toast(r.d.ok ? 'Riattivato' : (r.d.error || 'Non riuscito'));
+        await carica();
+      });
+  }
+  return creaLink(az, nome, false);
+}
+
+function finestraContributo(nome) {
+  const oggi = new Date();
+  const iso = `${oggi.getFullYear()}-${String(oggi.getMonth() + 1).padStart(2, '0')}-${String(oggi.getDate()).padStart(2, '0')}`;
+  apriFinestra(`<h3>Contributo di ${esc(nome)}</h3>
+    <p>L’accesso scadrà ${CONFIG.giorniAccesso || 365} giorni dopo questa data. Se era in prova, diventa attivo con la stessa password.</p>
+    <div class="campo"><label for="dataC">Data del contributo</label><input type="date" id="dataC" value="${iso}"></div>
+    <div class="pulsanti">
+      <button class="btn" id="fNo">Annulla</button>
+      <button class="btn principale" id="fSi">Registra</button>
+    </div>`);
+  $('fNo').onclick = chiudiFinestra;
+  $('fSi').onclick = async () => {
+    $('fSi').disabled = true;
+    const r = await api('contributo', { nome, data: $('dataC').value });
+    chiudiFinestra();
+    toast(r.d.ok ? 'Contributo registrato: scade il ' + dataIt(r.d.scade_il) : (r.d.error || 'Non riuscito'));
+    await carica();
+  };
+}
+
+async function creaLink(tipo, nome, conferma_) {
+  const r = await api('invito', { nome, tipo, conferma: conferma_ });
+  if (r.stato === 409 && r.d.code === 'PROVA_GIA_FATTA') {
+    return conferma('Una seconda prova?', esc(r.d.error), 'Sì, creala', false, async () => {
+      chiudiFinestra(); await creaLink(tipo, nome, true);
+    });
+  }
+  if (!r.d.ok) { toast(r.d.error || 'Non riuscito'); return; }
+  const link = r.d.link;
+  const msg = MESSAGGI[tipo](nome, link);
+  const num = numeroDi(nome);
+  apriFinestra(`<h3>${esc(nome)}</h3>
+    <p>Link ${esc(tipo === 'prova' ? 'di prova (7 giorni)' : tipo === 'reimposta' ? 'per rifare la password' : 'di attivazione')},
+       valido fino al ${dataIt(r.d.scade_il)} e usabile <b>una volta sola</b>.</p>
+    <div class="linkbox">${esc(link)}</div>
+    <div class="pulsanti">
+      <button class="btn" id="fCopia">📋 Copia messaggio</button>
+      ${num ? `<button class="btn principale" id="fWa">💬 Invia su WhatsApp</button>` : ''}
+    </div>
+    ${num ? '' : '<p style="margin-top:10px">Nessun numero in rubrica per questo nominativo: copia il messaggio e mandalo come preferisci.</p>'}
+    <div class="pulsanti"><button class="btn" id="fChiudi">Chiudi</button></div>`);
+  $('fChiudi').onclick = chiudiFinestra;
+  $('fCopia').onclick = async () => {
+    try { await navigator.clipboard.writeText(msg); toast('Messaggio copiato'); }
+    catch (e) {
+      /* Senza il permesso degli appunti (succede su qualche browser) si
+         mostra il testo da selezionare a mano: meglio di un pulsante muto. */
+      apriFinestra(`<h3>Copia a mano</h3><div class="linkbox">${esc(msg)}</div>
+        <div class="pulsanti"><button class="btn" id="fChiudi2">Chiudi</button></div>`);
+      $('fChiudi2').onclick = chiudiFinestra;
+    }
+  };
+  if (num) {
+    $('fWa').onclick = () => {
+      const n = String(num).replace(/[^\d+]/g, '').replace(/^\+/, '');
+      window.open('https://wa.me/' + n + '?text=' + encodeURIComponent(msg), '_blank', 'noopener');
+    };
+  }
+  await carica();
+}
+
+/* ---------------- CSV ---------------- */
+function csvRiga(campi) {
+  return campi.map((c) => {
+    const x = String(c == null ? '' : c);
+    return /[";\r\n]/.test(x) ? '"' + x.replace(/"/g, '""') + '"' : x;
+  }).join(';');
+}
+$('csvBtn').onclick = () => {
+  const testa = csvRiga(['Nominativo', 'Stato', 'Scaduto', 'Ruolo', 'Contributo', 'Scadenza', 'Fine prova', 'Ultimo accesso', 'Giorni']);
+  const corpo = RIGHE.map((r) => csvRiga([
+    r.nome, r.stato, r.scaduto ? 'sì' : 'no', r.ruolo, r.contributo_il || '', r.scade_il || '',
+    r.prova_fino_al || '', r.ultimo_accesso || '', r.giorni == null ? '' : r.giorni
+  ]));
+  const testo = '﻿' + [testa, ...corpo].join('\r\n');
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([testo], { type: 'text/csv;charset=utf-8' }));
+  a.download = 'accessi_turnisav.csv';
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+};
+
+/* ---------------- avvio ---------------- */
+async function carica() {
+  const r = await api('elenco');
+  if (r.stato === 401 || r.stato === 403) {
+    $('nonAdmin').hidden = false; $('tutto').hidden = true;
+    $('nonAdminTesto').textContent = r.d.error || 'Questa pagina è riservata all’amministratore.';
+    return false;
+  }
+  if (!r.d.ok) { toast('Non riesco a leggere l’elenco.'); return false; }
+  RIGHE = r.d.righe || [];
+  CONFIG = r.d.config || {};
+  $('chiSono').textContent = r.d.io || '';
+  $('nonAdmin').hidden = true; $('tutto').hidden = false;
+  disegnaConti(r.d.riepilogo || {});
+  disegnaElenco();
+  return true;
+}
+
+async function caricaRegistro() {
+  const r = await api('registro');
+  if (!r.d.ok) return;
+  const righe = r.d.righe || [];
+  $('registro').innerHTML = righe.length
+    ? righe.map((x) => `<div><b>${esc(x.azione)}</b> — ${esc(x.su || '')} <span style="opacity:.7">(${esc(x.chi)}, ${quandoIt(x.at)})</span></div>`).join('')
+    : '<div class="vuoto">Ancora niente.</div>';
+}
+
+$('cerca').addEventListener('input', disegnaElenco);
+$('filtro').addEventListener('change', disegnaElenco);
+
+(async function avvia() {
+  if (!(await carica())) return;
+  const r = await api('rubrica');
+  RUBRICA = (r.d && r.d.rubrica) || {};
+  await caricaRegistro();
+})();
+</script>
+</body>
+</html>
