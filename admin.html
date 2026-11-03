@@ -302,11 +302,16 @@ async function azione(az, nome) {
   if (az === 'contributo') return finestraContributo(nome);
   if (az === 'disattiva') {
     return conferma('Disattivare ' + nome + '?',
-      'Non potrà più entrare, e le sessioni aperte sui suoi dispositivi si chiudono subito. Si può riattivare in qualsiasi momento.',
+      'Non potrà più entrare: le sessioni aperte sui suoi dispositivi si chiudono subito, e i link che non ha ancora usato smettono di valere. Si può riattivare in qualsiasi momento.',
       'Disattiva', true, async () => {
         const r = await api('disattiva', { nome });
         chiudiFinestra();
-        toast(r.d.ok ? 'Disattivato' : (r.d.error || 'Non riuscito'));
+        /* Il conto dei link tolti si dice: un link ancora buono nel telefono
+           di qualcuno è la cosa che una disattivazione deve chiudere, e chi
+           preme il pulsante ha il diritto di sapere che l'ha chiusa. */
+        toast(r.d.ok
+          ? 'Disattivato' + (r.d.inviti_tolti ? ` · ${r.d.inviti_tolti} link annullat${r.d.inviti_tolti === 1 ? 'o' : 'i'}` : '')
+          : (r.d.error || 'Non riuscito'));
         await carica();
       });
   }
