@@ -265,10 +265,23 @@ function disegnaElenco() {
 }
 
 /* ---------------- le azioni ---------------- */
+
+/**
+ * LE DURATE NEI MESSAGGI ARRIVANO DAL SERVER, da CONFIG che riempie l'elenco:
+ * la prova da GIORNI_PROVA, la validità del link da GIORNI_INVITO.
+ *
+ * SONO DUE NUMERI DIVERSI, e fino al 3 novembre 2026 valevano entrambi sette:
+ * in questi tre messaggi c'erano tre «7 giorni» scritti a mano, uno dei quali
+ * era la durata della prova e due la validità del link, e nessuno poteva
+ * distinguerli leggendo. Il giorno che la prova è passata a 15 la differenza
+ * è diventata visibile; da qui in avanti ognuno pesca dal suo, e nessun
+ * messaggio contiene un numero scritto a mano.
+ */
+const giorni = (n) => `${n} giorn${Number(n) === 1 ? 'o' : 'i'}`;
 const MESSAGGI = {
-  prova: (n, l) => `Ciao ${primoNome(n)}, puoi provare gratis l'app Turni SAV per 7 giorni: ${l}. Scegli una password solo tua. Se ti è utile, il contributo di 30 € la mantiene attiva per tutti.`,
-  attivazione: (n, l) => `Ciao ${primoNome(n)}, ecco il tuo accesso personale all'app Turni SAV: ${l}. Il link vale 7 giorni e si usa una volta: scegli una password che sia solo tua. Grazie per il contributo!`,
-  reimposta: (n, l) => `Ciao ${primoNome(n)}, ecco il link per rifare la tua password dell'app Turni SAV: ${l}. Vale 7 giorni e si usa una volta; quella di prima non funziona più.`
+  prova: (n, l) => `Ciao ${primoNome(n)}, puoi provare gratis l'app Turni SAV per ${giorni(CONFIG.giorniProva)}: ${l}. Scegli una password solo tua. Se ti è utile, il contributo di 30 € la mantiene attiva per tutti.`,
+  attivazione: (n, l) => `Ciao ${primoNome(n)}, ecco il tuo accesso personale all'app Turni SAV: ${l}. Il link vale ${giorni(CONFIG.giorniInvito)} e si usa una volta: scegli una password che sia solo tua. Grazie per il contributo!`,
+  reimposta: (n, l) => `Ciao ${primoNome(n)}, ecco il link per rifare la tua password dell'app Turni SAV: ${l}. Vale ${giorni(CONFIG.giorniInvito)} e si usa una volta; quella di prima non funziona più.`
 };
 /* «Ciao PERRONE CAPANO FRANCESCO» non si scrive a nessuno: nell'elenco i
    nominativi sono COGNOME NOME, e il nome è l'ultima parola. */
@@ -331,6 +344,15 @@ function finestraContributo(nome) {
 }
 
 async function creaLink(tipo, nome, conferma_) {
+  /* UN MESSAGGIO CON UNA DURATA SBAGLIATA SI MANDA UNA VOLTA E RESTA: le
+     durate arrivano con l'elenco, e se non ci sono la pagina non le indovina
+     — si ricarica. Non capita in pratica, perché l'elenco è quello che
+     disegna questi pulsanti, ma un `undefined giorni` su WhatsApp non si
+     ritira più. */
+  if (!CONFIG.giorniProva || !CONFIG.giorniInvito) {
+    toast('Ricarica la pagina: le durate non sono ancora arrivate dal server.');
+    return;
+  }
   const r = await api('invito', { nome, tipo, conferma: conferma_ });
   if (r.stato === 409 && r.d.code === 'PROVA_GIA_FATTA') {
     return conferma('Una seconda prova?', esc(r.d.error), 'Sì, creala', false, async () => {
@@ -342,7 +364,7 @@ async function creaLink(tipo, nome, conferma_) {
   const msg = MESSAGGI[tipo](nome, link);
   const num = numeroDi(nome);
   apriFinestra(`<h3>${esc(nome)}</h3>
-    <p>Link ${esc(tipo === 'prova' ? 'di prova (7 giorni)' : tipo === 'reimposta' ? 'per rifare la password' : 'di attivazione')},
+    <p>Link ${esc(tipo === 'prova' ? `di prova — la prova dura ${giorni(CONFIG.giorniProva)} dall’attivazione` : tipo === 'reimposta' ? 'per rifare la password' : 'di attivazione')},
        valido fino al ${dataIt(r.d.scade_il)} e usabile <b>una volta sola</b>.</p>
     <div class="linkbox">${esc(link)}</div>
     <div class="pulsanti">

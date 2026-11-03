@@ -1422,12 +1422,31 @@ async function entraCondivisa() {
 }
 
 /* ---------------- scegliere la password da un link ---------------- */
+
+/**
+ * «da adesso hai 15 giorni di prova.» — IL NUMERO ARRIVA DAL SERVER, che lo
+ * legge da GIORNI_PROVA. Prima era scritto a mano, in lettere («sette
+ * giorni»), e il 3 novembre 2026 la prova e' passata a 15: un numero scritto
+ * nella pagina sarebbe rimasto indietro senza che nessuno se ne accorgesse,
+ * perche' nessuna prova automatica guarda una frase.
+ *
+ * SE IL NUMERO NON ARRIVA NON SE NE INVENTA UNO. Capita con una pagina
+ * vecchia rimasta in cache davanti a un server nuovo, o il contrario: in quel
+ * caso la frase non dice quanti giorni, e il conto vero lo mostra comunque
+ * l'app appena si entra. Meglio una frase piu' vaga che un numero sbagliato.
+ */
+function daAdessoHai(giorni) {
+  const n = Number(giorni);
+  if (!Number.isFinite(n) || n <= 0) return 'da adesso inizia la tua prova gratuita.';
+  return 'da adesso hai ' + n + (n === 1 ? ' giorno' : ' giorni') + ' di prova.';
+}
+
 async function apriLink(codice, tipo) {
   const { stato, d } = await chiamaAuth('invito', { codice });
   if (stato !== 200 || !d.ok) { mostraBloccato(d.error || 'Questo link non è valido.'); return; }
   gEl('gAttivaTitolo').textContent = 'Ciao ' + d.nome;
   gEl('gAttivaNota').textContent = d.tipo === 'prova'
-    ? 'Scegli la tua password: da adesso hai sette giorni di prova. La password è tua e non si condivide.'
+    ? 'Scegli la tua password: ' + daAdessoHai(d.giorni_prova) + ' La password è tua e non si condivide.'
     : d.tipo === 'reimposta'
       ? 'Scegli la tua nuova password. Quella di prima non vale più.'
       : 'Scegli la tua password. È personale e non si condivide con i colleghi.';

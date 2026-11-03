@@ -2,6 +2,17 @@
 // riscaricare tutto ai telefoni che hanno gia' l'app — e qui serve davvero,
 // perche' la versione v2 teneva in cache i turni senza chiedere niente a
 // nessuno.
+//
+// IL 3 NOVEMBRE 2026 index.html E' CAMBIATO E QUESTO NOME E' RIMASTO v3, di
+// proposito. La strategia qui sotto e' «prima la rete»: la pagina nuova
+// arriva al primo caricamento con campo, e nello stesso momento sostituisce
+// la copia salvata. Cambiare il nome, invece, avrebbe buttato via TUTTA la
+// cache — compreso l'ultimo quadro dei turni, che e' l'unica cosa che si
+// vede in un vallone senza rete — per anticipare di un caricamento una
+// pagina che arriva comunque. Il guscio si aggiorna lo stesso: basta che
+// questo file cambi di un byte perche' il browser reinstalli il service
+// worker e riscarichi CORE_ASSETS, e con lo stesso CACHE_NAME i dati
+// restano al loro posto.
 const CACHE_NAME = 'turni-sav-v3';
 
 // SOLO IL GUSCIO, e non i dati.
