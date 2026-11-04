@@ -276,10 +276,25 @@ function disegnaElenco() {
  * distinguerli leggendo. Il giorno che la prova è passata a 15 la differenza
  * è diventata visibile; da qui in avanti ognuno pesca dal suo, e nessun
  * messaggio contiene un numero scritto a mano.
+ *
+ * DAL 4 NOVEMBRE 2026 il messaggio di prova non dice nessuna durata: il
+ * testo nuovo presenta l'applicazione e non parla di prova. `giorni()`
+ * serve quindi i due messaggi del link e la finestra che l'amministratore
+ * vede — dove la durata della prova resta scritta, perché chi crea il
+ * link deve saperla anche se non la manda.
  */
 const giorni = (n) => `${n} giorn${Number(n) === 1 ? 'o' : 'i'}`;
 const MESSAGGI = {
-  prova: (n, l) => `Ciao ${primoNome(n)}, puoi provare gratis l'app Turni SAV per ${giorni(CONFIG.giorniProva)}: ${l}. Scegli una password solo tua. Se ti è utile, il contributo di 30 € la mantiene attiva per tutti.`,
+  prova: (n, l) => `Ciao ${primoNome(n)}, questo è il link per attivare l'applicazione che ho creato per gestire i turni: ${l}
+Da qui puoi creare il tuo login con password.
+
+Dentro trovi tutto: calendario personale e degli altri tecnici, addestramenti, cambio/cessione turno con verifica e invio automatico della PEC, download dei turni e sincronizzazione con il calendario del telefono.
+
+Funziona per tutti i ruoli, si aggiorna in automatico circa due ore dopo l'arrivo di ogni PEC.
+
+Al momento non so se l'ufficio si prenderà carico del sistema; se non dovesse farlo chiederò a chi vuole usarla un contributo per coprire i costi, sono cifre minime divise tra tutti.
+
+Per l'invio automatico delle PEC bisogna creare una password dalla posta Aruba; se hai un provider diverso dobbiamo sentirci così da impostarlo insieme. Scrivimi se hai problemi, ti allego anche il manuale.`,
   attivazione: (n, l) => `Ciao ${primoNome(n)}, ecco il tuo accesso personale all'app Turni SAV: ${l}. Il link vale ${giorni(CONFIG.giorniInvito)} e si usa una volta: scegli una password che sia solo tua. Grazie per il contributo!`,
   reimposta: (n, l) => `Ciao ${primoNome(n)}, ecco il link per rifare la tua password dell'app Turni SAV: ${l}. Vale ${giorni(CONFIG.giorniInvito)} e si usa una volta; quella di prima non funziona più.`
 };
