@@ -277,19 +277,23 @@ function disegnaElenco() {
  * è diventata visibile; da qui in avanti ognuno pesca dal suo, e nessun
  * messaggio contiene un numero scritto a mano.
  *
- * IL MESSAGGIO DI PROVA DEVE DIRE CHE È UNA PROVA. Per un'ora, il 4
- * novembre 2026, non lo diceva: il testo nuovo presentava l'applicazione
- * e basta, e chi lo riceveva avrebbe scoperto che c'era un termine il
- * giorno che l'app gli diceva «La prova è finita». Adesso lo dice nella
- * seconda riga, e la durata la pesca da CONFIG come le altre due: il
- * numero non si scrive a mano nemmeno qui.
+ * IL MESSAGGIO DI PROVA DEVE DIRE CHE È UNA PROVA, e lo dice con una
+ * parola sola: «il link per PROVARE l'applicazione». Per un'ora, il 4
+ * novembre 2026, non lo diceva — presentava l'applicazione e basta — e
+ * chi lo riceveva avrebbe scoperto che c'era un termine il giorno che
+ * l'app gli diceva «La prova è finita».
+ *
+ * QUANTI GIORNI DURI non si scrive: resta nella finestra che vede
+ * l'amministratore, che è chi deve saperlo per decidere quando
+ * richiamare. `giorni()` serve quindi le altre due frasi e quella
+ * finestra, e nessuna delle tre ha un numero scritto a mano.
  */
 const giorni = (n) => `${n} giorn${Number(n) === 1 ? 'o' : 'i'}`;
 const MESSAGGI = {
-  prova: (n, l) => `Ciao ${primoNome(n)}, questo è il link per attivare l'applicazione che ho creato per gestire i turni: ${l}
-Da qui puoi creare il tuo login con password e cominciare una prova gratuita di ${giorni(CONFIG.giorniProva)}.
+  prova: (n, l) => `Ciao ${primoNome(n)}, questo è il link per provare l'applicazione che ho creato per gestire i turni: ${l}
+Da qui puoi creare il tuo login con password.
 
-Dentro trovi tutto: calendario personale e degli altri tecnici, addestramenti, cambio/cessione turno con verifica e invio automatico della PEC, download dei turni e sincronizzazione con il calendario del telefono.
+Dentro trovi tutto: calendario personale e degli altri tecnici, addestramenti, cambio/cessione turno con verifica e invio automatico della PEC, download dei turni e sincronizzazione con il calendario del telefono (dal prossimo aggiornamento).
 
 Funziona per tutti i ruoli, si aggiorna in automatico circa due ore dopo l'arrivo di ogni PEC.
 
