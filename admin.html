@@ -23,6 +23,13 @@ header{background:var(--ink);padding:14px 16px;display:flex;align-items:center;g
 header h1{margin:0;font-size:1rem;font-weight:600;letter-spacing:.01em}
 header .chi{margin-left:auto;font-size:.78rem;color:var(--muted-chiaro)}
 main{padding:14px 16px;max-width:760px;margin:0 auto}
+/* `hidden` DEVE VINCERE. L'attributo vale quanto una regola del browser,
+   cioè pochissimo: un `display:flex` scritto nell'attributo style se lo
+   mangia, e l'elemento resta lì nonostante il codice lo abbia nascosto.
+   È successo con i pulsanti della verifica, che restavano in pagina senza
+   nessuna PEC. Si chiude qui una volta per tutte, invece di ricordarsene
+   ogni volta che si nasconde qualcosa. */
+[hidden]{display:none !important}
 .pannello{background:var(--ink);border-radius:14px;padding:14px;margin:0 0 14px}
 h2{font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted-chiaro);
   margin:0 0 10px;font-weight:600}
@@ -163,7 +170,7 @@ input::placeholder{color:var(--muted-chiaro)}
       <div id="verificaGuai"></div>
       <div id="verificaDiff" style="margin-top:10px"></div>
       <div id="verificaScelte"></div>
-      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+      <div id="verificaAzioni" style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap" hidden>
         <button class="btn piccolo" id="verificaTurnoBtn">Correggi un turno</button>
         <button class="btn principale" id="verificaPubblicaBtn">Conferma e pubblica</button>
       </div>
@@ -737,11 +744,16 @@ function disegnaVerifica() {
     const vann = b('vann'); if (vann) vann.onclick = () => annullaScelta(d);
   });
 
+  /* SENZA NESSUNA PEC NON C'È NIENTE DA FARE, e i due pulsanti non si
+     mostrano affatto. Prima restavano lì, e quello di pubblicare diceva
+     «Prima risolvi le differenze» sotto la riga «Nessuna differenza da
+     risolvere»: due frasi che si contraddicono a mezzo centimetro di
+     distanza, nella scheda che dovrebbe dire come sta messa la verifica. */
+  $('verificaAzioni').hidden = !v.pec;
   $('verificaPubblicaBtn').disabled = !v.si_puo_pubblicare;
   $('verificaPubblicaBtn').textContent = v.si_puo_pubblicare
     ? (diff.length ? 'Conferma e pubblica' : 'Pubblica di nuovo')
     : 'Prima risolvi le differenze';
-  $('verificaTurnoBtn').disabled = !v.pec;
 }
 
 function disegnaScelta(c) {
