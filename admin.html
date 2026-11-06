@@ -403,26 +403,52 @@ function disegnaElenco() {
  * chi lo riceveva avrebbe scoperto che c'era un termine il giorno che
  * l'app gli diceva «La prova è finita».
  *
- * QUANTI GIORNI DURI non si scrive: resta nella finestra che vede
- * l'amministratore, che è chi deve saperlo per decidere quando
- * richiamare. `giorni()` serve quindi le altre due frasi e quella
- * finestra, e nessuna delle tre ha un numero scritto a mano.
+ * LA DURATA DELLA PROVA, INVECE, È SCRITTA IN LETTERE: «2 settimane».
+ * Testo deciso da Francesco il 6 novembre 2026, parola per parola, ed è
+ * l'unica eccezione alla regola qui sopra — un messaggio che si manda a
+ * mano a una persona per volta si legge meglio così che con «15 giorni».
+ * Siccome è un numero fuori dal codice, c'è una prova che lo tiene
+ * legato a `GIORNI_PROVA` (test-accessi.js): il giorno che qualcuno
+ * porta la prova a un mese, quella diventa rossa invece di lasciare in
+ * giro un messaggio che promette due settimane.
  */
 const giorni = (n) => `${n} giorn${Number(n) === 1 ? 'o' : 'i'}`;
+
+/* I PEZZI CHE I DUE MESSAGGI HANNO IN COMUNE stanno scritti una volta
+   sola. Sono due testi quasi uguali, e due copie quasi uguali sono due
+   copie che fra un mese dicono cose diverse: si corregge quella che si ha
+   sotto mano e l'altra resta indietro. */
+const DENTRO_TROVI = 'Dentro trovi tutto: calendario personale e degli altri tecnici, '
+  + 'addestramenti, cambio/cessione turno con verifica e invio automatico della PEC, '
+  + 'download dei turni';
+const FUNZIONA = 'Funziona per tutti i ruoli, si aggiorna in automatico circa due ore '
+  + 'dopo l\'arrivo di ogni PEC.';
+const ARUBA = 'Per l\'invio automatico delle PEC bisogna creare una password dalla posta '
+  + 'Aruba; se hai un provider diverso dobbiamo sentirci così da impostarlo insieme. '
+  + 'Scrivimi se hai problemi, ti allego anche il manuale.';
+
 const MESSAGGI = {
-  prova: (n, l) => `Ciao ${primoNome(n)}, questo è il link per provare l'applicazione che ho creato per gestire i turni: ${l}
+  prova: (n, l) => `Ciao ${primoNome(n)}, questo è il link di prova dell'applicazione che ho creato per gestire i turni: ${l}
+Da qui puoi creare il tuo login con password. La prova dura 2 settimane da quando entri.
+
+${DENTRO_TROVI}.
+
+${FUNZIONA}
+
+Se ti piace, ti mando il link PayPal per dividere le spese e te la attivo, con la stessa password. In più si aggiunge la sincronizzazione con il calendario del telefono: i turni ti compaiono da soli, senza doverli scaricare.
+
+${ARUBA}`,
+  /* CHI HA GIÀ IL CONTRIBUTO REGISTRATO entra direttamente attivo: niente
+     termine da dire e niente PayPal da proporre, e la sincronizzazione
+     col calendario torna fra le cose che ci sono già. */
+  attivazione: (n, l) => `Ciao ${primoNome(n)}, questo è il link per attivare l'applicazione che ho creato per gestire i turni: ${l}
 Da qui puoi creare il tuo login con password.
 
-Dentro trovi tutto: calendario personale e degli altri tecnici, addestramenti, cambio/cessione turno con verifica e invio automatico della PEC, download dei turni e sincronizzazione con il calendario del telefono (dal prossimo aggiornamento).
+${DENTRO_TROVI} e sincronizzazione con il calendario del telefono.
 
-Funziona per tutti i ruoli, si aggiorna in automatico circa due ore dopo l'arrivo di ogni PEC.
+${FUNZIONA}
 
-Al momento non so se l'ufficio si prenderà carico del sistema; se non dovesse farlo chiederò a chi vuole usarla un contributo per coprire i costi, sono cifre minime divise tra tutti.
-
-Per l'invio automatico delle PEC bisogna creare una password dalla posta Aruba; se hai un provider diverso dobbiamo sentirci così da impostarlo insieme. Scrivimi se hai problemi, ti allego anche il manuale.
-
-Usala un po' in questi giorni e fammi sapere come ti sembra.`,
-  attivazione: (n, l) => `Ciao ${primoNome(n)}, ecco il tuo accesso personale all'app Turni SAV: ${l}. Il link vale ${giorni(CONFIG.giorniInvito)} e si usa una volta: scegli una password che sia solo tua. Grazie per il contributo!`,
+${ARUBA}`,
   reimposta: (n, l) => `Ciao ${primoNome(n)}, ecco il link per rifare la tua password dell'app Turni SAV: ${l}. Vale ${giorni(CONFIG.giorniInvito)} e si usa una volta; quella di prima non funziona più.`
 };
 /* «Ciao PERRONE CAPANO FRANCESCO» non si scrive a nessuno: nell'elenco i
