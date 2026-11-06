@@ -31,6 +31,52 @@ main{padding:14px 16px;max-width:760px;margin:0 auto}
    ogni volta che si nasconde qualcosa. */
 [hidden]{display:none !important}
 .pannello{background:var(--ink);border-radius:14px;padding:14px;margin:0 0 14px}
+
+/* ==================================================================
+   SEZIONI RICHIUDIBILI
+   ==================================================================
+   Su un telefono la pagina era un rotolo di sei schede sempre aperte, e
+   per arrivare al registro si scorreva oltre cinquantaquattro tecnici.
+   Da chiuse si vede l'indice; si apre quella che serve.
+
+   IL TITOLO È UN PULSANTE VERO (`<button>`), non un `<div>` con un
+   `onclick`: così ci si arriva col tasto di tabulazione, si apre con
+   Invio, e chi usa un lettore di schermo sente che è una cosa che si
+   preme. Un div che si comporta da pulsante è un pulsante solo per chi
+   ci clicca sopra con un dito.
+   ================================================================== */
+.sez-testa{display:flex;align-items:center;gap:10px;width:100%;background:none;border:none;
+  padding:0;margin:0;cursor:pointer;text-align:left;color:inherit;font:inherit}
+.sez-testa .frec{flex:0 0 auto;font-size:.8rem;color:var(--muted-chiaro);transition:transform .15s;
+  transform:rotate(-90deg)}
+.pannello.aperta .sez-testa .frec{transform:rotate(0deg)}
+.sez-testa h2{margin:0;flex:1 1 auto}
+.sez-sotto{font-size:.76rem;color:var(--muted-chiaro);line-height:1.45;margin:6px 0 0}
+.sez-conta{font-size:.78rem;color:var(--rope);font-weight:600;margin:5px 0 0}
+.sez-corpo{margin-top:12px}
+.pannello:not(.aperta) .sez-corpo{display:none}
+
+/* Una scheda di persona chiusa: una riga sola, nome e stato. */
+.riga.chiusa .dati, .riga.chiusa .azioni{display:none}
+.riga .testa-riga{display:flex;align-items:center;gap:8px;width:100%;background:none;border:none;
+  padding:0;margin:0;cursor:pointer;text-align:left;color:inherit;font:inherit}
+.riga .testa-riga .nome{flex:1 1 auto}
+
+/* Il menù «⋯»: i gesti rari non stanno in mezzo a quelli di ogni giorno. */
+.piu{position:relative;display:inline-block}
+.piu-voci{position:absolute;right:0;top:100%;margin-top:4px;background:var(--ink-su);
+  border-radius:10px;padding:6px;min-width:190px;z-index:5;box-shadow:0 6px 18px rgba(0,0,0,.35)}
+.piu-voci .btn{display:block;width:100%;text-align:left;margin:0}
+
+/* Gli elenchi dentro una scheda: `<details>` del browser, che si apre col
+   tasto Invio e che i lettori di schermo annunciano da soli. */
+details.elenchino{margin:10px 0 0}
+details.elenchino > summary{cursor:pointer;font-size:.82rem;color:var(--rope);font-weight:600;
+  padding:7px 10px;background:var(--ink-sotto);border-radius:9px;list-style:none}
+details.elenchino > summary::-webkit-details-marker{display:none}
+details.elenchino > summary::before{content:'▸ ';color:var(--muted-chiaro)}
+details.elenchino[open] > summary::before{content:'▾ '}
+details.elenchino > div{margin-top:8px}
 h2{font-size:.78rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted-chiaro);
   margin:0 0 10px;font-weight:600}
 
@@ -146,7 +192,7 @@ input::placeholder{color:var(--muted-chiaro)}
   </div>
 
   <div id="tutto" hidden>
-    <div class="pannello">
+    <div class="pannello" data-sez="conti" data-desc="Quanti accessi ci sono e come stanno.">
       <h2>A che punto siamo</h2>
       <div class="conti" id="conti"></div>
     </div>
@@ -164,10 +210,11 @@ input::placeholder{color:var(--muted-chiaro)}
          server a ogni richiesta: se lo decidesse questa pagina,
          basterebbe una chiamata a mano per pubblicare un quadro con
          differenze aperte. -->
-    <div class="pannello" id="pVerifica" hidden>
+    <div class="pannello" id="pVerifica" data-sez="verifica" data-desc="Confronta l’app con l’ultima PEC del SAV e mostra le differenze." hidden>
       <h2>Verifica PEC</h2>
       <div id="verificaTesta"></div>
       <div id="verificaGuai"></div>
+      <div id="verificaNomi"></div>
       <div id="verificaDiff" style="margin-top:10px"></div>
       <div id="verificaScelte"></div>
       <div id="verificaAzioni" style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap" hidden>
@@ -176,19 +223,17 @@ input::placeholder{color:var(--muted-chiaro)}
       </div>
     </div>
 
-    <div class="pannello">
+    <div class="pannello" data-sez="nominativi" data-desc="Gli accessi dei tecnici e della dirigenza: a chi mandare il link, chi è in prova, chi ha versato il contributo.">
       <h2>Nominativi</h2>
       <div class="filtri">
         <input type="text" id="cerca" placeholder="Cerca un nominativo…" autocomplete="off">
         <select id="filtro">
-          <option value="">— Tutti gli stati —</option>
-          <option value="attivo">Attivi</option>
-          <option value="in_prova">In prova</option>
-          <option value="invitato">Invitati</option>
+          <option value="">— Tutti —</option>
           <option value="non_attivo">Non attivi</option>
+          <option value="link_mandato">Link mandato</option>
+          <option value="in_prova">In prova</option>
+          <option value="attivo">Attivi</option>
           <option value="disattivato">Disattivati</option>
-          <option value="scaduto">Scaduti</option>
-          <option value="in_scadenza">In scadenza (30 giorni)</option>
         </select>
       </div>
       <div style="margin-top:10px">
@@ -213,7 +258,7 @@ input::placeholder{color:var(--muted-chiaro)}
          verificato, le porte ammesse sono due. Non sono preferenze, e una
          casella di spunta che le disattiva e' una casella che prima o poi
          qualcuno spunta per far funzionare le cose. -->
-    <div class="pannello">
+    <div class="pannello" data-sez="gestori" data-desc="Da quali caselle si può inviare, e come.">
       <h2>Gestori PEC</h2>
       <p class="nota" style="margin:0 0 10px">
         Da chi si può inviare, e come. <b>Attivo</b>: la PEC parte verso la Direzione.
@@ -236,7 +281,7 @@ input::placeholder{color:var(--muted-chiaro)}
     </div>
 
     <!-- Gli indirizzi PEC dei tecnici: prima si modificavano a mano con ssh. -->
-    <div class="pannello">
+    <div class="pannello" data-sez="indirizzi" data-desc="L’indirizzo PEC di ciascuno e il gestore che gli tocca.">
       <h2>Indirizzi PEC dei tecnici</h2>
       <p class="nota" style="margin:0 0 10px">
         Il gestore si riconosce dal <b>dominio</b>; si può scegliere a mano per i domini
@@ -258,9 +303,10 @@ input::placeholder{color:var(--muted-chiaro)}
       <div id="elencoPec" style="margin-top:12px"></div>
     </div>
 
-    <div class="pannello">
+    <div class="pannello" data-sez="registro" data-desc="Che cosa è successo, in ordine di tempo.">
       <h2>Registro</h2>
       <div class="registro" id="registro"></div>
+      <div style="margin-top:10px"><button class="btn piccolo" id="registroAltre" hidden>Mostra altre</button></div>
     </div>
   </div>
 </main>
@@ -324,6 +370,88 @@ const quandoIt = (s) => {
   return isNaN(d) ? '—' : d.toLocaleString('it-IT', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 };
 
+/* ==================================================================
+   LE SEZIONI CHE SI APRONO E SI CHIUDONO
+   ==================================================================
+   La marcatura resta quella che è: qui si prende ogni pannello, gli si
+   costruisce intorno una testa cliccabile e gli si infila il resto in un
+   corpo che si nasconde. Riscrivere a mano sei pannelli avrebbe voluto
+   dire sei posti in cui dimenticarsene uno.
+
+   LO STATO APERTO/CHIUSO STA SUL TELEFONO, non sul server: è una
+   preferenza di chi guarda, non un dato del SAV, e mandarla al server
+   vorrebbe dire una rotta, un file e una copia di sicurezza per ricordare
+   quale scheda era aperta. `localStorage` può non esserci — finestra
+   anonima, dati del sito cancellati — e allora si parte da chiuse, che è
+   il comportamento giusto lo stesso.
+   ================================================================== */
+const CHIAVE_SEZ = 'turnisav.sezioni.aperte';
+
+function sezioniAperte() {
+  try { return new Set(JSON.parse(localStorage.getItem(CHIAVE_SEZ) || '[]')); }
+  catch (e) { return new Set(); }
+}
+function ricordaSezioni(insieme) {
+  try { localStorage.setItem(CHIAVE_SEZ, JSON.stringify([...insieme])); } catch (e) { /* pazienza */ }
+}
+
+/** Costruisce testa e corpo di ogni pannello. Si chiama una volta sola. */
+function preparaSezioni() {
+  const aperte = sezioniAperte();
+  document.querySelectorAll('.pannello[data-sez]').forEach((pan) => {
+    const id = pan.dataset.sez;
+    const h2 = pan.querySelector('h2');
+    if (!h2 || pan.querySelector('.sez-testa')) return;
+
+    const testa = document.createElement('button');
+    testa.type = 'button';
+    testa.className = 'sez-testa';
+    testa.setAttribute('aria-expanded', 'false');
+    const frec = document.createElement('span');
+    frec.className = 'frec'; frec.textContent = '▾'; frec.setAttribute('aria-hidden', 'true');
+    testa.appendChild(frec);
+    pan.insertBefore(testa, h2);
+    testa.appendChild(h2);
+
+    const conta = document.createElement('div');
+    conta.className = 'sez-conta'; conta.id = 'conta-' + id;
+    const desc = document.createElement('p');
+    desc.className = 'sez-sotto'; desc.textContent = pan.dataset.desc || '';
+
+    const corpo = document.createElement('div');
+    corpo.className = 'sez-corpo';
+    while (testa.nextSibling) corpo.appendChild(testa.nextSibling);
+    pan.appendChild(conta);
+    pan.appendChild(desc);
+    pan.appendChild(corpo);
+
+    if (aperte.has(id)) { pan.classList.add('aperta'); testa.setAttribute('aria-expanded', 'true'); }
+    testa.onclick = () => {
+      const ora = pan.classList.toggle('aperta');
+      testa.setAttribute('aria-expanded', ora ? 'true' : 'false');
+      const ins = sezioniAperte();
+      if (ora) ins.add(id); else ins.delete(id);
+      ricordaSezioni(ins);
+    };
+  });
+}
+
+/** Il riassunto che si legge anche a sezione chiusa. */
+function scriviConta(id, testo) {
+  const el = $('conta-' + id);
+  if (el) el.textContent = testo || '';
+}
+
+/** Apre una sezione (una volta sola, se chiede un'azione). */
+function apriSezione(id) {
+  const pan = document.querySelector('.pannello[data-sez="' + id + '"]');
+  if (!pan || pan.classList.contains('aperta')) return;
+  pan.classList.add('aperta');
+  const t = pan.querySelector('.sez-testa');
+  if (t) t.setAttribute('aria-expanded', 'true');
+  const ins = sezioniAperte(); ins.add(id); ricordaSezioni(ins);
+}
+
 /* ---------------- il quadro ---------------- */
 function disegnaConti(r) {
   $('conti').innerHTML = [
@@ -339,55 +467,121 @@ function disegnaConti(r) {
   ].map(([t, n, c]) => `<div class="conto ${c}"><b>${n}</b><span>${t}</span></div>`).join('');
 }
 
-function etichettaStato(r) {
-  if (r.scaduto) return '<span class="stato s-scaduto">scaduto</span>';
-  const nomi = { attivo: 'attivo', in_prova: 'in prova', invitato: 'invitato', non_attivo: 'non attivo', disattivato: 'disattivato' };
-  return `<span class="stato s-${r.stato}">${nomi[r.stato] || r.stato}</span>`;
+/* ==================================================================
+   LO STATO DI UNA PERSONA, in cinque parole
+   ==================================================================
+   Non è il campo `stato` del server, che ne ha di più e li chiama in
+   modo diverso: è quello che serve a decidere che cosa si può fare.
+   «invitato» senza un link aperto, per esempio, non è un invito — è un
+   link scaduto, cioè un nominativo a cui non si è ancora mandato niente
+   che funzioni, e i pulsanti giusti sono quelli del non attivo.
+   ================================================================== */
+function statoDi(r) {
+  if (r.stato === 'disattivato') return 'disattivato';
+  if (r.stato === 'in_prova') return 'in_prova';
+  if (r.invito_aperto && !r.ha_password) return 'link_mandato';
+  if (r.ha_password && r.stato === 'attivo') return 'attivo';
+  return 'non_attivo';
 }
+
+const NOME_STATO = {
+  attivo: 'attivo', in_prova: 'in prova', link_mandato: 'link mandato',
+  non_attivo: 'non attivo', disattivato: 'disattivato'
+};
+
+function etichettaStato(r) {
+  const st = statoDi(r);
+  if (st === 'attivo' && r.scaduto) return '<span class="stato s-scaduto">scaduto</span>';
+  const classe = st === 'link_mandato' ? 'invitato' : st;
+  return `<span class="stato s-${classe}">${NOME_STATO[st]}</span>`;
+}
+
+/* ==================================================================
+   L'ELENCO DEI NOMINATIVI
+   ==================================================================
+   UN SOLO LINK PER PERSONA. Prima ce n'erano due, «di prova» e «di
+   attivazione», e bisognava sapere in anticipo quale mandare: chi li
+   riceveva poteva credere che ne servissero due. Adesso il link è uno e
+   serve solo a scegliere la password; se al momento dell'apertura il
+   contributo è registrato si entra attivi per un anno, altrimenti in
+   prova per due settimane. Lo decide il server, non chi manda.
+
+   E OGNI STATO MOSTRA SOLO I PULSANTI CHE HANNO SENSO. Prima erano
+   cinque per tutti, compreso «Disattiva» su chi non è mai entrato: un
+   pulsante che non si preme mai è un pulsante da saltare con gli occhi
+   ogni volta che se ne cerca un altro.
+   ================================================================== */
+let SCHEDA_APERTA = null;
 
 function disegnaElenco() {
   const q = $('cerca').value.trim().toUpperCase();
   const f = $('filtro').value;
   const viste = RIGHE.filter((r) => {
     if (q && r.nome.indexOf(q) < 0) return false;
-    if (!f) return true;
-    if (f === 'scaduto') return r.scaduto;
-    if (f === 'in_scadenza') return !r.scaduto && r.stato === 'attivo' && r.giorni !== null && r.giorni <= 30;
-    return !r.scaduto && r.stato === f;
+    return !f || statoDi(r) === f;
   });
   if (!viste.length) { $('elenco').innerHTML = '<div class="vuoto">Nessun nominativo con questi filtri.</div>'; return; }
+
   $('elenco').innerHTML = viste.map((r) => {
-    const dati = [];
-    if (r.contributo_il) dati.push('contributo ' + dataIt(r.contributo_il));
-    if (r.stato === 'in_prova' && r.prova_fino_al) dati.push('prova fino al ' + dataIt(r.prova_fino_al));
-    else if (r.scade_il) dati.push('scade il ' + dataIt(r.scade_il));
-    dati.push('ultimo accesso: ' + quandoIt(r.ultimo_accesso));
-    if (r.invito_aperto) dati.push('link ' + r.invito_aperto.tipo + ' aperto fino al ' + dataIt(r.invito_aperto.scade_il));
-    if (r.ruolo === 'amministratore') dati.push('amministratore');
-    /* UN VISUALIZZATORE HA MENO PULSANTI, e sono quelli che hanno senso per
-       lui: niente «Registra contributo» e niente «Link di prova», perché
-       non versa un contributo e non fa una prova — resta attivo finché non
-       lo si disattiva. Mostrare pulsanti che non si premono mai vuol dire
-       far cercare ogni volta quale si preme. */
+    const st = statoDi(r);
     const visual = r.ruolo === 'visualizzatore';
+    const dati = [];
+    if (st === 'in_prova' && r.prova_fino_al) dati.push('in prova fino al ' + dataIt(r.prova_fino_al));
+    if (st === 'link_mandato') {
+      dati.push('link mandato il ' + (r.invito_aperto.creato_il ? dataIt(r.invito_aperto.creato_il) : '—')
+        + ', vale fino al ' + dataIt(r.invito_aperto.scade_il));
+    }
+    if (r.contributo_il) dati.push('contributo ' + dataIt(r.contributo_il));
+    if (r.scade_il) dati.push((r.scaduto ? 'scaduto il ' : 'scade il ') + dataIt(r.scade_il));
+    dati.push('ultimo accesso: ' + quandoIt(r.ultimo_accesso));
+    if (r.ruolo === 'amministratore') dati.push('amministratore');
     if (visual) dati.push('sola consultazione · non scade');
-    return `<div class="riga">
-      <div class="nome">${esc(r.nome)}${etichettaStato(r)}</div>
+
+    /* I PULSANTI, uno stato per volta. Il menù «⋯» tiene quello che si
+       usa una volta all'anno: chi ha dimenticato la password. */
+    const b = (az, testo, classe) =>
+      `<button class="btn piccolo ${classe || ''}" data-az="${az}" data-n="${esc(r.nome)}">${testo}</button>`;
+    let azioni = '';
+    if (st === 'disattivato') azioni = b('riattiva', 'Riattiva');
+    else if (st === 'in_prova') azioni = (visual ? '' : b('contributo', 'Registra contributo')) + b('disattiva', 'Disattiva');
+    else if (st === 'link_mandato') {
+      azioni = b('manda', 'Rimanda link') + (visual ? '' : b('contributo', 'Registra contributo'))
+        + b('annulla-link', 'Annulla link');
+    } else if (st === 'attivo') {
+      azioni = (r.scaduto && !visual ? b('contributo', 'Registra contributo') : '')
+        + b('disattiva', 'Disattiva')
+        + `<span class="piu"><button class="btn piccolo" data-piu="${esc(r.nome)}" aria-label="Altro">⋯</button>
+             <span class="piu-voci" hidden>${b('reimposta', 'Nuovo link password')}</span></span>`;
+    } else azioni = b('manda', 'Manda link', 'principale') + (visual ? '' : b('contributo', 'Registra contributo'));
+
+    const chiusa = SCHEDA_APERTA === r.nome ? '' : ' chiusa';
+    return `<div class="riga${chiusa}">
+      <button type="button" class="testa-riga" data-apri="${esc(r.nome)}"
+              aria-expanded="${chiusa ? 'false' : 'true'}">
+        <span class="nome">${esc(r.nome)}${etichettaStato(r)}</span>
+      </button>
       <div class="dati">${esc(dati.join(' · '))}</div>
-      <div class="azioni">
-        ${visual ? '' : `
-        <button class="btn piccolo" data-az="contributo" data-n="${esc(r.nome)}">Registra contributo</button>
-        <button class="btn piccolo" data-az="prova" data-n="${esc(r.nome)}">Link di prova</button>`}
-        <button class="btn piccolo" data-az="attivazione" data-n="${esc(r.nome)}">Link di attivazione</button>
-        <button class="btn piccolo" data-az="reimposta" data-n="${esc(r.nome)}">Nuovo link password</button>
-        ${r.stato === 'disattivato'
-          ? `<button class="btn piccolo" data-az="riattiva" data-n="${esc(r.nome)}">Riattiva</button>`
-          : `<button class="btn piccolo" data-az="disattiva" data-n="${esc(r.nome)}">Disattiva</button>`}
-      </div>
+      <div class="azioni">${azioni}</div>
     </div>`;
   }).join('');
-  $('elenco').querySelectorAll('button[data-az]').forEach((b) => {
-    b.onclick = () => azione(b.dataset.az, b.dataset.n);
+
+  /* UNA SOLA SCHEDA APERTA ALLA VOLTA: con cinquantaquattro nomi, due
+     schede aperte vogliono dire che la seconda è già fuori schermo. */
+  $('elenco').querySelectorAll('button[data-apri]').forEach((bt) => {
+    bt.onclick = () => {
+      SCHEDA_APERTA = SCHEDA_APERTA === bt.dataset.apri ? null : bt.dataset.apri;
+      disegnaElenco();
+    };
+  });
+  $('elenco').querySelectorAll('button[data-az]').forEach((bt) => {
+    bt.onclick = (e) => { e.stopPropagation(); azione(bt.dataset.az, bt.dataset.n); };
+  });
+  $('elenco').querySelectorAll('button[data-piu]').forEach((bt) => {
+    bt.onclick = (e) => {
+      e.stopPropagation();
+      const voci = bt.parentElement.querySelector('.piu-voci');
+      voci.hidden = !voci.hidden;
+    };
   });
 }
 
@@ -508,6 +702,20 @@ async function azione(az, nome) {
         await carica();
       });
   }
+  if (az === 'annulla-link') {
+    return conferma('Annullare il link di ' + nome + '?',
+      'Il link che gli hai mandato smette di valere. Se l’ha già aperto e ha scelto la password non cambia niente: quello che si annulla è il permesso di sceglierla.',
+      'Annulla il link', true, async () => {
+        const r = await api('invito-annulla', { nome });
+        chiudiFinestra();
+        toast(r.d.ok ? 'Link annullato' : (r.d.error || 'Non riuscito'));
+        await carica();
+      });
+  }
+  /* «manda» È L'UNICO LINK. Il tipo che si manda al server è sempre
+     «accesso»: prova o attivazione lo decide il server quando quella
+     persona lo apre, guardando se il contributo c'è. */
+  if (az === 'manda') return creaLink('accesso', nome, false);
   return creaLink(az, nome, false);
 }
 
@@ -549,10 +757,21 @@ async function creaLink(tipo, nome, conferma_) {
   }
   if (!r.d.ok) { toast(r.d.error || 'Non riuscito'); return; }
   const link = r.d.link;
-  const msg = MESSAGGI[tipo](nome, link);
+  /* QUALE DEI DUE TESTI. Il link è uno solo, ma il messaggio no: a chi ha
+     già versato il contributo non si parla di prova né di PayPal. La
+     regola è la stessa che userà il server quando quello aprirà il link —
+     c'è il contributo o non c'è — e averle scritte in due posti vuol dire
+     che un giorno diranno cose diverse: qui si guarda lo stesso campo. */
+  const riga = RIGHE.find((x) => x.nome === nome) || {};
+  const quale = tipo === 'accesso'
+    ? (riga.contributo_il || riga.ruolo === 'visualizzatore' ? 'attivazione' : 'prova')
+    : tipo;
+  const msg = MESSAGGI[quale](nome, link);
   const num = numeroDi(nome);
   apriFinestra(`<h3>${esc(nome)}</h3>
-    <p>Link ${esc(tipo === 'prova' ? `di prova — la prova dura ${giorni(CONFIG.giorniProva)} dall’attivazione` : tipo === 'reimposta' ? 'per rifare la password' : 'di attivazione')},
+    <p>Link ${esc(tipo === 'reimposta' ? 'per rifare la password'
+        : quale === 'prova' ? `d’accesso — senza contributo registrato entrerà in prova per ${giorni(CONFIG.giorniProva)}`
+        : 'd’accesso — il contributo è registrato, entrerà attivo')},
        valido fino al ${dataIt(r.d.scade_il)} e usabile <b>una volta sola</b>.</p>
     <div class="linkbox">${esc(link)}</div>
     <div class="pulsanti">
@@ -617,16 +836,55 @@ async function carica() {
   $('nonAdmin').hidden = true; $('tutto').hidden = false;
   disegnaConti(r.d.riepilogo || {});
   disegnaElenco();
+  /* I RIASSUNTI, che si leggono a sezione chiusa. Si rifanno a ogni
+     caricamento: un riassunto che resta indietro è peggio di nessun
+     riassunto, perché lo si crede. */
+  const q = r.d.riepilogo || {};
+  scriviConta('conti', `${RIGHE.length} nominativi · ${q.attivi || 0} attivi · ${q.in_prova || 0} in prova`
+    + (q.scaduti ? ` · ${q.scaduti} scaduti` : ''));
+  const perStato = {};
+  for (const x of RIGHE) { const st = statoDi(x); perStato[st] = (perStato[st] || 0) + 1; }
+  /* QUI NON SI RIPETONO I CONTI DI SOPRA. «A che punto siamo» li mostra
+     già, e li conta a modo suo — gli scaduti a parte, i visualizzatori a
+     parte. Due numeri diversi per la stessa cosa, a tre centimetri uno
+     dall'altro, fanno dubitare di tutti e due. Qui va quello che
+     aggiunge questo elenco. */
+  scriviConta('nominativi', [
+    `${RIGHE.length} in elenco`,
+    perStato.link_mandato ? `${perStato.link_mandato} con link mandato, in attesa` : null,
+    perStato.non_attivo ? `${perStato.non_attivo} senza accesso` : null,
+    q.visualizzatori ? `${q.visualizzatori} di sola consultazione` : null
+  ].filter(Boolean).join(' · '));
   return true;
 }
+
+/* ==================================================================
+   IL REGISTRO: VENTI RIGHE, E LE ALTRE SE SERVONO
+   ==================================================================
+   Il server ne manda trecento. Su un telefono trecento righe sono un
+   muro, e quello che si cerca è quasi sempre l'ultima cosa successa.
+   ================================================================== */
+let REGISTRO = [];
+let REGISTRO_QUANTE = 20;
 
 async function caricaRegistro() {
   const r = await api('registro');
   if (!r.d.ok) return;
-  const righe = r.d.righe || [];
-  $('registro').innerHTML = righe.length
-    ? righe.map((x) => `<div><b>${esc(x.azione)}</b> — ${esc(x.su || '')} <span style="opacity:.7">(${esc(x.chi)}, ${quandoIt(x.at)})</span></div>`).join('')
+  REGISTRO = r.d.righe || [];
+  REGISTRO_QUANTE = 20;
+  disegnaRegistro();
+}
+
+function disegnaRegistro() {
+  const viste = REGISTRO.slice(0, REGISTRO_QUANTE);
+  $('registro').innerHTML = viste.length
+    ? viste.map((x) => `<div><b>${esc(x.azione)}</b> — ${esc(x.su || '')} <span style="opacity:.7">(${esc(x.chi)}, ${quandoIt(x.at)})</span></div>`).join('')
     : '<div class="vuoto">Ancora niente.</div>';
+  const restano = REGISTRO.length - viste.length;
+  $('registroAltre').hidden = restano <= 0;
+  $('registroAltre').textContent = `Mostra altre ${Math.min(20, restano)}`;
+  scriviConta('registro', REGISTRO.length
+    ? `${REGISTRO.length} righe · l’ultima ${quandoIt(REGISTRO[0].at)}` : 'ancora niente');
 }
 
 /* ==================================================================
@@ -645,6 +903,20 @@ async function caricaVerifica() {
   VER = r.d;
   $('pVerifica').hidden = false;
   disegnaVerifica();
+
+  const st = (VER.esito && VER.esito.stato) || 'non_verificata';
+  const quante = (VER.differenze || []).filter((d) => !d.risolta).length;
+  scriviConta('verifica', [
+    VER.pec ? 'ultima PEC ' + (VER.pec.ricevuta_il ? dataIt(VER.pec.ricevuta_il.slice(0, 10)) : '—') : null,
+    ETICHETTA_ESITO[st] || st,
+    quante ? quante + (quante === 1 ? ' differenza aperta' : ' differenze aperte') : null,
+    VER.servito && VER.servito.stato === 'sola_osservazione' ? 'non blocca' : null
+  ].filter(Boolean).join(' · '));
+
+  /* SI APRE DA SÉ SOLO SE CHIEDE QUALCOSA. All'apertura della pagina
+     sono tutte chiuse: una sezione che si apre da sola senza motivo è
+     una sezione che si impara a richiudere senza leggerla. */
+  if (st === 'lettura_dubbia' || st === 'illeggibile' || quante > 0) apriSezione('verifica');
 }
 
 const ETICHETTA_ESITO = {
@@ -664,7 +936,6 @@ function disegnaVerifica() {
       + ((v.pec.mesi || []).length ? ' · ' + v.pec.mesi.join(', ') : '')
       + ((v.pec.ignorati || []).length ? ' · ignorati: ' + v.pec.ignorati.join(', ') : '')]);
     if ((v.pec.cambiati || []).length) righe.push(['Nomi unificati', v.pec.cambiati.join(' · ')]);
-    if ((v.pec.sconosciuti || []).length) righe.push(['Nomi mai visti', v.pec.sconosciuti.join(' · ')]);
   } else {
     righe.push(['Ultima PEC', 'ancora nessuna']);
   }
@@ -721,6 +992,7 @@ function disegnaVerifica() {
       + (maiVisti.length > 10 ? ' <i>e altri ' + (maiVisti.length - 10) + '</i>' : '')
       + '</div>';
     $('verificaDiff').innerHTML = '';
+    $('verificaNomi').innerHTML = '';
     $('verificaScelte').innerHTML = '';
     $('verificaAzioni').hidden = true;
     return;
@@ -733,9 +1005,23 @@ function disegnaVerifica() {
       + '<br>Finché restano, non si pubblica: un foglio letto male non si corregge a mano turno per turno.</div>'
     : '';
 
+  /* I NOMI MAI VISTI, da chiusi ma contati: due o tre sono tecnici nuovi
+     e non c'è niente da fare, ma il numero si deve vedere senza aprire —
+     è il primo segnale che il lettore sta sbagliando. */
+  const nuovi = (v.pec && v.pec.sconosciuti) || [];
+  $('verificaNomi').innerHTML = nuovi.length
+    ? `<details class="elenchino"><summary>${nuovi.length} nomi mai visti</summary>`
+      + `<div class="dati">${esc(nuovi.join(' · '))}</div></details>`
+    : '';
+
   const diff = v.differenze || [];
+  const aperte = diff.filter((d) => !d.risolta).length;
   $('verificaDiff').innerHTML = diff.length
-    ? diff.map(disegnaDifferenza).join('')
+    ? `<details class="elenchino" ${aperte ? 'open' : ''}>`
+      + `<summary>${diff.length} differenz${diff.length === 1 ? 'a' : 'e'}`
+      + (aperte && aperte !== diff.length ? ` · ${aperte} ancora aperte` : '')
+      + (!aperte ? ' · tutte risolte' : '') + '</summary><div>'
+      + diff.map(disegnaDifferenza).join('') + '</div></details>'
     : (stato === 'verificata'
         ? '<div class="vuoto">Nessuna differenza: il quadro e la PEC dicono la stessa cosa.</div>'
         : '<div class="vuoto">Nessuna differenza da risolvere.</div>');
@@ -990,6 +1276,11 @@ async function caricaGestori() {
   DIREZIONE = r.d.direzione || null;
   SENZA_GESTORE = r.d.senza_gestore || [];
   disegnaGestori();
+  scriviConta('gestori', [
+    GESTORI.length + (GESTORI.length === 1 ? ' gestore' : ' gestori'),
+    GESTORI.filter((g) => g.stato === 'attivo').length + ' attivi',
+    SENZA_GESTORE.length ? SENZA_GESTORE.length + ' domini senza gestore' : null
+  ].filter(Boolean).join(' · '));
 }
 
 function disegnaGestori() {
@@ -1121,6 +1412,8 @@ async function caricaPec() {
   if (!r.d.ok) return;
   PEC = (r.d.tecnici || []).filter((t) => t.ruolo !== 'visualizzatore');
   disegnaPec();
+  const con = PEC.filter((t) => t.pec).length;
+  scriviConta('indirizzi', `${PEC.length} tecnici · ${con} con indirizzo · ${PEC.length - con} senza`);
 }
 
 function disegnaPec() {
@@ -1242,7 +1535,13 @@ $('visualizzatoreBtn').addEventListener('click', finestraVisualizzatore);
 $('verificaTurnoBtn').addEventListener('click', finestraTurno);
 $('verificaPubblicaBtn').addEventListener('click', pubblicaVerifica);
 
+$('registroAltre').addEventListener('click', () => { REGISTRO_QUANTE += 20; disegnaRegistro(); });
+
 (async function avvia() {
+  /* LE SEZIONI SI COSTRUISCONO PRIMA DI CHIEDERE I DATI: così la pagina
+     non si vede passare da sei pannelli aperti a sei chiusi un attimo
+     dopo. */
+  preparaSezioni();
   if (!(await carica())) return;
   const r = await api('rubrica');
   RUBRICA = (r.d && r.d.rubrica) || {};
