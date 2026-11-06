@@ -1989,8 +1989,41 @@ function renderCalendar() {
   if (!selectedName) return;
 
   const personShifts = SHIFTS.filter(s => s.name === selectedName && activeRoles.has(s.role));
-  const monthsWithData = [...new Set(personShifts.map(s => s.month))];
-  monthsWithData.sort((a, b) => monthsPresent.indexOf(a) - monthsPresent.indexOf(b));
+
+  /* ====================================================================
+     LA NOTTE SI SEGNA SUL GIORNO IN CUI COMINCIA
+     ====================================================================
+     Nei dati la notte porta la data in cui FINISCE — «30 - 1/12/25» è il
+     turno del 1 — ed è giusto così: è la convenzione del foglio del SAV e
+     tutto il resto ci si appoggia. Ma il calendario ci metteva la luna
+     sulla casella di fine, e chi guarda vede il giorno in cui deve uscire
+     di casa: la notte fra sabato 7 e domenica 8 compariva sull'8, e uno
+     si prepara per la domenica sera invece che per il sabato. L'elenco
+     la scriveva già bene, «SAB - DOM 7 - 8»; qui no.
+     Si calcola una data di INIZIO per ogni turno e si lavora su quella:
+     le caselle, i mesi che si possono sfogliare, tutto.
+     ==================================================================== */
+  const MESI_CAL = Object.keys(MESI_ABBR_TO_IT);
+  const inizioDi = (s) => {
+    const [d, mo, yy] = s.date.split('/').map(Number);
+    const x = new Date(2000 + yy, mo - 1, d);
+    if (s.type === 'notte') x.setDate(x.getDate() - 1);
+    return x;
+  };
+  const meseDi = (data) => MESI_CAL[data.getMonth()] + ' ' + data.getFullYear();
+  const conInizio = personShifts.map(s => ({ s, inizio: inizioDi(s) }));
+
+  /* I MESI SI RICAVANO DALLE DATE DI INIZIO, non dall'etichetta scritta
+     nei dati. Una notte 31 ottobre - 1 novembre ha «Novembre 2026»
+     scritto dentro ma comincia a ottobre: contandola per l'etichetta
+     sparirebbe dal calendario invece di spostarsi di un giorno, e
+     perdere un turno dalla vista è peggio che mostrarlo storto. */
+  const monthsWithData = [...new Set(conInizio.map(x => meseDi(x.inizio)))];
+  const ordineCal = (etichetta) => {
+    const [n, a] = etichetta.split(' ');
+    return Number(a) * 100 + MESI_CAL.indexOf(n);
+  };
+  monthsWithData.sort((a, b) => ordineCal(a) - ordineCal(b));
 
   if (monthsWithData.length === 0) {
     document.getElementById('calMonthLabel').textContent = 'Nessun turno';
@@ -2016,13 +2049,15 @@ function renderCalendar() {
   let startWeekday = firstDay.getDay(); // 0=domenica
   startWeekday = startWeekday === 0 ? 6 : startWeekday - 1; // lunedì=0
 
-  // mappa giorno -> elenco di turni (ruolo + tipo) presenti quel giorno per questo mese
+  // mappa giorno -> elenco di turni (ruolo + tipo) che COMINCIANO quel giorno
   const dayMap = {};
-  personShifts.filter(s => s.month === monthLabel).forEach(s => {
-    const dayNum = parseInt(s.date.split('/')[0], 10);
-    if (!dayMap[dayNum]) dayMap[dayNum] = [];
-    dayMap[dayNum].push({ role: s.role, type: s.type });
-  });
+  conInizio
+    .filter(x => x.inizio.getFullYear() === year && x.inizio.getMonth() === monthNum)
+    .forEach(x => {
+      const dayNum = x.inizio.getDate();
+      if (!dayMap[dayNum]) dayMap[dayNum] = [];
+      dayMap[dayNum].push({ role: x.s.role, type: x.s.type });
+    });
 
   const ROLE_ABBR = { Operatore: 'OP', SA1: 'SA1', SA2: 'SA2', Cinofilo: 'CI', AVIF: 'AV', Addestramento: 'AD' };
   const ROLE_COLOR_VAR = { Operatore: '--operatore', SA1: '--sa1', SA2: '--sa2', Cinofilo: '--cinofilo', AVIF: '--avif', Addestramento: '--addestramento' };
