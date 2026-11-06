@@ -423,13 +423,21 @@ const DENTRO_TROVI = 'Dentro trovi tutto: calendario personale e degli altri tec
   + 'download dei turni';
 const FUNZIONA = 'Funziona per tutti i ruoli, si aggiorna in automatico circa due ore '
   + 'dopo l\'arrivo di ogni PEC.';
+/* LA VALIDITÀ DEL LINK È UNA FUNZIONE, NON UNA COSTANTE, e la differenza
+   non è di stile: CONFIG si riempie quando arriva l'elenco dal server, e
+   una costante calcolata mentre la pagina si legge direbbe «undefined
+   giorni». È la stessa ragione per cui `creaLink` si rifiuta di comporre
+   un messaggio finché le durate non sono arrivate: un numero sbagliato su
+   WhatsApp si manda una volta e non si ritira più. */
+const VALE = () => `Il link vale ${giorni(CONFIG.giorniInvito)} e si può usare una volta sola.`;
+
 const ARUBA = 'Per l\'invio automatico delle PEC bisogna creare una password dalla posta '
   + 'Aruba; se hai un provider diverso dobbiamo sentirci così da impostarlo insieme. '
   + 'Scrivimi se hai problemi, ti allego anche il manuale.';
 
 const MESSAGGI = {
   prova: (n, l) => `Ciao ${primoNome(n)}, questo è il link di prova dell'applicazione che ho creato per gestire i turni: ${l}
-Da qui puoi creare il tuo login con password. La prova dura 2 settimane da quando entri.
+Da qui puoi creare il tuo login con password. ${VALE()} La prova dura 2 settimane da quando entri.
 
 ${DENTRO_TROVI}.
 
@@ -442,7 +450,7 @@ ${ARUBA}`,
      termine da dire e niente PayPal da proporre, e la sincronizzazione
      col calendario torna fra le cose che ci sono già. */
   attivazione: (n, l) => `Ciao ${primoNome(n)}, questo è il link per attivare l'applicazione che ho creato per gestire i turni: ${l}
-Da qui puoi creare il tuo login con password.
+Da qui puoi creare il tuo login con password. ${VALE()}
 
 ${DENTRO_TROVI} e sincronizzazione con il calendario del telefono.
 
