@@ -650,7 +650,7 @@ async function caricaVerifica() {
 const ETICHETTA_ESITO = {
   verificata: 'coincidono', in_verifica: 'in verifica',
   illeggibile: 'PDF illeggibile', non_verificata: 'nessuna PEC ancora',
-  sola_osservazione: 'sola osservazione'
+  sola_osservazione: 'sola osservazione', lettura_dubbia: 'lettura dubbia'
 };
 
 function disegnaVerifica() {
@@ -705,6 +705,26 @@ function disegnaVerifica() {
     + '<span class="stato s-' + esc(stato) + '">' + esc(ETICHETTA_ESITO[stato] || stato) + '</span></div>'
     + '<div class="dati">' + righe.map((x) => '<b style="color:var(--rope)">' + esc(x[0]) + '</b>: ' + esc(x[1])).join('<br>')
     + '</div></div>';
+
+  /* LETTURA DUBBIA: UNA RIGA, NON UN ELENCO. Quando i nomi letti non
+     esistono, il sospettato è il lettore, non il quadro: il confronto non
+     si fa, e al posto di centinaia di differenze inventate c'è questa. */
+  const maiVisti = (v.esito && v.esito.mai_visti) || [];
+  if (stato === 'lettura_dubbia') {
+    $('verificaGuai').innerHTML = '<div class="avviso" style="margin:10px 0 0">'
+      + '<b>Il foglio non si è letto bene</b><br>'
+      + maiVisti.length + ' nominativi letti non esistono fra i tecnici in servizio: '
+      + 'il problema è la lettura del PDF, non il quadro dei turni. '
+      + 'Il confronto non è stato fatto, e non si pubblica.<br><br>'
+      + '<b>Nomi che non esistono</b><br>'
+      + esc(maiVisti.slice(0, 10).join(' · '))
+      + (maiVisti.length > 10 ? ' <i>e altri ' + (maiVisti.length - 10) + '</i>' : '')
+      + '</div>';
+    $('verificaDiff').innerHTML = '';
+    $('verificaScelte').innerHTML = '';
+    $('verificaAzioni').hidden = true;
+    return;
+  }
 
   const guai = (v.esito && v.esito.guai) || [];
   $('verificaGuai').innerHTML = guai.length
