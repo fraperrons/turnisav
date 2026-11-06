@@ -1696,17 +1696,30 @@ function loadShiftsData() {
       // Riordino cronologicamente l'intero elenco unito (mese, giorno, notte-prima-di-giorno),
       // altrimenti gli addestramenti (caricati da un file separato) finirebbero tutti in fondo
       // invece di essere mischiati con i turni nella vista lista.
-      const MONTH_ORDER_FULL = [
-        'Gennaio 2026','Febbraio 2026','Marzo 2026','Aprile 2026','Maggio 2026','Giugno 2026',
-        'Luglio 2026','Agosto 2026','Settembre 2026','Ottobre 2026','Novembre 2026','Dicembre 2026',
-        'Gennaio 2027','Febbraio 2027'
-      ];
-      const monthOrderIdx = {};
-      MONTH_ORDER_FULL.forEach((m, i) => { monthOrderIdx[m] = i; });
+      /* L'ORDINE DEI MESI SI CALCOLA, NON SI SCRIVE A MANO.
+         Qui c'era un elenco che finiva a «Febbraio 2027»: tutto quello
+         che veniva dopo finiva in un unico mucchio in fondo, ordinato
+         solo per numero di mese e senza guardare l'anno. Con gli
+         addestramenti del 2027 — maggio, giugno, settembre, novembre,
+         dicembre — l'ordine restava giusto per combinazione, perché sono
+         tutti dello stesso anno; il primo mese del 2028 si sarebbe messo
+         davanti a maggio 2027, perché gennaio viene prima di maggio.
+         «Giugno 2027» porta dentro tutto quello che serve a metterlo al
+         suo posto: l'anno per cento, più il numero del mese. Nessun
+         elenco da aggiornare, e nessun anno da ricordare. */
+      const MESI_IT = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno',
+        'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
+      const ordineMese = (etichetta) => {
+        const [nome, anno] = String(etichetta || '').split(' ');
+        const i = MESI_IT.indexOf(nome);
+        /* Un'etichetta che non si riconosce va in fondo, non in mezzo. */
+        if (i < 0 || !anno) return Number.MAX_SAFE_INTEGER;
+        return Number(anno) * 100 + i;
+      };
 
       SHIFTS.sort((a, b) => {
-        const ma = monthOrderIdx[a.month] ?? 999;
-        const mb = monthOrderIdx[b.month] ?? 999;
+        const ma = ordineMese(a.month);
+        const mb = ordineMese(b.month);
         if (ma !== mb) return ma - mb;
         const [da, moA] = a.date.split('/').map(Number);
         const [db, moB] = b.date.split('/').map(Number);
@@ -2065,11 +2078,21 @@ function renderTrainingSummary() {
 
     const [d, mo, yy] = s.date.split('/').map(Number);
     const monthAbbr = MONTH_ABBR_IT[s.month.split(' ')[0]] || '';
+    /* L'ANNO SU OGNI DATA, non solo dove sembra servire.
+       Questo riquadro raggruppa per ATTIVITÀ, non per anno: con due
+       calendari in casa, «Valanghe» metteva in fila 7 gen, 8 gen, 26 gen,
+       27 gen, 22 nov, 23 nov, 24 nov, 13 dic — i primi quattro del 2026 e
+       gli altri del 2027, senza niente che lo dicesse. «Impianti a fune»
+       arrivava a mostrare «21 set» e «22 set» due volte, che a leggerle
+       sembrano un errore. E «7 gen» compariva sotto due attività diverse,
+       in due anni diversi.
+       Due cifre bastano, e stanno nella pastiglia anche a 375 px. */
+    const anno = `’${String(yy).padStart(2, '0')}`;
     let label;
     if (s.type === 'addestramento_te_2gg') {
-      label = `${s.dayStart}-${d} ${monthAbbr}`;
+      label = `${s.dayStart}-${d} ${monthAbbr} ${anno}`;
     } else {
-      label = `${d} ${monthAbbr}`;
+      label = `${d} ${monthAbbr} ${anno}`;
     }
     grouped[category][s.activity].push({ label, sortKey: yy * 10000 + mo * 100 + d });
   });
