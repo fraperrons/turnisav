@@ -501,6 +501,14 @@
   #scSendPecBtn { margin-top: 10px; background: var(--amber); }
   .sc-pass { width: 100%; padding: 9px; border-radius: 10px; border: 1px solid var(--line-scura); background: var(--ink-su); color: var(--rope); font-size: 0.85rem; box-sizing: border-box; }
   .sc-pec-help { margin-top: 6px; font-size: 0.72rem; color: var(--muted-chiaro); line-height: 1.4; }
+  .sc-pec-help a { color: var(--rope); }
+  /* LE DUE PROVE, staccate da quello che si invia davvero: una riga sopra
+     che si vede, perche' «prova» e «invia» non devono stare nello stesso
+     blocco visivo. A 375 px i due pulsanti vanno a capo da se' -- `wrap` -
+     e nessuno dei due esce dallo schermo. */
+  .sc-pec-prove { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--ink-su); }
+  .sc-pec-bottoni { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .sc-pec-bottoni button { flex: 1 1 auto; min-width: 0; }
   #scSendPecBtn:hover { background: var(--amber-su); }
   .sc-pec-head { margin-top: 12px; font-size: 0.75rem; color: var(--muted-chiaro); line-height: 1.5; word-break: break-all; }
   .sc-pec-head b { color: var(--rope); }
@@ -1206,6 +1214,10 @@
         <button type="button" id="scModeSwap" class="active">🔀 Cambio</button>
         <button type="button" id="scModeGive">🎁 Cessione</button>
       </div>
+      <!-- La riga per chi e' in sola consultazione: dice dove si sceglie il
+           primo nominativo, perche' lui non ne ha uno suo. Nascosta per
+           tutti gli altri. -->
+      <div class="sc-pec-help" id="scNotaVisual" hidden></div>
       <label class="sc-label" id="scMyLabel">Il tuo turno da cambiare</label>
       <select id="scMyShift"></select>
 
@@ -1365,7 +1377,12 @@ function unlockApp(stato) {
     nome: (stato && stato.nome) || null,
     prova: !!(stato && stato.prova),
     condivisa: !!(stato && stato.condivisa),
-    ruolo: (stato && stato.ruolo) || 'tecnico'
+    ruolo: (stato && stato.ruolo) || 'tecnico',
+    /* SOLA CONSULTAZIONE: i due accessi della dirigenza. Vedono i turni di
+       tutti e verificano i cambi, ma non mandano PEC, non fanno prove e non
+       hanno il calendario. Qui si usa per non DISEGNARE quei gesti; a
+       impedirli è il server, perché un pulsante nascosto non è un muro. */
+    visualizzatore: !!(stato && stato.visualizzatore)
   };
   gEl('gate').style.display = 'none';
   gEl('app').style.display = 'block';
@@ -1380,6 +1397,13 @@ function unlockApp(stato) {
    e' quello che guarda nove volte su dieci. */
 function preselezionaNome() {
   if (!IO.nome) return;
+  /* UN DIRIGENTE PARTE DA «— TUTTI —», e non è un ripiego: non ha turni
+     propri, e il suo nome non è nell'elenco dei nominativi. Senza questa
+     riga succedeva già la cosa giusta — la tendina non trovava l'opzione e
+     restava su «— Tutti —» — ma per caso, e un comportamento giusto per
+     caso è un comportamento che cambia il giorno che qualcuno aggiunge quel
+     nome ai turni per sbaglio. */
+  if (IO.visualizzatore) return;
   try {
     const sel = document.getElementById('nameSelect');
     if (sel && [...sel.options].some(o => o.value === IO.nome)) {
@@ -1878,7 +1902,14 @@ function showConfirmModal(message) {
   });
 }
 
-const savedName = loadSelectedName();
+/* L'ULTIMO NOMINATIVO SCELTO SI RICORDA — ma non per un dirigente.
+   Per un tecnico è comodo: riapre l'app e trova il suo. Per chi è in sola
+   consultazione no: la sua vista parte da «— Tutti —», perché non ha turni
+   propri e il suo mestiere è guardare l'insieme. Senza questa riga trovava
+   preselezionato il nominativo di qualcun altro — quello rimasto nella
+   memoria del telefono dalla volta prima, magari di un'altra persona che ha
+   usato lo stesso dispositivo. Visto sul banco il 6 novembre 2026. */
+const savedName = IO.visualizzatore ? '' : loadSelectedName();
 if (savedName && names.includes(savedName)) {
   sel.value = savedName;
 }
@@ -2150,6 +2181,12 @@ function calendariDi(nome) {
 }
 function updateCalSyncBtn() {
   if (!calSyncBtnEl) return;
+  /* NIENTE CALENDARIO PER CHI È IN SOLA CONSULTAZIONE. Il server non gli
+     consegna nessuna voce, quindi il pulsante non comparirebbe comunque:
+     questa riga lo dice come REGOLA invece di lasciarlo dipendere da che
+     cosa c'è scritto in calendari.json. Un link a un calendario è una
+     chiave che non scade e non si revoca. */
+  if (IO.visualizzatore) { calSyncBtnEl.style.display = 'none'; return; }
   calSyncBtnEl.style.display = calendariDi(sel.value) ? 'block' : 'none';
 }
 /* IL SERVER CONSEGNA SOLO LA VOCE DI CHI CHIEDE: da qui in giù il codice è
@@ -2246,8 +2283,25 @@ function setScMode(mode) {
   const give = mode === 'cessione';
   document.getElementById('scModeSwap').classList.toggle('active', !give);
   document.getElementById('scModeGive').classList.toggle('active', give);
-  document.getElementById('scMyLabel').textContent = give ? 'Il turno che cedi' : 'Il tuo turno da cambiare';
-  document.getElementById('scOtherNameLabel').textContent = give ? 'Cedi il turno a' : 'Nominativo con cui cambiare';
+  /* LE ETICHETTE DANNO DEL TU A CHI HA DEI TURNI, e un dirigente non ne ha:
+     «Il tuo turno da cambiare» gli chiederebbe una cosa che non esiste.
+     Per lui il primo nominativo è quello scelto in NOMINATIVO, in cima alla
+     pagina — è da lì che questa tendina prende i turni — e le due etichette
+     lo dicono invece di lasciarglielo capire. */
+  const io = IO.visualizzatore;
+  document.getElementById('scMyLabel').textContent = io
+    ? (give ? 'Il turno ceduto (del primo nominativo)' : 'Turno del primo nominativo')
+    : (give ? 'Il turno che cedi' : 'Il tuo turno da cambiare');
+  document.getElementById('scOtherNameLabel').textContent = io
+    ? (give ? 'Ceduto a' : 'Secondo nominativo')
+    : (give ? 'Cedi il turno a' : 'Nominativo con cui cambiare');
+  const nota = document.getElementById('scNotaVisual');
+  if (nota) {
+    nota.hidden = !io;
+    nota.textContent = io
+      ? 'Il primo nominativo è quello scelto in NOMINATIVO, in cima alla pagina. Da questo accesso la PEC non si invia: resta «Copia testo».'
+      : '';
+  }
   document.getElementById('scOtherShiftLabel').style.display = give ? 'none' : '';
   scOtherShiftEl.style.display = give ? 'none' : '';
   scResultEl.innerHTML = '';
@@ -2530,6 +2584,114 @@ function showCopyFallback(area, myName, myShift, otherName, otherShift, motivo, 
   });
 }
 
+/**
+ * L'aiuto del gestore, scritto senza fidarsi del testo.
+ *
+ * `textContent` e non `innerHTML`: quel testo lo scrive l'amministratore
+ * nella pagina di amministrazione, e un testo che diventa HTML è un testo
+ * che può diventare un pulsante. Il link è un `<a>` costruito a mano, con
+ * l'indirizzo messo in `href` dopo che il server ha già pretesto che
+ * cominci con «https://».
+ */
+function riempiAiuto(dove, g) {
+  if (!dove) return;
+  dove.textContent = (g && g.aiuto) ? g.aiuto : '';
+  const coda = ' Serve solo per questo invio: il sito non la salva. Il telefono può ricordarla al posto tuo.';
+  dove.textContent += coda;
+  if (g && g.link) {
+    dove.appendChild(document.createElement('br'));
+    const a = document.createElement('a');
+    a.href = g.link;
+    a.target = '_blank';
+    a.rel = 'noopener noreferrer';
+    a.textContent = 'Le istruzioni del tuo gestore →';
+    dove.appendChild(a);
+  }
+}
+
+/**
+ * LE DUE PROVE, sotto il resto.
+ *
+ * «Prova connessione» fa SOLO il login e non manda niente: risponde alla
+ * domanda che un tecnico si fa davvero — «la mia password è quella giusta?»
+ * — senza far partire una PEC. Prima di oggi l'unico modo di saperlo era
+ * mandarne una vera alla Direzione.
+ *
+ * «Invia PEC di prova» manda dalla sua casella a un indirizzo di prova
+ * deciso dall'amministratore, con copia a lui stesso. MAI alla Direzione:
+ * il destinatario non parte da qui, lo legge il server dalla propria
+ * impostazione. Se l'indirizzo non è impostato il server lo dice, e il
+ * pulsante avvisa invece di fingere.
+ *
+ * LA PASSWORD STA NELLA CASELLA DEL MODULO PRINCIPALE quando c'è, così non
+ * si scrive due volte; quando non c'è — gestore in collaudo, dove non si
+ * invia — questo blocco ne ha una sua.
+ */
+function attaccaProve(area, data) {
+  const g = data.gestore || {};
+  const haGiaPassword = !!document.getElementById('scPecPass');
+  const box = document.createElement('div');
+  box.className = 'sc-pec-prove';
+  box.innerHTML = `
+    <div class="sc-pec-head"><b>Provare la configurazione</b></div>
+    <div class="sc-pec-help" id="scProveAiuto"></div>
+    ${haGiaPassword ? '' : `
+      <label class="sc-label" id="scProveLabel"></label>
+      <input type="password" id="scProvePass" autocomplete="current-password" class="sc-pass">
+      <div class="sc-pec-help" id="scProveHelp"></div>`}
+    <div class="sc-pec-bottoni">
+      <button type="button" id="scProvaConnBtn">🔌 Prova connessione</button>
+      <button type="button" id="scProvaInvioBtn">✉️ Invia PEC di prova</button>
+    </div>
+    <div id="scProveEsito"></div>
+  `;
+  area.appendChild(box);
+  document.getElementById('scProveAiuto').textContent = g.stato === 'da_collaudare'
+    ? 'Il tuo gestore PEC è in fase di collaudo: queste due prove servono a capire se la configurazione funziona. Non mandano niente alla Direzione.'
+    : 'Serve a controllare la tua password senza mandare una comunicazione vera. Non manda niente alla Direzione.';
+  if (!haGiaPassword) {
+    document.getElementById('scProveLabel').textContent = g.etichettaPassword || 'Password della casella PEC';
+    riempiAiuto(document.getElementById('scProveHelp'), g);
+  }
+
+  const password = () => {
+    const el = document.getElementById('scPecPass') || document.getElementById('scProvePass');
+    return el ? el.value : '';
+  };
+  const esito = document.getElementById('scProveEsito');
+  const dillo = (buono, titolo, testo) => {
+    esito.innerHTML = '';
+    const d = document.createElement('div');
+    d.className = 'sc-outcome ' + (buono ? 'ok' : 'fail');
+    d.style.marginTop = '10px';
+    d.textContent = (buono ? '✅ ' : '❌ ') + titolo + (testo ? ' — ' + testo : '');
+    esito.appendChild(d);
+  };
+
+  const fai = async (quale, btn, etichetta, inCorso) => {
+    const pw = password().trim();
+    if (!pw) { showToast('⚠️ Inserisci la password della tua PEC'); return; }
+    if (quale === 'prova-invio') {
+      const vai = await showConfirmModal('Mandare una PEC di prova dalla tua casella all’indirizzo di prova, con copia a te? Non va alla Direzione.');
+      if (!vai) return;
+    }
+    btn.disabled = true; btn.textContent = inCorso;
+    try {
+      const r = await pecApi(quale, { password: pw });
+      if (r.ok) dillo(true, r.titolo || 'Tutto a posto', quale === 'prova-invio' && r.a ? 'mandata a ' + r.a : (r.dryRun ? 'prova a secco' : ''));
+      else dillo(false, r.titolo || 'Non riuscita', r.error || '');
+    } catch (e) {
+      dillo(false, 'Server non raggiungibile', 'Riprova o copia il testo.');
+    }
+    btn.disabled = false; btn.textContent = etichetta;
+  };
+
+  const bConn = document.getElementById('scProvaConnBtn');
+  const bInv = document.getElementById('scProvaInvioBtn');
+  bConn.addEventListener('click', () => fai('prova-connessione', bConn, '🔌 Prova connessione', 'Provo…'));
+  bInv.addEventListener('click', () => fai('prova-invio', bInv, '✉️ Invia PEC di prova', 'Invio…'));
+}
+
 async function preparePec(myName, myShift, otherName, otherShift) {
   const area = document.getElementById('scPecArea');
   const prepBtn = document.getElementById('scPrepPecBtn');
@@ -2537,8 +2699,12 @@ async function preparePec(myName, myShift, otherName, otherShift) {
      invece di far premere un pulsante che risponderebbe «non sei tu». La
      verifica del cambio resta disponibile per chiunque — è utile sapere se
      uno scambio si può fare — ma il testo si manda dalla propria casella, e
-     per gli altri resta quello da copiare. */
-  if (IO.nome && myName !== IO.nome) {
+     per gli altri resta quello da copiare.
+     UN DIRIGENTE È L'ECCEZIONE: non ha turni propri, quindi «myName» non
+     sarà mai il suo nome e questa riga gli chiuderebbe il pannello sempre.
+     Per lui il testo da copiare lo compone il server, che sa anche dirgli
+     perché non può inviare. */
+  if (IO.nome && myName !== IO.nome && !IO.visualizzatore) {
     prepBtn.disabled = true;
     showCopyFallback(area, myName, myShift, otherName, otherShift,
       `⚠️ La PEC la può inviare solo ${myName}: tu sei entrato come ${IO.nome}. Copia il testo e passaglielo.`);
@@ -2566,29 +2732,52 @@ async function preparePec(myName, myShift, otherName, otherShift) {
     }
     return;
   }
-  // Il server ci dice soltanto si' o no, mai da quale gestore parte la PEC.
-  // Se e' no, niente password e niente «Invia»: resta il testo da copiare,
-  // che funziona con qualunque gestore. Struttura e colori sono quelli di
-  // sempre: cambia solo quello che si vede.
+  /* ============================================================
+     CHI PUÒ INVIARE, E CHI NO: LO DICE IL SERVER
+     ============================================================
+     Il sito non sa nulla di gestori di posta, e non deve: riceve il sì o il
+     no, la frase da mostrare, e — se c'è un gestore — l'etichetta della
+     casella della password, il testo di aiuto e il link. Fino al 6 novembre
+     2026 quei tre erano scritti qui dentro e dicevano «Aruba» a tutti: per
+     chi ha Legalmail o Register quella pagina non esiste, e l'aiuto
+     mandava a cercare per mezz'ora una password che non si può creare.
+
+     TRE CASI, E SONO DIVERSI:
+       - non si invia e non si prova → solo «Copia testo»;
+       - non si invia ma si PUÒ PROVARE (gestore in collaudo) → «Copia
+         testo» PIÙ le due prove, che sono il gesto che chiude il collaudo.
+         Dirgli solo «aspetta» vorrebbe dire non dargli niente da fare;
+       - si invia → il modulo di sempre, con l'aiuto del suo gestore. */
   if (data.puoInviare === false) {
     showCopyFallback(area, myName, myShift, otherName, otherShift,
-      'Il tuo gestore di posta non è ancora supportato per l\'invio dall\'app: copia il testo e invialo dalla tua PEC.',
+      data.motivo || 'Il tuo gestore di posta non è ancora supportato per l\'invio dall\'app: copia il testo e invialo dalla tua PEC.',
       data.text);
+    if (data.puoProvare) attaccaProve(area, data);
     return;
   }
+  const g = data.gestore || {};
   area.innerHTML = `
     <div class="sc-pec-head"><b>Da:</b> ${data.from} (la tua PEC)<br><b>A:</b> ${data.to}<br><b>In copia:</b> ${data.cc.join(', ')}<br><b>Oggetto:</b> ${data.subject}</div>
     <div class="sc-pec-warn">👀 Controlla il testo qui sotto: è esattamente quello che verrà inviato.</div>
     <div id="scPecPreview"></div>
     <form id="scPecForm" autocomplete="on" onsubmit="return false;">
-      <input type="email" name="username" id="scPecUser" autocomplete="username" value="${data.from}" readonly style="display:none;">
-      <label class="sc-label">Password per client di posta (Aruba)</label>
-      <input type="password" name="password" id="scPecPass" autocomplete="current-password" placeholder="Non è quella della webmail" class="sc-pass">
-      <div class="sc-pec-help">La crei su account.aruba.it/pec → «Email client password» → «Generate a new one» (non è la password della webmail). Serve solo per questo invio: il sito non la salva. Il telefono può ricordarla al posto tuo.</div>
+      <input type="text" name="username" id="scPecUser" autocomplete="username" readonly style="display:none;">
+      <label class="sc-label" id="scPecLabel"></label>
+      <input type="password" name="password" id="scPecPass" autocomplete="current-password" class="sc-pass">
+      <div class="sc-pec-help" id="scPecHelp"></div>
       <button type="button" id="scSendPecBtn">📨 Invia PEC</button>
     </form>
   `;
   document.getElementById('scPecPreview').textContent = data.text;
+  /* IL NOME UTENTE LO DICE IL SERVER: per quasi tutti è l'indirizzo, per
+     Legalmail è la UserID dell'attivazione. Il sito non deve saperlo — lo
+     scrive nel campo nascosto che il gestore delle password del telefono
+     legge, così «ricorda la password» si attacca alla cosa giusta. */
+  document.getElementById('scPecUser').value = g.nomeUtente || data.from;
+  document.getElementById('scPecLabel').textContent = g.etichettaPassword || 'Password della casella PEC';
+  document.getElementById('scPecPass').placeholder = g.serveCodice ? 'La password del tuo gestore PEC' : 'Non è quella della webmail';
+  riempiAiuto(document.getElementById('scPecHelp'), g);
+  if (data.puoProvare) attaccaProve(area, data);
   document.getElementById('scSendPecBtn').addEventListener('click', async () => {
     const passEl = document.getElementById('scPecPass');
     if (!passEl.value.trim()) { showToast('⚠️ Inserisci la password per client di posta'); passEl.focus(); return; }

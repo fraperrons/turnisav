@@ -70,6 +70,22 @@ input::placeholder{color:var(--muted-chiaro)}
 .s-scaduto{background:rgba(181,80,46,.3);color:#f0b49a}
 
 .vuoto{color:var(--muted-chiaro);text-align:center;padding:22px 0;font-size:.9rem}
+/* La nota di una scheda: spiega la regola, e si legge prima dei pulsanti. */
+.nota{font-size:.79rem;color:var(--muted-chiaro);line-height:1.55}
+.nota b{color:var(--rope)}
+/* Lo stato di un gestore: le stesse tre tinte degli stati degli accessi,
+   perche' dicono la stessa cosa — va, va a meta', non va. */
+.s-da_collaudare{background:rgba(210,160,60,.2);color:var(--amber-su)}
+.s-solo_copia{background:rgba(168,189,184,.17);color:var(--muted-chiaro)}
+/* I CAMPI DI UNA FINESTRA, uno sotto l'altro: a 375 px due campi affiancati
+   diventano due campi illeggibili. */
+.campo{margin:0 0 10px}
+.campo label{display:block;font-size:.72rem;color:var(--muted-chiaro);margin:0 0 3px}
+.campo input,.campo select,.campo textarea{width:100%;box-sizing:border-box;
+  background:var(--ink-sotto);color:var(--rope);border:1px solid var(--ink-su);
+  border-radius:9px;padding:9px 10px;font:inherit;font-size:.9rem}
+.campo textarea{min-height:66px;resize:vertical}
+.campo .aiuto{font-size:.7rem;color:var(--muted-chiaro);margin-top:3px;line-height:1.4}
 
 /* LA FINESTRA: le conferme stanno qui dentro e non in confirm() del browser.
    Un confirm() su un telefono dice «prusik.it dice:», che sembra un errore
@@ -139,8 +155,71 @@ input::placeholder{color:var(--muted-chiaro)}
           <option value="in_scadenza">In scadenza (30 giorni)</option>
         </select>
       </div>
-      <div style="margin-top:10px"><button class="btn piccolo" id="csvBtn">⬇️ Esporta CSV</button></div>
+      <div style="margin-top:10px">
+        <button class="btn piccolo" id="csvBtn">⬇️ Esporta CSV</button>
+        <!-- I due accessi della dirigenza: non vengono dai turni, quindi il
+             nome lo scrive l'amministratore. -->
+        <button class="btn piccolo" id="visualizzatoreBtn">+ Crea account visualizzatore</button>
+      </div>
       <div id="elenco" style="margin-top:12px"></div>
+    </div>
+
+    <!-- ============================================================
+         I GESTORI PEC
+         ============================================================
+         Fino al 6 novembre 2026 l'invio funzionava da un gestore solo:
+         host e porta erano scritti nel programma, e aggiungerne uno voleva
+         dire modificare il codice, ricostruire l'immagine e ripubblicare —
+         per una persona su cinquantatre. Da qui i gestori sono dati.
+
+         LA SICUREZZA NON E' IN QUESTA SCHEDA, e non e' una dimenticanza:
+         la connessione e' sempre cifrata e il certificato sempre
+         verificato, le porte ammesse sono due. Non sono preferenze, e una
+         casella di spunta che le disattiva e' una casella che prima o poi
+         qualcuno spunta per far funzionare le cose. -->
+    <div class="pannello">
+      <h2>Gestori PEC</h2>
+      <p class="nota" style="margin:0 0 10px">
+        Da chi si può inviare, e come. <b>Attivo</b>: la PEC parte verso la Direzione.
+        <b>Da collaudare</b>: niente invio alla Direzione, ma il tecnico può fare le
+        due prove — ed è così che un collaudo si chiude. <b>Solo Copia testo</b>: niente
+        invio e niente prove.
+      </p>
+      <p class="nota" style="margin:0 0 10px">
+        La connessione è <b>sempre cifrata col certificato verificato</b> e le porte
+        ammesse sono solo 465 (SSL) e 587 (STARTTLS): non si configurano.
+      </p>
+      <div id="gestori"></div>
+      <div style="margin-top:12px"><button class="btn piccolo" id="gestoreNuovoBtn">+ Nuovo gestore</button></div>
+      <div id="senzaGestore" style="margin-top:12px"></div>
+      <div class="riga" style="margin-top:14px">
+        <div class="nome">Indirizzo PEC per le prove</div>
+        <div class="dati" id="proveNota"></div>
+        <div class="azioni"><button class="btn piccolo" id="proveBtn">Imposta</button></div>
+      </div>
+    </div>
+
+    <!-- Gli indirizzi PEC dei tecnici: prima si modificavano a mano con ssh. -->
+    <div class="pannello">
+      <h2>Indirizzi PEC dei tecnici</h2>
+      <p class="nota" style="margin:0 0 10px">
+        Il gestore si riconosce dal <b>dominio</b>; si può scegliere a mano per i domini
+        personalizzati. Il <b>nome utente</b> si riempie solo per i gestori che non usano
+        l’indirizzo PEC (InfoCert vuole la UserID dell’attivazione).
+        <b>La password non si scrive qui e non si salva mai</b>: la mette il tecnico al
+        momento dell’invio.
+      </p>
+      <div class="filtri">
+        <input type="text" id="cercaPec" placeholder="Cerca un nominativo…" autocomplete="off">
+        <select id="filtroPec">
+          <option value="">— Tutti —</option>
+          <option value="senza">Senza indirizzo</option>
+          <option value="senzagestore">Dominio senza gestore</option>
+          <option value="collaudo">Gestore da collaudare</option>
+          <option value="codice">Serve il nome utente</option>
+        </select>
+      </div>
+      <div id="elencoPec" style="margin-top:12px"></div>
     </div>
 
     <div class="pannello">
@@ -216,7 +295,11 @@ function disegnaConti(r) {
     ['non attivi', r.non_attivi, ''], ['disattivati', r.disattivati, ''],
     ['scaduti', r.scaduti, r.scaduti ? 'male' : ''],
     ['in scadenza', r.in_scadenza, r.in_scadenza ? 'urge' : ''],
-    ['prove in chiusura', r.prove_in_scadenza, r.prove_in_scadenza ? 'urge' : '']
+    ['prove in chiusura', r.prove_in_scadenza, r.prove_in_scadenza ? 'urge' : ''],
+    /* I VISUALIZZATORI IN UNA VOCE LORO, e non dentro «attivi»: questo
+       quadro risponde a «a che punto sono i 53 tecnici», e due dirigenti
+       sommati agli attivi farebbero rispondere male a quella domanda. */
+    ['visualizzatori', r.visualizzatori || 0, '']
   ].map(([t, n, c]) => `<div class="conto ${c}"><b>${n}</b><span>${t}</span></div>`).join('');
 }
 
@@ -245,12 +328,20 @@ function disegnaElenco() {
     dati.push('ultimo accesso: ' + quandoIt(r.ultimo_accesso));
     if (r.invito_aperto) dati.push('link ' + r.invito_aperto.tipo + ' aperto fino al ' + dataIt(r.invito_aperto.scade_il));
     if (r.ruolo === 'amministratore') dati.push('amministratore');
+    /* UN VISUALIZZATORE HA MENO PULSANTI, e sono quelli che hanno senso per
+       lui: niente «Registra contributo» e niente «Link di prova», perché
+       non versa un contributo e non fa una prova — resta attivo finché non
+       lo si disattiva. Mostrare pulsanti che non si premono mai vuol dire
+       far cercare ogni volta quale si preme. */
+    const visual = r.ruolo === 'visualizzatore';
+    if (visual) dati.push('sola consultazione · non scade');
     return `<div class="riga">
       <div class="nome">${esc(r.nome)}${etichettaStato(r)}</div>
       <div class="dati">${esc(dati.join(' · '))}</div>
       <div class="azioni">
+        ${visual ? '' : `
         <button class="btn piccolo" data-az="contributo" data-n="${esc(r.nome)}">Registra contributo</button>
-        <button class="btn piccolo" data-az="prova" data-n="${esc(r.nome)}">Link di prova</button>
+        <button class="btn piccolo" data-az="prova" data-n="${esc(r.nome)}">Link di prova</button>`}
         <button class="btn piccolo" data-az="attivazione" data-n="${esc(r.nome)}">Link di attivazione</button>
         <button class="btn piccolo" data-az="reimposta" data-n="${esc(r.nome)}">Nuovo link password</button>
         ${r.stato === 'disattivato'
@@ -468,13 +559,282 @@ async function caricaRegistro() {
     : '<div class="vuoto">Ancora niente.</div>';
 }
 
+/* ==================================================================
+   I GESTORI PEC
+   ==================================================================
+   Una riga per gestore, modificabile. Quello che questa scheda NON fa:
+   scegliere se cifrare, se verificare il certificato, quale porta oltre le
+   due ammesse. Quelle le decide il server e non sono preferenze.
+   ================================================================== */
+let GESTORI = [], PROVE = {}, DIREZIONE = null, SENZA_GESTORE = [];
+
+async function caricaGestori() {
+  const r = await api('gestori');
+  if (!r.d.ok) return;
+  GESTORI = r.d.gestori || [];
+  PROVE = r.d.prove || {};
+  DIREZIONE = r.d.direzione || null;
+  SENZA_GESTORE = r.d.senza_gestore || [];
+  disegnaGestori();
+}
+
+function disegnaGestori() {
+  $('gestori').innerHTML = GESTORI.map((g) => {
+    const dati = [
+      g.host ? g.host + ':' + g.porta : 'nessun server di invio',
+      g.nomeUtente === 'codice' ? 'nome utente: codice a parte' : 'nome utente: indirizzo',
+      (g.domini || []).join(' · '),
+      g.tecnici === 1 ? '1 tecnico' : g.tecnici + ' tecnici'
+    ];
+    return `<div class="riga">
+      <div class="nome">${esc(g.nome)}<span class="stato s-${esc(g.stato)}">${esc(g.stato_etichetta || g.stato)}</span></div>
+      <div class="dati">${esc(dati.join(' · '))}</div>
+      <div class="azioni"><button class="btn piccolo" data-gest="${esc(g.id)}">Modifica</button></div>
+    </div>`;
+  }).join('') || '<div class="vuoto">Nessun gestore.</div>';
+  $('gestori').querySelectorAll('button[data-gest]').forEach((b) => {
+    b.onclick = () => finestraGestore(GESTORI.find((g) => g.id === b.dataset.gest));
+  });
+
+  /* I DOMINI CHE NESSUN GESTORE DICHIARA. Per loro resta «Copia testo», ed
+     è giusto — ma l'amministratore deve SAPERE che ci sono: sono tecnici
+     che non possono inviare, e senza questa riga non lo scopre finché non
+     gliene parla uno di loro. */
+  $('senzaGestore').innerHTML = SENZA_GESTORE.length
+    ? `<div class="riga"><div class="nome">Domini senza gestore</div>
+        <div class="dati">Per questi resta solo «Copia testo». Aggiungi il dominio a un gestore
+        che c’è, oppure creane uno.<br>${SENZA_GESTORE.map((x) => esc(x.nome) + ' — ' + esc(x.dominio)).join('<br>')}</div></div>`
+    : '';
+
+  const a = (PROVE.indirizzo || '').trim();
+  $('proveNota').innerHTML = a
+    ? `Le PEC di prova arrivano a <b>${esc(a)}</b>, con copia al tecnico. Massimo ${esc(String(PROVE.max_al_giorno || 5))} al giorno a testa.`
+    : 'Non impostato: <b>il pulsante «Invia PEC di prova» non compare</b> ai tecnici. «Prova connessione» funziona comunque — quella non manda niente.';
+}
+
+function finestraGestore(g) {
+  const nuovo = !g;
+  const v = g || { id: '', nome: '', domini: [], host: '', porta: 465, nomeUtente: 'indirizzo', stato: 'da_collaudare', etichettaPassword: '', aiuto: '', link: '', errorePassword: '' };
+  apriFinestra(`
+    <h3>${nuovo ? 'Nuovo gestore PEC' : esc(v.nome)}</h3>
+    <div class="campo"><label for="gNome">Nome</label>
+      <input id="gNome" value="${esc(v.nome)}" placeholder="Register.it"></div>
+    <div class="campo"><label for="gDomini">Domini</label>
+      <input id="gDomini" value="${esc((v.domini || []).join(' '))}" placeholder="pec.net pec-guide-alpine.it">
+      <div class="aiuto">Separati da spazi. Senza chiocciola. Un dominio sta su un gestore solo.</div></div>
+    <div class="campo"><label for="gHost">Server SMTP</label>
+      <input id="gHost" value="${esc(v.host)}" placeholder="smtp.pec-email.com">
+      <div class="aiuto">Solo il nome: senza «smtps://» e senza porta.</div></div>
+    <div class="campo"><label for="gPorta">Porta</label>
+      <select id="gPorta">
+        <option value="465"${v.porta === 465 ? ' selected' : ''}>465 — SSL</option>
+        <option value="587"${v.porta === 587 ? ' selected' : ''}>587 — STARTTLS</option>
+      </select>
+      <div class="aiuto">Sono le due ammesse. Il certificato si verifica sempre.</div></div>
+    <div class="campo"><label for="gUtente">Nome utente</label>
+      <select id="gUtente">
+        <option value="indirizzo"${v.nomeUtente === 'indirizzo' ? ' selected' : ''}>L’indirizzo PEC completo</option>
+        <option value="codice"${v.nomeUtente === 'codice' ? ' selected' : ''}>Un codice a parte (es. UserID)</option>
+      </select>
+      <div class="aiuto">Con «codice a parte» va scritto nella scheda di ogni tecnico.</div></div>
+    <div class="campo"><label for="gStato">Stato</label>
+      <select id="gStato">
+        <option value="attivo"${v.stato === 'attivo' ? ' selected' : ''}>Attivo — si invia alla Direzione</option>
+        <option value="da_collaudare"${v.stato === 'da_collaudare' ? ' selected' : ''}>Da collaudare — solo prove e Copia testo</option>
+        <option value="solo_copia"${v.stato === 'solo_copia' ? ' selected' : ''}>Solo Copia testo</option>
+      </select></div>
+    <div class="campo"><label for="gEtichetta">Etichetta della casella della password</label>
+      <input id="gEtichetta" value="${esc(v.etichettaPassword)}" placeholder="Password per client di posta"></div>
+    <div class="campo"><label for="gAiuto">Testo di aiuto per il tecnico</label>
+      <textarea id="gAiuto" placeholder="Dove si crea la password giusta.">${esc(v.aiuto)}</textarea></div>
+    <div class="campo"><label for="gLink">Link alle istruzioni del gestore</label>
+      <input id="gLink" value="${esc(v.link)}" placeholder="https://…">
+      <div class="aiuto">Solo https.</div></div>
+    <div class="campo"><label for="gErrore">Messaggio quando la password viene rifiutata</label>
+      <textarea id="gErrore" placeholder="Che cosa deve fare, in parole sue.">${esc(v.errorePassword)}</textarea></div>
+    <div id="gErr" class="dati" style="color:var(--refuse)"></div>
+    <div class="pulsanti">
+      <button class="btn" id="fNo">Annulla</button>
+      <button class="btn principale" id="fSi">Salva</button>
+    </div>`);
+  $('fNo').onclick = chiudiFinestra;
+  $('fSi').onclick = async () => {
+    const corpo = {
+      nome: 'gestore', id: v.id,
+      gestore: {
+        nome: $('gNome').value, domini: $('gDomini').value, host: $('gHost').value,
+        porta: Number($('gPorta').value), nomeUtente: $('gUtente').value, stato: $('gStato').value,
+        etichettaPassword: $('gEtichetta').value, aiuto: $('gAiuto').value,
+        link: $('gLink').value, errorePassword: $('gErrore').value
+      }
+    };
+    const r = await api('gestore', corpo);
+    if (!r.d.ok) { $('gErr').textContent = r.d.error || 'Non salvato.'; return; }
+    chiudiFinestra(); toast('Gestore salvato.');
+    await caricaGestori(); await caricaPec(); await caricaRegistro();
+  };
+}
+
+function finestraProve() {
+  apriFinestra(`
+    <h3>Indirizzo PEC per le prove</h3>
+    <p class="nota" style="margin:0 0 10px">Qui arrivano le PEC di prova dei tecnici, con copia a loro stessi.
+      <b>Non può essere l’indirizzo della Direzione</b>${DIREZIONE ? ' (' + esc(DIREZIONE) + ')' : ''}: il server lo rifiuta.
+      Vuoto = il pulsante «Invia PEC di prova» non compare.</p>
+    <div class="campo"><label for="pInd">Indirizzo</label>
+      <input id="pInd" value="${esc(PROVE.indirizzo || '')}" placeholder="prove@pec.esempio.it"></div>
+    <div id="pErr" class="dati" style="color:var(--refuse)"></div>
+    <div class="pulsanti">
+      <button class="btn" id="fNo">Annulla</button>
+      <button class="btn principale" id="fSi">Salva</button>
+    </div>`);
+  $('fNo').onclick = chiudiFinestra;
+  $('fSi').onclick = async () => {
+    const r = await api('prove-indirizzo', { nome: 'prove', indirizzo: $('pInd').value });
+    if (!r.d.ok) { $('pErr').textContent = r.d.error || 'Non salvato.'; return; }
+    chiudiFinestra(); toast('Indirizzo salvato.');
+    await caricaGestori(); await caricaRegistro();
+  };
+}
+
+/* ==================================================================
+   GLI INDIRIZZI PEC DEI TECNICI
+   ================================================================== */
+let PEC = [];
+
+async function caricaPec() {
+  const r = await api('tecnici-pec');
+  if (!r.d.ok) return;
+  PEC = (r.d.tecnici || []).filter((t) => t.ruolo !== 'visualizzatore');
+  disegnaPec();
+}
+
+function disegnaPec() {
+  const q = $('cercaPec').value.trim().toUpperCase();
+  const f = $('filtroPec').value;
+  const viste = PEC.filter((t) => {
+    if (q && t.nome.indexOf(q) < 0) return false;
+    if (f === 'senza') return !t.pec;
+    if (f === 'senzagestore') return !!t.pec && !t.gestore_vale;
+    if (f === 'collaudo') return !!t.gestore_vale && t.gestore_vale.stato === 'da_collaudare';
+    if (f === 'codice') return !!t.gestore_vale && t.gestore_vale.serveCodice && !t.utente;
+    return true;
+  });
+  $('elencoPec').innerHTML = viste.map((t) => {
+    const g = t.gestore_vale;
+    const dati = [];
+    dati.push(t.pec ? t.pec : '⚠️ nessun indirizzo');
+    if (t.pec) {
+      dati.push(g
+        ? g.nome + (t.gestore ? ' (scelto a mano)' : ' (dal dominio)') + ' — ' + g.stato.replace('_', ' ')
+        : '⚠️ dominio senza gestore: solo Copia testo');
+    }
+    if (g && g.serveCodice) dati.push(t.utente ? 'nome utente: ' + t.utente : '⚠️ manca il nome utente');
+    if (t.ultima_prova) {
+      dati.push('ultima prova: ' + (t.ultima_prova.esito === 'ok' ? 'riuscita' : t.ultima_prova.esito.replace(/_/g, ' '))
+        + ' (' + t.ultima_prova.tipo + ', ' + quandoIt(t.ultima_prova.at) + ')');
+    }
+    return `<div class="riga">
+      <div class="nome">${esc(t.nome)}</div>
+      <div class="dati">${esc(dati.join(' · '))}</div>
+      <div class="azioni"><button class="btn piccolo" data-pec="${esc(t.nome)}">Modifica PEC</button></div>
+    </div>`;
+  }).join('') || '<div class="vuoto">Nessun nominativo con questi filtri.</div>';
+  $('elencoPec').querySelectorAll('button[data-pec]').forEach((b) => {
+    b.onclick = () => finestraPec(PEC.find((t) => t.nome === b.dataset.pec));
+  });
+}
+
+function finestraPec(t) {
+  if (!t) return;
+  const opzioni = ['<option value="">— dal dominio —</option>']
+    .concat(GESTORI.map((g) => `<option value="${esc(g.id)}"${t.gestore === g.id ? ' selected' : ''}>${esc(g.nome)}</option>`))
+    .join('');
+  apriFinestra(`
+    <h3>${esc(t.nome)}</h3>
+    <div class="campo"><label for="tPec">Indirizzo PEC</label>
+      <input id="tPec" value="${esc(t.pec)}" placeholder="nome.cognome@pec.it"></div>
+    <div class="campo"><label for="tGest">Gestore</label>
+      <select id="tGest">${opzioni}</select>
+      <div class="aiuto">Lascia «dal dominio» quasi sempre. Si scegli a mano solo per un dominio
+        personalizzato che il programma non sa classificare.</div></div>
+    <div class="campo"><label for="tUtente">Nome utente speciale</label>
+      <input id="tUtente" value="${esc(t.utente)}" placeholder="solo se il gestore non usa l’indirizzo">
+      <div class="aiuto">Serve ai gestori con «codice a parte»: InfoCert vuole la UserID
+        dell’attivazione. Per tutti gli altri va lasciato vuoto.</div></div>
+    <p class="nota" style="margin:0 0 10px"><b>La password non si scrive qui e non si salva mai.</b>
+      La mette il tecnico al momento dell’invio, e vive il tempo di una connessione.</p>
+    <div id="tErr" class="dati" style="color:var(--refuse)"></div>
+    <div class="pulsanti">
+      <button class="btn" id="fNo">Annulla</button>
+      <button class="btn principale" id="fSi">Salva</button>
+    </div>`);
+  $('fNo').onclick = chiudiFinestra;
+  $('fSi').onclick = async () => {
+    const r = await api('tecnico-pec', {
+      nome: t.nome, pec: $('tPec').value, gestore: $('tGest').value, utente: $('tUtente').value
+    });
+    if (!r.d.ok) { $('tErr').textContent = r.d.error || 'Non salvato.'; return; }
+    chiudiFinestra(); toast('Indirizzo salvato.');
+    await caricaPec(); await caricaGestori(); await caricaRegistro();
+  };
+}
+
+/* ==================================================================
+   I DUE ACCESSI DELLA DIRIGENZA
+   ==================================================================
+   Il nome lo scrive l'amministratore: NON viene dai turni, perché quei due
+   non hanno turni. Nascono vuoti, e si attivano col link come tutti —
+   la password la scegli chi lo usa, non chi lo crea.
+   ================================================================== */
+function finestraVisualizzatore() {
+  apriFinestra(`
+    <h3>Nuovo accesso visualizzatore</h3>
+    <p class="nota" style="margin:0 0 10px">Per la dirigenza. Vede i turni di tutti, gli addestramenti
+      e i contatti, e può verificare un cambio turno con <b>Copia testo</b>.
+      <b>Non invia PEC, non fa prove, non ha il calendario e non apre questa pagina.</b>
+      Non scade e non chiede un contributo: resta attivo finché non lo disattivi.</p>
+    <div class="campo"><label for="vNome">Nome</label>
+      <input id="vNome" placeholder="ROSSI MARIO" autocomplete="off">
+      <div class="aiuto">Non deve essere un nominativo dei turni. Lettere, spazi, apostrofi,
+        punti e trattini.</div></div>
+    <div id="vErr" class="dati" style="color:var(--refuse)"></div>
+    <div class="pulsanti">
+      <button class="btn" id="fNo">Annulla</button>
+      <button class="btn principale" id="fSi">Crea</button>
+    </div>`);
+  $('fNo').onclick = chiudiFinestra;
+  $('fSi').onclick = async () => {
+    const r = await api('visualizzatore', { nome: $('vNome').value });
+    if (!r.d.ok) { $('vErr').textContent = r.d.error || 'Non creato.'; return; }
+    const nome = r.d.nome;
+    chiudiFinestra();
+    toast('Creato: adesso mandagli il link di attivazione.');
+    await carica(); await caricaRegistro();
+    /* SUBITO IL LINK, perché è il gesto dopo: un account creato e lasciato
+       lì è un account che nessuno attiva, e fra una settimana nessuno
+       ricorda perché c'è. */
+    azione('attivazione', nome);
+  };
+}
+
 $('cerca').addEventListener('input', disegnaElenco);
 $('filtro').addEventListener('change', disegnaElenco);
+$('cercaPec').addEventListener('input', disegnaPec);
+$('filtroPec').addEventListener('change', disegnaPec);
+$('gestoreNuovoBtn').addEventListener('click', () => finestraGestore(null));
+$('proveBtn').addEventListener('click', finestraProve);
+$('visualizzatoreBtn').addEventListener('click', finestraVisualizzatore);
 
 (async function avvia() {
   if (!(await carica())) return;
   const r = await api('rubrica');
   RUBRICA = (r.d && r.d.rubrica) || {};
+  /* I GESTORI PRIMA DEGLI INDIRIZZI: l'elenco degli indirizzi disegna il
+     nome del gestore di ciascuno, e senza l'elenco dei gestori la tendina
+     della finestra sarebbe vuota. */
+  await caricaGestori();
+  await caricaPec();
   await caricaRegistro();
 })();
 </script>
