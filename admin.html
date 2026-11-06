@@ -76,6 +76,10 @@ input::placeholder{color:var(--muted-chiaro)}
 /* Lo stato di un gestore: le stesse tre tinte degli stati degli accessi,
    perche' dicono la stessa cosa — va, va a meta', non va. */
 .s-da_collaudare{background:rgba(210,160,60,.2);color:var(--amber-su)}
+.s-verificata{background:rgba(47,125,85,.22);color:#7fcfa2}
+.s-in_verifica{background:rgba(210,160,60,.2);color:var(--amber-su)}
+.s-illeggibile{background:rgba(181,80,46,.22);color:#e39b7f}
+.s-non_verificata{background:rgba(168,189,184,.17);color:var(--muted-chiaro)}
 .s-solo_copia{background:rgba(168,189,184,.17);color:var(--muted-chiaro)}
 /* I CAMPI DI UNA FINESTRA, uno sotto l'altro: a 375 px due campi affiancati
    diventano due campi illeggibili. */
@@ -138,6 +142,31 @@ input::placeholder{color:var(--muted-chiaro)}
     <div class="pannello">
       <h2>A che punto siamo</h2>
       <div class="conti" id="conti"></div>
+    </div>
+
+    <!-- ============================================================
+         LA DOPPIA VERIFICA
+         ============================================================
+         Il quadro dei turni arriva da una lettura dei PDF; questa scheda
+         mostra il confronto con una SECONDA lettura, fatta a regole fisse
+         sul PDF della PEC. Se le due non coincidono, ai telefoni non
+         arriva il quadro nuovo: arriva l'ultima versione verificata, e
+         l'app lo scrive in alto.
+
+         LA SCHEDA NON DECIDE NIENTE. «Si può pubblicare» lo dice il
+         server a ogni richiesta: se lo decidesse questa pagina,
+         basterebbe una chiamata a mano per pubblicare un quadro con
+         differenze aperte. -->
+    <div class="pannello" id="pVerifica" hidden>
+      <h2>Verifica PEC</h2>
+      <div id="verificaTesta"></div>
+      <div id="verificaGuai"></div>
+      <div id="verificaDiff" style="margin-top:10px"></div>
+      <div id="verificaScelte"></div>
+      <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn piccolo" id="verificaTurnoBtn">Correggi un turno</button>
+        <button class="btn principale" id="verificaPubblicaBtn">Conferma e pubblica</button>
+      </div>
     </div>
 
     <div class="pannello">
@@ -560,6 +589,325 @@ async function caricaRegistro() {
 }
 
 /* ==================================================================
+   LA DOPPIA VERIFICA
+   ==================================================================
+   Tutto quello che si vede qui viene da una sola rotta, e ogni azione è
+   una chiamata che il server può rifiutare. La pagina non tiene stato
+   suo: dopo ogni azione richiede tutto da capo, perché una differenza
+   risolta cambia anche «si può pubblicare» e lo stato della scheda.
+   ================================================================== */
+let VER = null;
+
+async function caricaVerifica() {
+  const r = await api('verifica');
+  if (r.stato !== 200 || !r.d.ok) { $('pVerifica').hidden = true; return; }
+  VER = r.d;
+  $('pVerifica').hidden = false;
+  disegnaVerifica();
+}
+
+const ETICHETTA_ESITO = {
+  verificata: 'coincidono', in_verifica: 'in verifica',
+  illeggibile: 'PDF illeggibile', non_verificata: 'nessuna PEC ancora',
+  sola_osservazione: 'sola osservazione'
+};
+
+function disegnaVerifica() {
+  const v = VER;
+  const stato = (v.esito && v.esito.stato) || 'non_verificata';
+  const righe = [];
+
+  if (v.pec) {
+    righe.push(['Ultima PEC', quandoIt(v.pec.ricevuta_il)
+      + ' · ' + (v.pec.file || []).length + ' allegati'
+      + ((v.pec.mesi || []).length ? ' · ' + v.pec.mesi.join(', ') : '')
+      + ((v.pec.ignorati || []).length ? ' · ignorati: ' + v.pec.ignorati.join(', ') : '')]);
+    if ((v.pec.cambiati || []).length) righe.push(['Nomi unificati', v.pec.cambiati.join(' · ')]);
+    if ((v.pec.sconosciuti || []).length) righe.push(['Nomi mai visti', v.pec.sconosciuti.join(' · ')]);
+  } else {
+    righe.push(['Ultima PEC', 'ancora nessuna']);
+  }
+  /* CHE COSA VEDONO I TELEFONI ADESSO: è la domanda vera di questa
+     scheda, e la risposta non è «il quadro» quando la verifica è aperta. */
+  const soloOsserva = !!(v.servito && v.servito.stato === 'sola_osservazione');
+  righe.push(['Ai telefoni', v.servito
+    ? (v.servito.quanti + ' turni, '
+       + (soloOsserva ? 'il quadro così com’è'
+          : (ETICHETTA_ESITO[v.servito.stato] || v.servito.stato)
+            + (v.servito.stato !== 'in_verifica' ? ''
+               : v.servito.senza_copia
+                 ? ' — è il quadro di adesso: non c’è ancora una versione verificata da servire'
+                 : ' — è l’ultima versione verificata')))
+    : '—']);
+  if (v.esito) righe.push(['Ultimo controllo', quandoIt(v.esito.quando)]);
+  if (v.pubblicata) {
+    righe.push(['Pubblicata a mano', quandoIt(v.pubblicata.quando) + ' da ' + v.pubblicata.da
+      + ' · ' + v.pubblicata.correzioni + (v.pubblicata.correzioni === 1 ? ' correzione' : ' correzioni')]);
+  }
+  if (v.pec && stato === 'in_verifica' && !v.pec.avviso_mandato) {
+    righe.push(['Email alla dirigenza', 'non ancora mandata']);
+  }
+
+  /* LA SOLA OSSERVAZIONE SI DICE IN CIMA, E GROSSA. Tutto il resto della
+     scheda — l'esito, le differenze, i pulsanti — è identico a quando la
+     verifica blocca davvero, e un amministratore che legge «in verifica»
+     senza questa riga crederebbe che i telefoni siano protetti mentre non
+     lo sono. */
+  $('verificaTesta').innerHTML =
+    (soloOsserva
+      ? '<div class="avviso" style="margin:0 0 10px"><b>Sola osservazione</b> — '
+        + 'la verifica legge e confronta, ma <b>non trattiene niente</b>: i telefoni '
+        + 'ricevono il quadro così com’è e l’app non scrive nulla in alto. '
+        + 'Si accende con <code>VERIFICA_BLOCCO=1</code> nel <code>.env</code>.</div>'
+      : '')
+    + '<div class="riga"><div class="nome">Esito'
+    + '<span class="stato s-' + esc(stato) + '">' + esc(ETICHETTA_ESITO[stato] || stato) + '</span></div>'
+    + '<div class="dati">' + righe.map((x) => '<b style="color:var(--rope)">' + esc(x[0]) + '</b>: ' + esc(x[1])).join('<br>')
+    + '</div></div>';
+
+  const guai = (v.esito && v.esito.guai) || [];
+  $('verificaGuai').innerHTML = guai.length
+    ? '<div class="avviso" style="margin:10px 0 0">'
+      + '<b>Controlli di buon senso non superati</b><br>' + guai.map(esc).join('<br>')
+      + '<br>Finché restano, non si pubblica: un foglio letto male non si corregge a mano turno per turno.</div>'
+    : '';
+
+  const diff = v.differenze || [];
+  $('verificaDiff').innerHTML = diff.length
+    ? diff.map(disegnaDifferenza).join('')
+    : (stato === 'verificata'
+        ? '<div class="vuoto">Nessuna differenza: il quadro e la PEC dicono la stessa cosa.</div>'
+        : '<div class="vuoto">Nessuna differenza da risolvere.</div>');
+
+  /* LE SCELTE CHE HANNO CHIUSO UNA DIFFERENZA non compaiono più fra le
+     differenze: applicate al quadro, quella differenza non c'è più. Senza
+     questo elenco sparirebbero dalla vista insieme al modo di annullarle,
+     e l'amministratore non avrebbe più modo di sapere che cosa ha deciso
+     dieci minuti fa — né di tornare indietro. */
+  const chiaviAperte = new Set(diff.map((x) => x.chiave));
+  const chiuse = (v.correzioni || []).filter((c) => !chiaviAperte.has(c.chiave));
+  $('verificaScelte').innerHTML = chiuse.length
+    ? '<p class="nota" style="margin:12px 0 8px"><b>Scelte già fatte</b> — valgono finché vale questa PEC.</p>'
+      + chiuse.map(disegnaScelta).join('')
+    : '';
+  chiuse.forEach((c) => {
+    const b = $('verificaScelte').querySelector('[data-vann="' + cssSicuro(c.chiave) + '"]');
+    if (b) b.onclick = () => annullaScelta(c);
+  });
+
+  diff.forEach((d) => {
+    const b = (pre) => $('verificaDiff').querySelector('[data-' + pre + '="' + cssSicuro(d.chiave) + '"]');
+    const vpec = b('vpec'); if (vpec) vpec.onclick = () => scegli(d, 'pec');
+    const vapp = b('vapp'); if (vapp) vapp.onclick = () => scegli(d, 'app');
+    const vmio = b('vmio'); if (vmio) vmio.onclick = () => finestraMio(d);
+    const vann = b('vann'); if (vann) vann.onclick = () => annullaScelta(d);
+  });
+
+  $('verificaPubblicaBtn').disabled = !v.si_puo_pubblicare;
+  $('verificaPubblicaBtn').textContent = v.si_puo_pubblicare
+    ? (diff.length ? 'Conferma e pubblica' : 'Pubblica di nuovo')
+    : 'Prima risolvi le differenze';
+  $('verificaTurnoBtn').disabled = !v.pec;
+}
+
+function disegnaScelta(c) {
+  const parti = String(c.chiave).split('|');
+  const nomeScelta = { pec: 'vale la PEC', app: 'vale l’app', mio: 'un altro valore' };
+  const dati = [esc(nomeScelta[c.scelta] || c.scelta)
+    + (c.valore ? ' → <b style="color:var(--rope)">' + esc(c.valore) + '</b>' : '')];
+  if (c.nota) dati.push('nota: ' + esc(c.nota));
+  dati.push(esc(c.chi) + ', ' + quandoIt(c.quando));
+  return '<div class="riga">'
+    + '<div class="nome">' + esc(parti.slice(0, 3).join(' '))
+    + '<span class="stato s-verificata">risolta</span></div>'
+    + '<div class="dati">' + dati.join('<br>') + '</div>'
+    + '<div class="azioni"><button class="btn piccolo" data-vann="' + esc(c.chiave) + '">Annulla</button></div>'
+    + '</div>';
+}
+
+/* Le chiavi contengono «/» e «|»: dentro un selettore CSS vanno virgolettate. */
+const cssSicuro = (s) => String(s).replace(/(["\\])/g, '\\$1');
+
+function disegnaDifferenza(d) {
+  const k = esc(d.chiave);
+  const risolta = d.risolta;
+  const nomeScelta = { pec: 'vale la PEC', app: 'vale l’app', mio: 'un altro valore' };
+  /* Il titolo della riga dice già data, turno e ruolo: ripeterli qui
+     allungherebbe due righe su un telefono senza aggiungere niente.
+     `leggibile` resta la forma completa, ed è quella che va nell'email. */
+  const dati = ['PEC = <b style="color:var(--rope)">' + esc(d.pec || '(nessuno)')
+    + '</b> · app = <b style="color:var(--rope)">' + esc(d.app || '(nessuno)') + '</b>'];
+  if (risolta) dati.push('<b style="color:var(--rope)">scelto</b>: ' + esc(nomeScelta[d.scelta] || d.scelta)
+    + (d.valore ? ' → ' + esc(d.valore) : ''));
+  return '<div class="riga">'
+    + '<div class="nome">' + esc(d.data + ' ' + d.tipo + ' ' + d.ruolo)
+    + '<span class="stato s-' + (risolta ? 'verificata' : 'in_verifica') + '">'
+    + (risolta ? 'risolta' : 'aperta') + '</span></div>'
+    + '<div class="dati">' + dati.join('<br>') + '</div>'
+    + '<div class="azioni">'
+    + (d.pec ? '<button class="btn piccolo" data-vpec="' + k + '">Vale la PEC</button>' : '')
+    + (d.app ? '<button class="btn piccolo" data-vapp="' + k + '">Vale l’app</button>' : '')
+    + '<button class="btn piccolo" data-vmio="' + k + '">'
+    + (d.orario ? 'Un altro orario…' : 'Un altro nominativo…') + '</button>'
+    + (risolta ? '<button class="btn piccolo" data-vann="' + k + '">Annulla</button>' : '')
+    + '</div></div>';
+}
+
+async function scegli(d, scelta, valore, nota) {
+  const r = await api('verifica/correzione', {
+    nome: '(verifica)', chiave: d.chiave, scelta: scelta, valore: valore, nota: nota
+  });
+  if (!r.d.ok) { toast(r.d.error || 'Non riesco a registrare la scelta.'); return false; }
+  chiudiFinestra();
+  await caricaVerifica(); await caricaRegistro();
+  return true;
+}
+
+async function annullaScelta(d) {
+  const r = await api('verifica/annulla', { nome: '(verifica)', chiave: d.chiave });
+  if (!r.d.ok) { toast(r.d.error || 'Non riesco ad annullare.'); return; }
+  await caricaVerifica(); await caricaRegistro();
+}
+
+const campo = (etichetta, dentro) =>
+  '<div class="campo"><label>' + esc(etichetta) + '</label>' + dentro + '</div>';
+
+const tendinaNomi = (id) => '<select id="' + id + '"><option value="">— scegli —</option>'
+  + (VER.nomi || []).map((n) => '<option>' + esc(n) + '</option>').join('')
+  + '</select>';
+
+/**
+ * «Un altro valore»: un nominativo dalla tendina, o due orari.
+ *
+ * MAI TESTO LIBERO per un nominativo — un nome scritto a mano con un
+ * accento diverso diventa una persona che non esiste, e il turno resta
+ * scoperto senza che nessuno se ne accorga. Il server rifiuta comunque
+ * quello che non è in elenco: qui si evita solo di far perdere tempo.
+ */
+function finestraMio(d) {
+  if (d.orario) {
+    const parti = String(d.pec || '').split('–');
+    apriFinestra('<h3>' + esc(d.data + ' ' + d.tipo + ' ' + d.ruolo) + '</h3>'
+      + '<p class="nota">PEC: ' + esc(d.pec || '—') + ' · app: ' + esc(d.app || '—') + '</p>'
+      + campo('Dalle', '<input type="text" id="mDalle" value="' + esc(parti[0] || '') + '" placeholder="7:21">')
+      + campo('Alle', '<input type="text" id="mAlle" value="' + esc(parti[1] || '') + '" placeholder="17:17">')
+      + campo('Nota (perché)', '<input type="text" id="mNota" placeholder="facoltativa">')
+      + '<div class="pulsanti"><button class="btn" id="mNo">Annulla</button>'
+      + '<button class="btn principale" id="mSi">Salva</button></div>');
+    $('mNo').onclick = chiudiFinestra;
+    $('mSi').onclick = async () => {
+      const dalle = $('mDalle').value.trim(), alle = $('mAlle').value.trim();
+      if (!dalle || !alle) { toast('Servono tutt’e due gli orari.'); return; }
+      $('mSi').disabled = true;
+      if (!await scegli(d, 'mio', dalle + '–' + alle, $('mNota').value.trim())) $('mSi').disabled = false;
+    };
+    return;
+  }
+  apriFinestra('<h3>' + esc(d.data + ' ' + d.tipo + ' ' + d.ruolo) + '</h3>'
+    + '<p class="nota">PEC: ' + esc(d.pec || '(nessuno)') + ' · app: ' + esc(d.app || '(nessuno)') + '</p>'
+    + campo('Chi c’era davvero', tendinaNomi('mNome'))
+    + campo('Nota (perché)', '<input type="text" id="mNota" placeholder="facoltativa">')
+    + '<div class="pulsanti"><button class="btn" id="mNo">Annulla</button>'
+    + '<button class="btn principale" id="mSi">Salva</button></div>');
+  $('mNo').onclick = chiudiFinestra;
+  $('mSi').onclick = async () => {
+    const n = $('mNome').value;
+    if (!n) { toast('Scegli un nominativo.'); return; }
+    $('mSi').disabled = true;
+    if (!await scegli(d, 'mio', n, $('mNota').value.trim())) $('mSi').disabled = false;
+  };
+}
+
+/**
+ * «Correggi un turno»: non nasce da una differenza, nasce da un errore che
+ * l'amministratore ha visto con i suoi occhi.
+ *
+ * I posti li offre il QUADRO, non la copia verificata: la correzione la si
+ * registra su quello che c'è scritto adesso, ed è quello che il server
+ * controlla.
+ */
+function finestraTurno() {
+  const q = VER.quadro || [];
+  const date = [...new Set(q.map((r) => r.date))];
+  apriFinestra('<h3>Correggi un turno</h3>'
+    + '<p class="nota">Vale finché vale questa PEC: alla prossima decade, e se l’errore è ancora lì '
+    + 'ricompare come differenza.<br>'
+    /* CHI CORREGGE A MANO UN POSTO CHE LA PEC DICE DIVERSAMENTE si vede
+       comparire una differenza nuova, e senza questa riga sembra che la
+       correzione non abbia funzionato. Ha funzionato: il quadro ora dice
+       un'altra cosa rispetto alla PEC, e quella è una disaccordo vero che
+       va chiuso a occhi aperti, non nascosto. */
+    + 'Se la PEC dice un altro nome per quel posto, dopo il salvataggio comparirà una '
+    + 'differenza: è giusto così, e si chiude con «Vale l’app».</p>'
+    + campo('Giorno', '<select id="tData">'
+      + date.map((d) => '<option>' + esc(d) + '</option>').join('') + '</select>')
+    + campo('Turno', '<select id="tTipo"><option value="giorno">giorno</option>'
+      + '<option value="notte">notte</option></select>')
+    + campo('Ruolo', '<select id="tRuolo"></select>')
+    + campo('Chi c’è scritto', '<select id="tDa"></select>')
+    + campo('Chi c’era davvero', tendinaNomi('tA'))
+    + campo('Nota (perché)', '<input type="text" id="tNota" placeholder="facoltativa">')
+    + '<div class="pulsanti"><button class="btn" id="tNo">Annulla</button>'
+    + '<button class="btn principale" id="tSi">Salva</button></div>');
+
+  const riempi = () => {
+    const data = $('tData').value, tipo = $('tTipo').value;
+    const dentro = q.filter((r) => r.date === data && r.type === tipo);
+    const ruoli = [...new Set(dentro.map((r) => r.role))];
+    const ruoloPrima = $('tRuolo').value;
+    $('tRuolo').innerHTML = ruoli.map((r) =>
+      '<option' + (r === ruoloPrima ? ' selected' : '') + '>' + esc(r) + '</option>').join('');
+    const chi = dentro.filter((r) => r.role === $('tRuolo').value);
+    $('tDa').innerHTML = chi.length
+      ? chi.map((r) => '<option>' + esc(r.name) + '</option>').join('')
+      : '<option value="">— nessuno —</option>';
+  };
+  $('tData').onchange = riempi;
+  $('tTipo').onchange = riempi;
+  $('tRuolo').onchange = riempi;
+  riempi();
+
+  $('tNo').onclick = chiudiFinestra;
+  $('tSi').onclick = async () => {
+    const corpo = {
+      nome: '(verifica)', data: $('tData').value, tipo: $('tTipo').value,
+      ruolo: $('tRuolo').value, da: $('tDa').value, a: $('tA').value,
+      nota: $('tNota').value.trim()
+    };
+    if (!corpo.da) { toast('In quel posto non c’è nessuno da correggere.'); return; }
+    if (!corpo.a) { toast('Scegli chi c’era davvero.'); return; }
+    $('tSi').disabled = true;
+    const r = await api('verifica/correggi-turno', corpo);
+    if (!r.d.ok) { toast(r.d.error || 'Non riesco a correggere.'); $('tSi').disabled = false; return; }
+    chiudiFinestra();
+    await caricaVerifica(); await caricaRegistro();
+  };
+}
+
+function pubblicaVerifica() {
+  const quante = (VER.correzioni || []).length;
+  /* IN SOLA OSSERVAZIONE NON ARRIVA NIENTE A NESSUNO: si registra la
+     versione buona e basta. Dirgli «ai telefoni arriverà» sarebbe falso
+     proprio nel momento in cui si clicca. */
+  const soloOsserva = !!(VER.servito && VER.servito.stato === 'sola_osservazione');
+  conferma('Conferma e pubblica',
+    (soloOsserva
+      ? 'La verifica è in <b>sola osservazione</b>: i telefoni hanno già il quadro '
+        + 'così com’è, e questo non cambia quello che vedono. Si registra la versione '
+        + 'buona'
+      : 'Ai telefoni arriverà il quadro')
+    + (quante ? ' con le ' + quante + (quante === 1 ? ' correzione' : ' correzioni') + ' registrate' : '')
+    + (soloOsserva ? '.' : '. Da quel momento l’avviso in app sparisce.'),
+    'Pubblica', false, async () => {
+      const r = await api('verifica/pubblica', { nome: '(verifica)' });
+      if (!r.d.ok) { toast(r.d.error || 'Non riesco a pubblicare.'); chiudiFinestra(); await caricaVerifica(); return; }
+      chiudiFinestra();
+      toast('Pubblicata.');
+      await caricaVerifica(); await caricaRegistro();
+    });
+}
+
+/* ==================================================================
    I GESTORI PEC
    ==================================================================
    Una riga per gestore, modificabile. Quello che questa scheda NON fa:
@@ -825,6 +1173,8 @@ $('filtroPec').addEventListener('change', disegnaPec);
 $('gestoreNuovoBtn').addEventListener('click', () => finestraGestore(null));
 $('proveBtn').addEventListener('click', finestraProve);
 $('visualizzatoreBtn').addEventListener('click', finestraVisualizzatore);
+$('verificaTurnoBtn').addEventListener('click', finestraTurno);
+$('verificaPubblicaBtn').addEventListener('click', pubblicaVerifica);
 
 (async function avvia() {
   if (!(await carica())) return;
@@ -835,6 +1185,7 @@ $('visualizzatoreBtn').addEventListener('click', finestraVisualizzatore);
      della finestra sarebbe vuota. */
   await caricaGestori();
   await caricaPec();
+  await caricaVerifica();
   await caricaRegistro();
 })();
 </script>

@@ -160,12 +160,12 @@
   /* L'AVVISO DENTRO L'APP: una riga sopra i comandi, che compare solo
      quando c'e' qualcosa da dire (scadenza vicina, prova agli sgoccioli,
      transizione). Senza, non occupa niente e niente si sposta. */
-  #avvisoAccesso {
+  #avvisoAccesso, #avvisoVerifica {
     display: none; margin: 0 0 12px; padding: 9px 12px; border-radius: 10px;
     background: var(--avviso-sfondo, #fdf4e4); color: var(--avviso-testo, #8a5a12);
     font-size: 0.85rem; line-height: 1.4; border: 1px solid rgba(0,0,0,.06);
   }
-  #avvisoAccesso.visible { display: block; }
+  #avvisoAccesso.visible, #avvisoVerifica.visible { display: block; }
 
   main {
     max-width: 760px;
@@ -1164,6 +1164,7 @@
 </div>
 
 <main id="app">
+  <div id="avvisoVerifica"></div>
   <div id="avvisoAccesso"></div>
   <div class="controls">
     <label>NOMINATIVO</label>
@@ -1390,6 +1391,14 @@ function unlockApp(stato) {
   const box = gEl('avvisoAccesso');
   if (avviso) { box.textContent = avviso; box.classList.add('visible'); }
   else { box.textContent = ''; box.classList.remove('visible'); }
+  /* L'AGGIORNAMENTO IN VERIFICA. Quando c'è, i turni qui sotto NON sono
+     l'ultimo quadro arrivato: sono l'ultima versione che coincideva con la
+     PEC. È una riga sola, e dice l'unica cosa che serve a chi deve uscire
+     di casa: a che cosa credere nel dubbio. */
+  const vb = gEl('avvisoVerifica');
+  const av = stato && stato.verifica;
+  if (av) { vb.textContent = av; vb.classList.add('visible'); }
+  else { vb.textContent = ''; vb.classList.remove('visible'); }
   apriLeSerrature();
 }
 
