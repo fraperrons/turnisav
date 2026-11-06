@@ -1009,10 +1009,23 @@ function disegnaVerifica() {
      e non c'è niente da fare, ma il numero si deve vedere senza aprire —
      è il primo segnale che il lettore sta sbagliando. */
   const nuovi = (v.pec && v.pec.sconosciuti) || [];
-  $('verificaNomi').innerHTML = nuovi.length
-    ? `<details class="elenchino"><summary>${nuovi.length} nomi mai visti</summary>`
-      + `<div class="dati">${esc(nuovi.join(' · '))}</div></details>`
-    : '';
+  /* GLI ORARI CHE MANCANO ALL'APP non sono un disaccordo: la PEC ha un
+     dato che il quadro non ha, perché l'attività pianificata non scrive
+     le effemeridi del cinofilo per certi mesi. Una riga che lo dice, non
+     sessantadue differenze: quelle avrebbero trattenuto un aggiornamento
+     buono e sepolto le differenze vere. */
+  const senzaOrario = (v.esito && v.esito.orari_mancanti) || [];
+  $('verificaNomi').innerHTML =
+    (nuovi.length
+      ? `<details class="elenchino"><summary>${nuovi.length} nomi mai visti</summary>`
+        + `<div class="dati">${esc(nuovi.join(' · '))}</div></details>`
+      : '')
+    + (senzaOrario.length
+      ? `<details class="elenchino"><summary>${senzaOrario.length} orari del cinofilo assenti nell’app</summary>`
+        + '<div class="dati">La PEC li ha, il quadro no: non è una differenza e non trattiene la '
+        + 'pubblicazione. Li scrive l’attività pianificata, e per questi mesi non lo fa.<br>'
+        + esc(senzaOrario.join(' · ')) + '</div></details>'
+      : '');
 
   const diff = v.differenze || [];
   const aperte = diff.filter((d) => !d.risolta).length;
