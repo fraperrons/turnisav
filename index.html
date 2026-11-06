@@ -2066,9 +2066,24 @@ function renderTrainingSummary() {
   const seen = new Set();
   const grouped = {}; // categoria -> attività -> [{label, sortKey}]
 
+  /* QUELLO CHE È PASSATO NON SI MOSTRA, QUI COME NELLA PAGINA PERSONALE.
+     Questo riquadro raccoglieva tutto quello che c'era nei dati, e con
+     due calendari in casa voleva dire mostrare per mesi le date del
+     2026 già passate sopra a quelle che servono. La regola è la STESSA
+     dell'elenco dei turni — `dateKey(s.date) >= todayKey()` — e non una
+     scritta apposta: due regole diverse per la stessa domanda, in due
+     punti della stessa pagina, prima o poi danno due risposte diverse.
+     Per le giornate doppie `s.date` è già il secondo giorno, quindi un
+     «7-8 giu» resta in pagina tutto l'8 e sparisce il 9.
+     E si rispetta la spunta «Mostra anche i turni passati»: è una
+     preferenza di chi guarda, e vale per tutta la pagina. */
+  const tKey = todayKey();
+  const mostraPassati = showPastToggle && showPastToggle.checked;
+
   SHIFTS.forEach(s => {
     const category = categoryForType(s.type);
     if (!category) return;
+    if (!mostraPassati && dateKey(s.date) < tKey) return;
     const dedupeKey = `${category}|${s.activity}|${s.month}|${s.date}|${s.type}`;
     if (seen.has(dedupeKey)) return;
     seen.add(dedupeKey);
@@ -2995,7 +3010,13 @@ function isActiveNow(s) {
 }
 
 const showPastToggle = document.getElementById('showPastToggle');
-showPastToggle.addEventListener('change', render);
+showPastToggle.addEventListener('change', () => {
+  render();
+  /* ANCHE IL CALENDARIO ADDESTRAMENTI, se è aperto: la spunta vale per
+     tutta la pagina, e una delle due parti che non le dà retta è una
+     parte che sembra rotta. */
+  if (trainingSummaryOpen) renderTrainingSummary();
+});
 
 function render() {
   const selectedName = sel.value;
