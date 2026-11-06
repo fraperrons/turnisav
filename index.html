@@ -1477,10 +1477,23 @@ function daAdessoHai(giorni) {
 async function apriLink(codice, tipo) {
   const { stato, d } = await chiamaAuth('invito', { codice });
   if (stato !== 200 || !d.ok) { mostraBloccato(d.error || 'Questo link non è valido.'); return; }
-  gEl('gAttivaTitolo').textContent = 'Ciao ' + d.nome;
-  gEl('gAttivaNota').textContent = d.tipo === 'prova'
+  /* «Ciao Erik», non «Ciao AVOYER ERIK». Nell'elenco i nominativi sono
+     COGNOME NOME, e il nome è l'ultima parola: è lo stesso che fa il
+     messaggio su WhatsApp, e chi apre il link si è appena letto «Ciao
+     Erik» lì sopra. Gridargli il cognome qui lo farebbe sentire allo
+     sportello. */
+  const parti = String(d.nome || '').trim().split(/\s+/);
+  const ultimo = parti[parti.length - 1] || d.nome;
+  gEl('gAttivaTitolo').textContent = 'Ciao ' + (ultimo.charAt(0) + ultimo.slice(1).toLowerCase());
+  /* CHE COSA SUCCEDE APRENDOLO lo dice il server, non il tipo del link.
+     Col link unico «accesso» diventa una prova o un accesso attivo a
+     seconda che il contributo sia registrato, e per un'ora questa pagina
+     ha detto a tutti la stessa frase generica: chi entrava in prova
+     scopriva che c'era un termine il giorno che l'app glielo diceva. */
+  const entra = d.entrerai || d.tipo;
+  gEl('gAttivaNota').textContent = entra === 'prova'
     ? 'Scegli la tua password: ' + daAdessoHai(d.giorni_prova) + ' La password è tua e non si condivide.'
-    : d.tipo === 'reimposta'
+    : entra === 'reimposta'
       ? 'Scegli la tua nuova password. Quella di prima non vale più.'
       : 'Scegli la tua password. È personale e non si condivide con i colleghi.';
   mostraFaccia('gateAttiva');
