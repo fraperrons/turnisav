@@ -122,6 +122,15 @@ input::placeholder{color:var(--muted-chiaro)}
 .s-disattivato{background:rgba(181,80,46,.22);color:#e39b7f}
 .s-scaduto{background:rgba(181,80,46,.3);color:#f0b49a}
 
+/* I DUE CONTATORI DI UNA PERSONA: due numeri affiancati, non una tabella.
+   A 375 px una tabella con nome, cambi, cessioni e data si scorre di lato,
+   e di lato non si legge. Uno zero resta scritto ma spento: dice «nessuna»
+   senza gridarlo accanto a chi ne ha mandate sei. */
+.cont2{display:flex;gap:7px;margin-top:7px}
+.cont2>div{background:var(--ink-su);border-radius:9px;padding:5px 9px;min-width:64px}
+.cont2 b{display:block;font-size:1.1rem;line-height:1.15}
+.cont2 span{font-size:.66rem;color:var(--muted-chiaro);text-transform:uppercase;letter-spacing:.06em}
+.cont2>div.zero b{color:var(--muted-chiaro);opacity:.5}
 .vuoto{color:var(--muted-chiaro);text-align:center;padding:22px 0;font-size:.9rem}
 /* La nota di una scheda: spiega la regola, e si legge prima dei pulsanti. */
 .nota{font-size:.79rem;color:var(--muted-chiaro);line-height:1.55}
@@ -301,6 +310,41 @@ input::placeholder{color:var(--muted-chiaro)}
         </select>
       </div>
       <div id="elencoPec" style="margin-top:12px"></div>
+    </div>
+
+    <!-- ============================================================
+         I DUE CONTATORI DEGLI INVII
+         ============================================================
+         Quante PEC di cambio e quante di cessione ha mandato ciascuno.
+
+         I NUMERI NON VENGONO DA UN CONTATORE TENUTO A PARTE: si contano
+         ogni volta leggendo il log degli invii, che è la riga scritta
+         nell'istante in cui la PEC è partita. Un contatore a parte prima
+         o poi non coincide col log, e allora non si sa a quale dei due
+         credere.
+
+         QUESTA SCHEDA LA VEDE SOLO L'AMMINISTRATORE, come tutta la
+         pagina: quanti cambi ha chiesto una persona è un dato sul suo
+         servizio, e non va dove lo leggono tutti. -->
+    <div class="pannello" data-sez="conteggi" data-desc="Quante PEC di cambio e quante di cessione ha mandato ciascuno.">
+      <h2>PEC inviate per persona</h2>
+      <p class="nota" style="margin:0 0 10px">
+        Si contano solo le PEC <b>partite davvero</b>, dal log degli invii: un tentativo
+        non riuscito non conta — si scrive accanto — e un invio a vuoto nemmeno.
+        Chi ha <b>zero</b> ha mandato il cambio dalla sua webmail, o non ne ha chiesti.
+      </p>
+      <div class="conti" id="conteggiTotali"></div>
+      <div id="conteggiNota" class="nota" style="margin:10px 0 0"></div>
+      <div class="filtri" style="margin-top:12px">
+        <input type="text" id="cercaConteggi" placeholder="Cerca un nominativo…" autocomplete="off">
+        <select id="filtroConteggi">
+          <option value="">— Tutti —</option>
+          <option value="inviate">Chi ne ha mandata almeno una</option>
+          <option value="zero">Chi non ne ha mandata nessuna</option>
+          <option value="guai">Chi ha avuto un tentativo non riuscito</option>
+        </select>
+      </div>
+      <div id="conteggi" style="margin-top:12px"></div>
     </div>
 
     <div class="pannello" data-sez="registro" data-desc="Che cosa è successo, in ordine di tempo.">
@@ -1538,6 +1582,84 @@ function finestraVisualizzatore() {
   };
 }
 
+
+/* ==================================================================
+   I DUE CONTATORI: CAMBI E CESSIONI, PER PERSONA
+   ==================================================================
+   La pagina non conta niente: chiede alla rotta e mostra. L'ordine è
+   per totale, dal più alto: così la domanda «chi la usa» si legge in
+   cima senza toccare il filtro, e «chi non l'ha mai usata» sta in
+   fondo, dove la si va a cercare apposta.
+   ================================================================== */
+let CONTEGGI = [], CONTEGGI_TOT = {}, CONTEGGI_LEGGIBILE = true;
+
+async function caricaConteggi() {
+  const r = await api('conteggi-pec');
+  if (!r.d.ok) return;
+  CONTEGGI = (r.d.righe || []).slice().sort((a, b) => {
+    const ta = a.cambio + a.cessione, tb = b.cambio + b.cessione;
+    return tb - ta || a.nome.localeCompare(b.nome, 'it');
+  });
+  CONTEGGI_TOT = r.d.totali || {};
+  CONTEGGI_LEGGIBILE = r.d.leggibile !== false;
+  disegnaConteggi();
+}
+
+const quanti = (n, uno, molti) => n + ' ' + (n === 1 ? uno : molti);
+
+function disegnaConteggi() {
+  const t = CONTEGGI_TOT;
+  const tot = (t.cambio || 0) + (t.cessione || 0);
+  $('conteggiTotali').innerHTML = [
+    ['inviate', tot, ''],
+    ['di cambio', t.cambio || 0, ''],
+    ['di cessione', t.cessione || 0, ''],
+    ['non riuscite', t.non_riuscite || 0, t.non_riuscite ? 'urge' : ''],
+    ['chi ne ha mandate', CONTEGGI.filter((x) => x.cambio + x.cessione > 0).length, '']
+  ].map(([e, n, c]) => `<div class="conto ${c}"><b>${n}</b><span>${e}</span></div>`).join('');
+
+  /* LE RIGHE CHE NON SI CONTANO SI DICONO: altrimenti chi confronta questo
+     totale col log trova due numeri diversi e non sa perché. */
+  $('conteggiNota').innerHTML = [
+    t.a_vuoto ? `${quanti(t.a_vuoto, 'invio', 'invii')} a vuoto (DRY_RUN) non conta${t.a_vuoto === 1 ? '' : 'no'} nel totale.` : null,
+    t.senza_tipo ? `${quanti(t.senza_tipo, 'riga', 'righe')} nel log senza tipo: né cambio né cessione, non contate.` : null,
+    !CONTEGGI_LEGGIBILE ? 'Il log degli invii non si legge: il conto è a zero per questo, non perché non sia partito niente.' : null
+  ].filter(Boolean).map(esc).join('<br>');
+
+  const q = $('cercaConteggi').value.trim().toUpperCase();
+  const f = $('filtroConteggi').value;
+  const viste = CONTEGGI.filter((x) => {
+    if (q && x.nome.indexOf(q) < 0) return false;
+    const n = x.cambio + x.cessione;
+    if (f === 'inviate') return n > 0;
+    if (f === 'zero') return n === 0;
+    if (f === 'guai') return x.non_riuscite > 0;
+    return true;
+  });
+
+  $('conteggi').innerHTML = viste.map((x) => {
+    const sotto = [
+      x.ultima ? 'ultima ' + quandoIt(x.ultima) : null,
+      x.non_riuscite ? quanti(x.non_riuscite, 'tentativo non riuscito', 'tentativi non riusciti') : null
+    ].filter(Boolean).join(' · ');
+    return `<div class="riga">
+      <div class="nome">${esc(x.nome)}${x.fuori_elenco ? ' <span class="stato s-non_attivo">fuori elenco</span>' : ''}</div>
+      <div class="cont2">
+        <div class="${x.cambio ? '' : 'zero'}"><b>${x.cambio}</b><span>${x.cambio === 1 ? 'cambio' : 'cambi'}</span></div>
+        <div class="${x.cessione ? '' : 'zero'}"><b>${x.cessione}</b><span>${x.cessione === 1 ? 'cessione' : 'cessioni'}</span></div>
+      </div>
+      ${sotto ? `<div class="dati">${esc(sotto)}</div>` : ''}
+    </div>`;
+  }).join('') || '<div class="vuoto">Nessun nominativo con questi filtri.</div>';
+
+  scriviConta('conteggi', tot
+    ? [`${quanti(tot, 'PEC inviata', 'PEC inviate')}`,
+      `${t.cambio || 0} di cambio, ${t.cessione || 0} di cessione`,
+      t.non_riuscite ? quanti(t.non_riuscite, 'non riuscita', 'non riuscite') : null
+    ].filter(Boolean).join(' · ')
+    : 'ancora nessuna');
+}
+
 $('cerca').addEventListener('input', disegnaElenco);
 $('filtro').addEventListener('change', disegnaElenco);
 $('cercaPec').addEventListener('input', disegnaPec);
@@ -1547,6 +1669,9 @@ $('proveBtn').addEventListener('click', finestraProve);
 $('visualizzatoreBtn').addEventListener('click', finestraVisualizzatore);
 $('verificaTurnoBtn').addEventListener('click', finestraTurno);
 $('verificaPubblicaBtn').addEventListener('click', pubblicaVerifica);
+
+$('cercaConteggi').addEventListener('input', disegnaConteggi);
+$('filtroConteggi').addEventListener('change', disegnaConteggi);
 
 $('registroAltre').addEventListener('click', () => { REGISTRO_QUANTE += 20; disegnaRegistro(); });
 
@@ -1564,6 +1689,7 @@ $('registroAltre').addEventListener('click', () => { REGISTRO_QUANTE += 20; dise
   await caricaGestori();
   await caricaPec();
   await caricaVerifica();
+  await caricaConteggi();
   await caricaRegistro();
 })();
 </script>
