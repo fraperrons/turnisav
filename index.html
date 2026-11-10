@@ -1966,7 +1966,14 @@ let dismissedTrainings = loadDismissedTrainings();
 const exportIcsBtnEl = document.getElementById('exportIcsBtn');
 const calendarViewBtnEl = document.getElementById('calendarViewBtn');
 let calendarViewActive = false;
-let calCurrentMonthIdx = 0; // indice nell'elenco dei mesi realmente presenti nei dati
+let calCurrentMonthIdx = 0; // posizione del mese mostrato nell'elenco dei mesi con dati
+/* IL MESE MOSTRATO SI TIENE PER NOME («Febbraio 2027»), non per posizione:
+   quando arrivano mesi nuovi, o addestramenti di mesi passati, la posizione
+   si sposta e la vista finiva su un altro mese. null = «scegli tu»: il mese
+   corrente, oppure il primo mese futuro con turni. Si azzera all'apertura
+   della vista e al cambio di nominativo. */
+let calMeseScelto = null;
+let calMesiDisponibili = [];
 const MESI_ABBR_TO_IT = {
   'Gennaio': 0, 'Febbraio': 1, 'Marzo': 2, 'Aprile': 3, 'Maggio': 4, 'Giugno': 5,
   'Luglio': 6, 'Agosto': 7, 'Settembre': 8, 'Ottobre': 9, 'Novembre': 10, 'Dicembre': 11
@@ -1979,7 +1986,7 @@ function toggleCalendarView(forceState) {
   document.getElementById('calendarView').style.display = calendarViewActive ? 'block' : 'none';
   calendarViewBtnEl.classList.toggle('active', calendarViewActive);
   calendarViewBtnEl.textContent = calendarViewActive ? '📋 Torna alla lista' : '🗓️ Vista calendario';
-  if (calendarViewActive) renderCalendar();
+  if (calendarViewActive) { calMeseScelto = null; renderCalendar(); }
 }
 
 calendarViewBtnEl.addEventListener('click', () => toggleCalendarView());
@@ -2018,7 +2025,15 @@ function renderCalendar() {
      scritto dentro ma comincia a ottobre: contandola per l'etichetta
      sparirebbe dal calendario invece di spostarsi di un giorno, e
      perdere un turno dalla vista è peggio che mostrarlo storto. */
-  const monthsWithData = [...new Set(conInizio.map(x => meseDi(x.inizio)))];
+  /* I MESI PASSATI SI SFOGLIANO SOLO CON «Mostra anche i turni passati»,
+     come nell'elenco. Senza, la vista partiva da gennaio 2026 (addestramenti
+     già fatti) e «Febbraio 2026» veniva scambiato per febbraio 2027. */
+  const mostraPassatiCal = document.getElementById('showPastToggle') && document.getElementById('showPastToggle').checked;
+  const oggiCal = new Date();
+  const meseOggiCal = oggiCal.getFullYear() * 100 + oggiCal.getMonth();
+  const monthsWithData = [...new Set(conInizio
+    .filter(x => mostraPassatiCal || x.inizio.getFullYear() * 100 + x.inizio.getMonth() >= meseOggiCal)
+    .map(x => meseDi(x.inizio)))];
   const ordineCal = (etichetta) => {
     const [n, a] = etichetta.split(' ');
     return Number(a) * 100 + MESI_CAL.indexOf(n);
@@ -2031,8 +2046,13 @@ function renderCalendar() {
     return;
   }
 
-  if (calCurrentMonthIdx < 0) calCurrentMonthIdx = 0;
-  if (calCurrentMonthIdx >= monthsWithData.length) calCurrentMonthIdx = monthsWithData.length - 1;
+  calMesiDisponibili = monthsWithData;
+  if (!calMeseScelto || !monthsWithData.includes(calMeseScelto)) {
+    const oggi = new Date();
+    const qui = oggi.getFullYear() * 100 + oggi.getMonth();
+    calMeseScelto = monthsWithData.find(m => ordineCal(m) >= qui) || monthsWithData[monthsWithData.length - 1];
+  }
+  calCurrentMonthIdx = monthsWithData.indexOf(calMeseScelto);
 
   const monthLabel = monthsWithData[calCurrentMonthIdx];
   document.getElementById('calMonthLabel').textContent = monthLabel;
@@ -2226,11 +2246,11 @@ document.querySelectorAll('.ts-chip').forEach(chip => {
 });
 
 document.getElementById('calPrevBtn').addEventListener('click', () => {
-  calCurrentMonthIdx--;
+  if (calCurrentMonthIdx > 0) calMeseScelto = calMesiDisponibili[calCurrentMonthIdx - 1];
   renderCalendar();
 });
 document.getElementById('calNextBtn').addEventListener('click', () => {
-  calCurrentMonthIdx++;
+  if (calCurrentMonthIdx < calMesiDisponibili.length - 1) calMeseScelto = calMesiDisponibili[calCurrentMonthIdx + 1];
   renderCalendar();
 });
 
@@ -2939,7 +2959,7 @@ document.querySelectorAll('.role-chip').forEach(chip => {
     render();
   });
 });
-sel.addEventListener('change', () => { saveSelectedName(sel.value); calCurrentMonthIdx = 0; updateExportBtnVisibility(); render(); if (calendarViewActive) renderCalendar(); });
+sel.addEventListener('change', () => { saveSelectedName(sel.value); calMeseScelto = null; updateExportBtnVisibility(); render(); if (calendarViewActive) renderCalendar(); });
 
 function dateKey(dateStr) {
   const [d, mo, yy] = dateStr.split('/').map(Number);
@@ -3064,6 +3084,7 @@ showPastToggle.addEventListener('change', () => {
      tutta la pagina, e una delle due parti che non le dà retta è una
      parte che sembra rotta. */
   if (trainingSummaryOpen) renderTrainingSummary();
+  if (calendarViewActive) renderCalendar();
 });
 
 function render() {
