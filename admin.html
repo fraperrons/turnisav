@@ -1498,6 +1498,11 @@ function disegnaPec() {
       dati.push('ultima prova: ' + (t.ultima_prova.esito === 'ok' ? 'riuscita' : t.ultima_prova.esito.replace(/_/g, ' '))
         + ' (' + t.ultima_prova.tipo + ', ' + quandoIt(t.ultima_prova.at) + ')');
     }
+    /* «ha memorizzato», non «la password è qui»: quello che sta sul server
+       è solo la chiave con cui si apre il testo cifrato che ha lui sul
+       telefono. Scritto così perché la riga la legge chi deve decidere se
+       premere «Dimentica», e deve sapere che cosa butta. */
+    if (t.pec_salvata) dati.push('🔒 password memorizzata sul suo telefono');
     return `<div class="riga">
       <div class="nome">${esc(t.nome)}</div>
       <div class="dati">${esc(dati.join(' · '))}</div>
@@ -1526,14 +1531,40 @@ function finestraPec(t) {
       <input id="tUtente" value="${esc(t.utente)}" placeholder="solo se il gestore non usa l’indirizzo">
       <div class="aiuto">Serve ai gestori con «codice a parte»: InfoCert vuole la UserID
         dell’attivazione. Per tutti gli altri va lasciato vuoto.</div></div>
-    <p class="nota" style="margin:0 0 10px"><b>La password non si scrive qui e non si salva mai.</b>
+    <p class="nota" style="margin:0 0 10px"><b>La password non si scrive qui, e sul server non si salva mai.</b>
       La mette il tecnico al momento dell’invio, e vive il tempo di una connessione.</p>
+    ${t.pec_salvata ? `
+    <div class="campo">
+      <label>Password memorizzata sul suo telefono</label>
+      <button class="btn piccolo" id="tDimentica">Dimentica la password PEC salvata</button>
+      <div class="aiuto">Ha spuntato «Ricorda su questo telefono»: sul suo telefono c’è la password
+        <b>cifrata</b>, e la chiave per aprirla sta solo sul server. Questo pulsante butta la chiave,
+        e da quell’istante quel testo non si apre più su <b>nessuno</b> dei suoi telefoni — anche su
+        quelli che non si possono prendere in mano. Lui dovrà riscrivere la password una volta.
+        <b>Non cambia la password vera</b>: quella sta dal gestore.</div>
+    </div>` : ''}
     <div id="tErr" class="dati" style="color:var(--refuse)"></div>
     <div class="pulsanti">
       <button class="btn" id="fNo">Annulla</button>
       <button class="btn principale" id="fSi">Salva</button>
     </div>`);
   $('fNo').onclick = chiudiFinestra;
+  if ($('tDimentica')) {
+    /* La conferma usa la finestra della pagina e non `confirm()`: la
+       ragione sta in cima, accanto a `.velo`. E dice che cosa succede
+       DAVVERO, perché questo pulsante agisce su telefoni che non sono qui. */
+    $('tDimentica').onclick = () => conferma(
+      'Dimenticare la password di ' + t.nome + '?',
+      'La password memorizzata smetterà di funzionare su <b>tutti</b> i suoi telefoni, subito. '
+        + 'Dovrà riscriverla una volta. La password vera, quella del gestore, <b>non cambia</b>.',
+      'Dimentica', true,
+      async () => {
+        const r = await api('pec-dimentica', { nome: t.nome });
+        if (!r.d.ok) { chiudiFinestra(); toast(r.d.error || 'Non riuscito.'); return; }
+        chiudiFinestra(); toast('Fatto: dovrà riscrivere la password.');
+        await caricaPec(); await caricaRegistro();
+      });
+  }
   $('fSi').onclick = async () => {
     const r = await api('tecnico-pec', {
       nome: t.nome, pec: $('tPec').value, gestore: $('tGest').value, utente: $('tUtente').value

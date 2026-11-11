@@ -500,6 +500,22 @@
   #scSendPecBtn:disabled, #scPrepPecBtn:disabled { opacity: 0.5; cursor: default; }
   #scSendPecBtn { margin-top: 10px; background: var(--amber); }
   .sc-pass { width: 100%; padding: 9px; border-radius: 10px; border: 1px solid var(--line-scura); background: var(--ink-su); color: var(--rope); font-size: 0.85rem; box-sizing: border-box; }
+  /* «Ricorda su questo telefono»: la casella e la riga che la sostituisce
+     quando qualcosa è già memorizzato. Il bersaglio del dito è l'etichetta
+     intera, non il quadratino — a 375 px un quadratino di 13 px si manca. */
+  /* MINUSCOLO E SENZA SPAZIATURA, contro la regola che vale per le altre
+     etichette del pannello: quelle sono intestazioni di campo («IL TUO
+     TURNO DA CAMBIARE») e il maiuscolo le fa leggere come tali. Questa non
+     è un'intestazione, è la frase accanto a una casella da spuntare, e in
+     maiuscolo si legge come il titolo della sezione che viene dopo. */
+  /* `label.sc-ricorda` e non `.sc-ricorda`: la regola da battere è
+     `.controls label`, che pesa quanto una classe più un elemento. Con la
+     sola classe questa riga perdeva, e il maiuscolo restava. */
+  label.sc-ricorda { display: flex; align-items: center; gap: 8px; margin-top: 10px; padding: 6px 0; font-size: 0.78rem; color: var(--muted-chiaro); cursor: pointer; text-transform: none; letter-spacing: normal; }
+  .sc-ricorda input { width: 17px; height: 17px; flex: 0 0 auto; accent-color: var(--amber); margin: 0; }
+  .sc-pec-salvata { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 10px; padding: 9px 10px; border-radius: 10px; border: 1px solid var(--line-scura); background: var(--ink-su); font-size: 0.76rem; color: var(--muted-chiaro); line-height: 1.4; }
+  .sc-pec-salvata b { color: var(--rope); }
+  .sc-pec-dimentica { margin-left: auto; padding: 5px 10px; border-radius: 8px; border: 1px solid var(--line-scura); background: transparent; color: var(--muted-chiaro); font-size: 0.72rem; font-family: inherit; cursor: pointer; }
   .sc-pec-help { margin-top: 6px; font-size: 0.72rem; color: var(--muted-chiaro); line-height: 1.4; }
   .sc-pec-help a { color: var(--rope); }
   /* LE DUE PROVE, staccate da quello che si invia davvero: una riga sopra
@@ -1321,7 +1337,7 @@
       <button type="button" id="reportSendBtn">Invia segnalazione</button>
     </div>
   </div>
-  <footer>Estratto automaticamente dagli aggiornamenti PEC — Può contenere errori<span id="footerCount"></span><br><span id="lastUpdateBox"></span><br><a href="#" id="logoutLink" style="color:inherit;">Esci da questo dispositivo</a></footer>
+  <footer>Estratto automaticamente dagli aggiornamenti PEC — Può contenere errori<span id="footerCount"></span><br><span id="lastUpdateBox"></span><br><a href="#" id="logoutLink" style="color:inherit;">Esci da questo dispositivo</a><span id="pecDimenticaBox" hidden> · <a href="#" id="pecDimenticaLink" style="color:inherit;">Dimentica la password PEC</a></span></footer>
 </main>
 
 <script>
@@ -1520,6 +1536,14 @@ async function apriLink(codice, tipo) {
 }
 
 /* ---------------- uscire ---------------- */
+
+/* IL NOME DELLA CHIAVE STA QUI, FUORI DA `initApp()`, e ci deve stare.
+   Era dentro, insieme a tutto il resto della password memorizzata, e
+   `esci()` — che vive qui — la nominava senza vederla: un ReferenceError
+   dentro il `try` qui sotto, cioè ingoiato in silenzio. Le altre due righe
+   passavano, questa no, e il telefono di chi usciva si teneva la password
+   cifrata. Un errore che non dà errore: il peggiore che ci sia. */
+const PEC_SALVATA = 'sav_pec_salvata';
 /**
  * «Esci» chiude la sessione SUL SERVER e svuota quello che il telefono ha
  * tenuto da parte.
@@ -1537,6 +1561,11 @@ async function esci() {
   try {
     localStorage.removeItem('sav_logged_in');
     localStorage.removeItem('sav_selected_name');
+    /* LA PASSWORD PEC MEMORIZZATA SE NE VA CON LA SESSIONE. «Esci da questo
+       dispositivo» vuol dire che il telefono non è più mio: lasciarci sopra
+       il testo cifrato sarebbe lasciare una password che basta una sessione
+       nuova a far funzionare. */
+    localStorage.removeItem(PEC_SALVATA);
   } catch (e) {}
   location.replace(location.pathname);
 }
@@ -1587,6 +1616,7 @@ document.getElementById('logoutLink').addEventListener('click', (e) => {
   e.preventDefault();
   esci();
 });
+
 
 // --- Segnala un errore ---
 const reportToggleBtn = document.getElementById('reportToggleBtn');
@@ -2664,6 +2694,160 @@ document.getElementById('scVerifyBtn').addEventListener('click', () => {
 // --- Invio PEC dal sito (server su prusik.it/turnisav) ---
 function shiftRef(s) { return { date: s.date, type: s.type, role: s.role }; }
 
+/* ==================================================================
+   LA PASSWORD PEC MEMORIZZATA SU QUESTO TELEFONO
+   ==================================================================
+   Quello che sta qui dentro NON E' LA PASSWORD: e' la password cifrata dal
+   server con una chiave che il telefono non ha e non avra' mai. Chi apre
+   questa memoria — un telefono perso, un browser frugato — trova del
+   rumore, e il rumore non si manda a nessun gestore PEC.
+
+   QUATTRO MODI DI FARLA SPARIRE, e sono quattro perche' le occasioni di
+   perdere un telefono sono piu' d'una:
+
+     - «Esci da questo dispositivo», che svuota tutto il resto e anche
+       questo;
+     - «Dimentica la password PEC», qui sotto e nel piede della pagina;
+     - il gestore che rifiuta la password: scaduta o cambiata, e allora
+       tenerla vorrebbe dire sbatterci contro di nuovo domani;
+     - l'amministratore che butta la chiave: da quell'istante questo testo
+       non si apre piu' su NESSUN telefono, anche su quelli che non si
+       possono prendere in mano.
+
+   SI TIENE ANCHE IL NOME di chi l'ha salvata. Non per sicurezza — a
+   decidere e' il server, che non apre il testo di un altro — ma perche' su
+   un telefono prestato due persone che entrano a turno non devono vedersi
+   la riga «password memorizzata» che non e' la loro.
+
+   IL NOME DELLA CHIAVE (`PEC_SALVATA`) NON E' QUI: sta in cima, accanto a
+   `esci()`, perche' anche «Esci da questo dispositivo» deve cancellarla e
+   `esci()` vive fuori da `initApp()`. Riscriverlo qui lo nasconderebbe a
+   quello di sopra senza che niente lo dica. */
+
+/** Il testo cifrato di CHI E' ENTRATO ADESSO, o stringa vuota. */
+function pecSalvataLeggi() {
+  if (!IO.entrato || !IO.nome || IO.condivisa || IO.visualizzatore) return '';
+  try {
+    const d = JSON.parse(localStorage.getItem(PEC_SALVATA) || 'null');
+    return d && d.nome === IO.nome && typeof d.testo === 'string' ? d.testo : '';
+  } catch (e) { return ''; }
+}
+
+function pecSalvataScrivi(testo) {
+  if (!testo || !IO.nome || IO.condivisa || IO.visualizzatore) return;
+  try { localStorage.setItem(PEC_SALVATA, JSON.stringify({ nome: IO.nome, testo })); } catch (e) {}
+  pecRidisegna();
+}
+
+function pecSalvataButta() {
+  try { localStorage.removeItem(PEC_SALVATA); } catch (e) {}
+  pecRidisegna();
+}
+
+/* I posti in cui la password si chiede: il modulo d'invio e, quando il
+   gestore e' in collaudo, il riquadro delle prove. Si tengono qui perche'
+   quando la memoria cambia devono cambiare TUTTI insieme — altrimenti
+   resta sullo schermo una casella che chiede una password che il telefono
+   ha gia', o una riga che dice «memorizzata» di una memoria svuotata. */
+const pecCampi = [];
+
+function pecRidisegna() {
+  for (let i = pecCampi.length - 1; i >= 0; i--) {
+    const c = pecCampi[i];
+    if (!document.body.contains(c.dove)) { pecCampi.splice(i, 1); continue; }
+    pecDisegnaCampo(c.dove, c.g, c.idPassword, c.idRicorda);
+  }
+  const box = document.getElementById('pecDimenticaBox');
+  if (box) box.hidden = !pecSalvataLeggi();
+}
+
+/**
+ * Il posto della password: la casella da riempire, oppure la riga che dice
+ * che non serve riempirla.
+ */
+function pecDisegnaCampo(dove, g, idPassword, idRicorda) {
+  if (!pecCampi.some((c) => c.dove === dove)) pecCampi.push({ dove, g, idPassword, idRicorda });
+  dove.innerHTML = '';
+  if (pecSalvataLeggi()) {
+    const riga = document.createElement('div');
+    riga.className = 'sc-pec-salvata';
+    const t = document.createElement('span');
+    t.innerHTML = '🔒 <b>Password memorizzata su questo telefono.</b> Non serve riscriverla.';
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'sc-pec-dimentica';
+    b.textContent = 'Dimentica';
+    b.addEventListener('click', pecSalvataButta);
+    riga.appendChild(t);
+    riga.appendChild(b);
+    dove.appendChild(riga);
+    return;
+  }
+  const lab = document.createElement('label');
+  lab.className = 'sc-label';
+  lab.textContent = (g && g.etichettaPassword) || 'Password della casella PEC';
+  const inp = document.createElement('input');
+  inp.type = 'password';
+  inp.id = idPassword;
+  inp.name = 'password';
+  inp.className = 'sc-pass';
+  inp.autocomplete = 'current-password';
+  inp.placeholder = g && g.serveCodice ? 'La password del tuo gestore PEC' : 'Non è quella della webmail';
+  const aiuto = document.createElement('div');
+  aiuto.className = 'sc-pec-help';
+  const ric = document.createElement('label');
+  ric.className = 'sc-ricorda';
+  const spunta = document.createElement('input');
+  spunta.type = 'checkbox';
+  spunta.id = idRicorda;
+  /* SPUNTATA DI PARTENZA: è la cosa che hanno chiesto tutti, e chi non la
+     vuole la toglie. Chi la toglie non salva niente, e la volta dopo la
+     casella è di nuovo spuntata — è una scelta su QUESTO invio, non una
+     preferenza che si porta dietro. */
+  spunta.checked = true;
+  ric.appendChild(spunta);
+  ric.appendChild(document.createTextNode(' Ricorda su questo telefono'));
+  dove.appendChild(lab);
+  dove.appendChild(inp);
+  dove.appendChild(aiuto);
+  dove.appendChild(ric);
+  riempiAiuto(aiuto, g);
+}
+
+/** La password da mandare: quella memorizzata, o quella appena scritta. */
+function pecCarico(extra) {
+  const salvata = pecSalvataLeggi();
+  if (salvata) return { ...extra, pecSalvata: salvata };
+  const el = document.getElementById('scPecPass') || document.getElementById('scProvePass');
+  const ric = document.getElementById('scPecRicorda') || document.getElementById('scProveRicorda');
+  return { ...extra, password: el ? el.value : '', ricorda: !!(ric && ric.checked) };
+}
+
+/** C'è qualcosa da mandare? O memorizzata, o scritta adesso. */
+function pecPronta() {
+  if (pecSalvataLeggi()) return true;
+  const el = document.getElementById('scPecPass') || document.getElementById('scProvePass');
+  return !!(el && el.value.trim());
+}
+
+/* IL «DIMENTICA» NEL PIEDE SI GUARDA QUI, E NON IN `unlockApp`.
+   Ci avevo messo una riga là — è il posto dove si sa chi è entrato — e la
+   pagina andava in errore al primo accesso: tutto questo blocco vive dentro
+   `initApp()`, mentre `unlockApp` sta fuori, e da fuori queste funzioni non
+   si vedono. Un file di centomila caratteri con una funzione che ne
+   racchiude due terzi non lo dice guardandolo: lo ha detto la console.
+   `initApp()` gira una volta sola, dopo l'accesso e dopo i dati, che è
+   esattamente quando serve. E per la stessa ragione sta qui dentro anche il
+   gestore del link nel piede: `pecSalvataButta` e `showToast` vivono qui, e
+   un gestore registrato là fuori sarebbe andato in errore al clic — senza
+   dire niente a nessuno finché qualcuno non ci avesse premuto sopra. */
+pecRidisegna();
+document.getElementById('pecDimenticaLink').addEventListener('click', (e) => {
+  e.preventDefault();
+  pecSalvataButta();
+  showToast('✅ Password PEC dimenticata su questo telefono');
+});
+
 async function pecApi(action, payload) {
   /* NIENTE PIU' X-Turni-Key: quella era l'hash della password di tutti, e
      chiunque l'avesse poteva far partire una PEC a nome di chiunque. Adesso
@@ -2677,6 +2861,11 @@ async function pecApi(action, payload) {
   let data = null;
   try { data = await r.json(); } catch (e) { /* risposta non JSON: server non presente */ }
   if (!data) { const err = new Error('no-server'); err.noServer = true; throw err; }
+  /* LA MEMORIA SI AGGIORNA QUI, IN UN POSTO SOLO. Ogni rotta che chiede una
+     password può dire «tieniti questa» o «butta quella che hai», e farlo
+     dentro ogni pulsante vorrebbe dire dimenticarsene in uno dei tre. */
+  if (data.dimentica) pecSalvataButta();
+  else if (data.pecSalvata) pecSalvataScrivi(data.pecSalvata);
   return data;
 }
 
@@ -2711,7 +2900,16 @@ function showCopyFallback(area, myName, myShift, otherName, otherShift, motivo, 
 function riempiAiuto(dove, g) {
   if (!dove) return;
   dove.textContent = (g && g.aiuto) ? g.aiuto : '';
-  const coda = ' Serve solo per questo invio: il sito non la salva. Il telefono può ricordarla al posto tuo.';
+  /* QUESTA CODA È CAMBIATA IL 12/11/2026, E DOVEVA. Diceva «Serve solo per
+     questo invio: il sito non la salva. Il telefono può ricordarla al posto
+     tuo» — scritta quando la password non si salvava davvero da nessuna
+     parte. Lasciata lì starebbe due righe sopra una casella che dice il
+     contrario, e una frase rassicurante che il resto della pagina smentisce
+     è peggio di nessuna frase. Quello che è rimasto vero, ed è la parte che
+     conta, è che il SERVER non la conserva. */
+  const coda = ' Il server non la conserva: la usa per questo invio e la butta.'
+    + ' Se spunti «Ricorda su questo telefono» resta qui sul telefono, cifrata,'
+    + ' e per aprirla serve una chiave che sta solo sul server.';
   dove.textContent += coda;
   if (g && g.link) {
     dove.appendChild(document.createElement('br'));
@@ -2744,16 +2942,17 @@ function riempiAiuto(dove, g) {
  */
 function attaccaProve(area, data) {
   const g = data.gestore || {};
-  const haGiaPassword = !!document.getElementById('scPecPass');
+  /* SI GUARDA IL CONTENITORE, non la casella: da quando la password si può
+     memorizzare, il modulo d'invio può esserci SENZA una casella da
+     riempire. Cercare la casella farebbe disegnare qui una seconda password
+     proprio nel caso in cui non ne serve nessuna. */
+  const haGiaPassword = !!document.getElementById('scPecCampo');
   const box = document.createElement('div');
   box.className = 'sc-pec-prove';
   box.innerHTML = `
     <div class="sc-pec-head"><b>Provare la configurazione</b></div>
     <div class="sc-pec-help" id="scProveAiuto"></div>
-    ${haGiaPassword ? '' : `
-      <label class="sc-label" id="scProveLabel"></label>
-      <input type="password" id="scProvePass" autocomplete="current-password" class="sc-pass">
-      <div class="sc-pec-help" id="scProveHelp"></div>`}
+    ${haGiaPassword ? '' : '<div id="scProveCampo"></div>'}
     <div class="sc-pec-bottoni">
       <button type="button" id="scProvaConnBtn">🔌 Prova connessione</button>
       <button type="button" id="scProvaInvioBtn">✉️ Invia PEC di prova</button>
@@ -2764,15 +2963,8 @@ function attaccaProve(area, data) {
   document.getElementById('scProveAiuto').textContent = g.stato === 'da_collaudare'
     ? 'Il tuo gestore PEC è in fase di collaudo: queste due prove servono a capire se la configurazione funziona. Non mandano niente alla Direzione.'
     : 'Serve a controllare la tua password senza mandare una comunicazione vera. Non manda niente alla Direzione.';
-  if (!haGiaPassword) {
-    document.getElementById('scProveLabel').textContent = g.etichettaPassword || 'Password della casella PEC';
-    riempiAiuto(document.getElementById('scProveHelp'), g);
-  }
+  if (!haGiaPassword) pecDisegnaCampo(document.getElementById('scProveCampo'), g, 'scProvePass', 'scProveRicorda');
 
-  const password = () => {
-    const el = document.getElementById('scPecPass') || document.getElementById('scProvePass');
-    return el ? el.value : '';
-  };
   const esito = document.getElementById('scProveEsito');
   const dillo = (buono, titolo, testo) => {
     esito.innerHTML = '';
@@ -2784,15 +2976,14 @@ function attaccaProve(area, data) {
   };
 
   const fai = async (quale, btn, etichetta, inCorso) => {
-    const pw = password().trim();
-    if (!pw) { showToast('⚠️ Inserisci la password della tua PEC'); return; }
+    if (!pecPronta()) { showToast('⚠️ Inserisci la password della tua PEC'); return; }
     if (quale === 'prova-invio') {
       const vai = await showConfirmModal('Mandare una PEC di prova dalla tua casella all’indirizzo di prova, con copia a te? Non va alla Direzione.');
       if (!vai) return;
     }
     btn.disabled = true; btn.textContent = inCorso;
     try {
-      const r = await pecApi(quale, { password: pw });
+      const r = await pecApi(quale, pecCarico({}));
       if (r.ok) dillo(true, r.titolo || 'Tutto a posto', quale === 'prova-invio' && r.a ? 'mandata a ' + r.a : (r.dryRun ? 'prova a secco' : ''));
       else dillo(false, r.titolo || 'Non riuscita', r.error || '');
     } catch (e) {
@@ -2877,9 +3068,7 @@ async function preparePec(myName, myShift, otherName, otherShift) {
     <div id="scPecPreview"></div>
     <form id="scPecForm" autocomplete="on" onsubmit="return false;">
       <input type="text" name="username" id="scPecUser" autocomplete="username" readonly style="display:none;">
-      <label class="sc-label" id="scPecLabel"></label>
-      <input type="password" name="password" id="scPecPass" autocomplete="current-password" class="sc-pass">
-      <div class="sc-pec-help" id="scPecHelp"></div>
+      <div id="scPecCampo"></div>
       <button type="button" id="scSendPecBtn">📨 Invia PEC</button>
     </form>
   `;
@@ -2889,13 +3078,11 @@ async function preparePec(myName, myShift, otherName, otherShift) {
      scrive nel campo nascosto che il gestore delle password del telefono
      legge, così «ricorda la password» si attacca alla cosa giusta. */
   document.getElementById('scPecUser').value = g.nomeUtente || data.from;
-  document.getElementById('scPecLabel').textContent = g.etichettaPassword || 'Password della casella PEC';
-  document.getElementById('scPecPass').placeholder = g.serveCodice ? 'La password del tuo gestore PEC' : 'Non è quella della webmail';
-  riempiAiuto(document.getElementById('scPecHelp'), g);
+  pecDisegnaCampo(document.getElementById('scPecCampo'), g, 'scPecPass', 'scPecRicorda');
   if (data.puoProvare) attaccaProve(area, data);
   document.getElementById('scSendPecBtn').addEventListener('click', async () => {
     const passEl = document.getElementById('scPecPass');
-    if (!passEl.value.trim()) { showToast('⚠️ Inserisci la password per client di posta'); passEl.focus(); return; }
+    if (!pecPronta()) { showToast('⚠️ Inserisci la password per client di posta'); if (passEl) passEl.focus(); return; }
     const ok = await showConfirmModal('Inviare ora la PEC dalla tua casella al SAV, con l\'altro tecnico in copia?');
     if (!ok) return;
     const btn = document.getElementById('scSendPecBtn');
@@ -2904,8 +3091,12 @@ async function preparePec(myName, myShift, otherName, otherShift) {
     area.querySelectorAll('.sc-send-error').forEach(el => el.remove());
     btn.disabled = true; btn.textContent = 'Invio in corso…';
     try {
-      const r = await pecApi('invia', { token: data.token, password: passEl.value });
-      passEl.value = '';
+      const r = await pecApi('invia', pecCarico({ token: data.token }));
+      /* La casella si svuota SUBITO, riuscita o no: una password che resta
+         scritta sotto gli occhi di chi passa è il motivo per cui questa
+         riga esiste da sempre. Se nel frattempo è stata memorizzata, la
+         casella non c'è più e non c'è niente da svuotare. */
+      if (passEl && document.body.contains(passEl)) passEl.value = '';
       if (r.ok) {
         btn.textContent = r.dryRun ? '✅ Prova riuscita (nessuna PEC spedita)' : '✅ PEC inviata';
         showToast(r.dryRun ? '✅ Prova: non spedita' : '✅ PEC inviata');
