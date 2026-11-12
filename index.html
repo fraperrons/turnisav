@@ -358,6 +358,12 @@
     padding: 12px;
   }
   #exportPanel.visible { display: block; }
+  #exportPanelNota {
+    margin: 0 0 10px;
+    font-size: 0.78rem;
+    line-height: 1.35;
+    color: var(--muted-chiaro);
+  }
   #exportPanelList {
     max-height: 260px;
     overflow-y: auto;
@@ -1264,6 +1270,11 @@
     <button id="todayBtn">📍 Chi c'è di turno oggi</button>
     <button id="exportIcsBtn">📅 Esporta i miei turni nel calendario</button>
     <div id="exportPanel">
+      <!-- QUELLO CHE ESCE DA QUI È UNA FOTOGRAFIA, non un collegamento: una
+           volta nel telefono non sa più niente dei turni. Dirlo qui evita
+           la telefonata di chi trova nel calendario un turno che è stato
+           cambiato tre settimane fa. -->
+      <p id="exportPanelNota">È una copia: se i turni cambiano, riesporta. Con l’accesso attivo usa la sincronizzazione, che si aggiorna da sola.</p>
       <div id="exportPanelList"></div>
       <div class="export-panel-actions">
         <button type="button" id="exportSelectAllBtn">Seleziona tutti</button>
@@ -1879,6 +1890,46 @@ refreshBtn.addEventListener('click', () => {
     });
 });
 
+
+/* >>> NOTTE NEL CALENDARIO — questo blocco sta IDENTICO in due file
+   ====================================================================
+   In `sito/index.html` (l'esportazione .ics) e in
+   `pec-server/apps-script/calendari.gs` (i calendari di Google). Se si
+   cambia uno si cambia l'altro: una prova confronta i due testi carattere
+   per carattere e diventa rossa se divergono.
+
+   PERCHÉ UNA NOTTE NON È PIÙ UN EVENTO 19:00→07:00. Un evento a cavallo di
+   mezzanotte, sull'iPhone e su Google, compare su TUTT'E DUE i giorni: il
+   giorno dopo si legge «OP 🌙 · Fine 07:00», e a molti sembra un secondo
+   turno. Nel calendario la notte diventa quindi un evento del solo giorno
+   in cui COMINCIA, dalle 19:00 alle 23:59, e l'orario vero lo dicono il
+   titolo («19→07») e la descrizione per intero.
+
+   NELL'APP NON CAMBIA NIENTE: i conflitti, i turni attaccati, i cambi e la
+   verifica continuano a lavorare sull'orario vero, 19→07. Cambia solo
+   l'evento che finisce nel calendario. */
+var NOTTE_MESI = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno',
+  'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
+function notteSigla(role) { return ({ Operatore: 'OP', Cinofilo: 'CI' })[role] || role; }
+function notteGiorno(d) { return d.getDate() + ' ' + NOTTE_MESI[d.getMonth()]; }
+function notteCalendario(s) {
+  /* NEI DATI LA NOTTE PORTA LA DATA IN CUI FINISCE — «30 - 1/12» è il turno
+     del 1 — ed è la convenzione del foglio del SAV. Il giorno di inizio è
+     quello prima, e si calcola con l'aritmetica delle date: così il 1
+     dicembre torna al 30 novembre e il 1 gennaio al 31 dicembre dell'anno
+     prima, senza nessun caso speciale da ricordare. */
+  var p = String(s.date).split('/');
+  var fine = new Date(2000 + Number(p[2]), Number(p[1]) - 1, Number(p[0]));
+  var inizio = new Date(fine.getFullYear(), fine.getMonth(), fine.getDate() - 1);
+  return {
+    inizio: new Date(inizio.getFullYear(), inizio.getMonth(), inizio.getDate(), 19, 0, 0),
+    fine: new Date(inizio.getFullYear(), inizio.getMonth(), inizio.getDate(), 23, 59, 0),
+    titolo: notteSigla(s.role) + ' 🌙 19→07',
+    descrizione: 'Soccorso Alpino Valdostano — turno ' + s.role + ' di notte, dalle 19 del '
+      + notteGiorno(inizio) + ' alle 7 del ' + notteGiorno(fine)
+  };
+}
+/* <<< NOTTE NEL CALENDARIO */
 
 function initApp() {
 const activeRoles = new Set(['Operatore','SA1','SA2','Cinofilo','AVIF','Addestramento']);
@@ -3861,8 +3912,70 @@ document.getElementById('todayBtn').addEventListener('click', () => {
 
 // --- Esporta calendario (.ics) ---
 function pad2(n) { return String(n).padStart(2, '0'); }
+/** La data come la scrive iCalendar, SENZA fuso: va accompagnata da TZID. */
 function toICSDate(date) {
   return `${date.getFullYear()}${pad2(date.getMonth() + 1)}${pad2(date.getDate())}T${pad2(date.getHours())}${pad2(date.getMinutes())}00`;
+}
+/** La data in UTC, per DTSTAMP: quella sì che vuole la Z. */
+function toICSUtc(date) {
+  return date.getUTCFullYear() + pad2(date.getUTCMonth() + 1) + pad2(date.getUTCDate())
+    + 'T' + pad2(date.getUTCHours()) + pad2(date.getUTCMinutes()) + pad2(date.getUTCSeconds()) + 'Z';
+}
+
+/* IL FUSO SCRITTO PER ESTESO, con le due regole dell'ora legale.
+   Senza, un orario come «19:00» è un orario «fluttuante»: il telefono lo
+   legge nel fuso in cui si trova, e chi importa il file da un telefono
+   rimasto su un altro fuso — o chi lo apre su un calendario configurato a
+   Londra — si vede i turni spostati di un'ora. Scritto così, le 19:00 sono
+   le 19:00 italiane ovunque. */
+const ICS_VTIMEZONE = [
+  'BEGIN:VTIMEZONE',
+  'TZID:Europe/Rome',
+  'X-LIC-LOCATION:Europe/Rome',
+  'BEGIN:DAYLIGHT',
+  'TZOFFSETFROM:+0100',
+  'TZOFFSETTO:+0200',
+  'TZNAME:CEST',
+  'DTSTART:19700329T020000',
+  'RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU',
+  'END:DAYLIGHT',
+  'BEGIN:STANDARD',
+  'TZOFFSETFROM:+0200',
+  'TZOFFSETTO:+0100',
+  'TZNAME:CET',
+  'DTSTART:19701025T030000',
+  'RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU',
+  'END:STANDARD',
+  'END:VTIMEZONE'
+].join('\r\n') + '\r\n';
+
+/**
+ * L'identificativo dell'evento: dipende SOLO dal turno.
+ *
+ * Prima ci finiva dentro l'indice della casella spuntata nel pannello
+ * (`-0`, `-1`, `-2`…). Quell'indice cambia a ogni esportazione, perché
+ * dipende da quanti turni si sceglie e da quali: riesportare dopo un cambio
+ * creava eventi NUOVI accanto ai vecchi, e il calendario si riempiva di
+ * doppioni che nessuno aveva chiesto. Adesso lo stesso turno ha sempre lo
+ * stesso identificativo, e il calendario lo AGGIORNA.
+ */
+function uidIcs(s) {
+  const pulisci = (v) => String(v || '')
+    .normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .replace(/[^A-Za-z0-9]+/g, '-').replace(/^-|-$/g, '').toUpperCase();
+  /* LA DATA VA RIEMPITA DI ZERI, e non è pignoleria: «1/12/26» e «11/2/26»,
+     tolte le barre, diventano tutt'e due «11226». Due notti diverse della
+     stessa persona con lo stesso identificativo vogliono dire che nel
+     calendario ne arriva una sola, e l'altra sparisce senza che nessuno se
+     ne accorga. Qui non succede per i turni di oggi — l'ho contato — ma
+     basta un mese di turni diverso perché cominci. */
+  const p = String(s.date).split('/');
+  const data = ['20' + p[2], p[1], p[0]].map((x) => String(x).padStart(2, '0')).join('');
+  const pezzi = ['sav', pulisci(s.name), data, s.type, pulisci(s.role)];
+  /* L'attività serve agli addestramenti: lo stesso giorno, lo stesso tipo e
+     lo stesso ruolo possono essere due attività diverse. */
+  if (s.type && s.type.indexOf('addestramento') === 0) pezzi.push(pulisci(s.activity));
+  return pezzi.join('-') + '@turnisav';
 }
 
 document.getElementById('exportIcsBtn').addEventListener('click', () => {
@@ -3897,7 +4010,11 @@ document.getElementById('exportIcsBtn').addEventListener('click', () => {
     // LA STESSA PAROLA DELL'EVENTO: chi sceglie qui deve riconoscere nel
     // telefono quello che ha scelto. Il ruolo non si ripete in fondo, perché
     // la sigla lo dice già.
-    const label = `${shiftTitle(s)} — ${s.date} (${s.month})`;
+    /* La notte si nomina qui come si chiamerà nel telefono: «OP 🌙 19→07».
+       Il commento qui sopra non è un vezzo — se la riga del pannello e
+       l'evento si chiamassero in due modi diversi, chi confronta i due non
+       riconoscerebbe lo stesso turno. */
+    const label = `${s.type === 'notte' ? notteCalendario(s).titolo : shiftTitle(s)} — ${s.date} (${s.month})`;
     const row = document.createElement('label');
     row.className = 'export-item';
     row.innerHTML = `<input type="checkbox" checked data-idx="${i}"> ${label}`;
@@ -3927,19 +4044,31 @@ document.getElementById('exportConfirmBtn').addEventListener('click', () => {
   }
 
   const selectedName = sel.value;
+  const adesso = new Date();
+  /* SEQUENCE CRESCE A OGNI ESPORTAZIONE. Un calendario accetta la versione
+     nuova di un evento solo se il numero di revisione è più alto di quello
+     che ha già: con un numero fisso, riesportare dopo un cambio turno
+     lascerebbe in pagina l'orario vecchio. I minuti passati dal 2020 sono
+     un numero che cresce da solo e non torna mai indietro. */
+  const revisione = Math.floor((adesso.getTime() - Date.UTC(2020, 0, 1)) / 60000);
+  const bollo = toICSUtc(adesso);
   let ics = 'BEGIN:VCALENDAR\r\nVERSION:2.0\r\nPRODID:-//SAV//Turni//IT\r\nCALSCALE:GREGORIAN\r\n';
-  selectedShifts.forEach((s, i) => {
+  ics += ICS_VTIMEZONE;
+  selectedShifts.forEach((s) => {
     // L'ORARIO VERO: un AVIF che finisce alle 17:33 non deve occupare il
     // calendario di chi lo fa fino alle 19.
-    const [start, end] = displayRange(s);
-    const uid = `sav-turno-${s.date.replace(/\//g, '')}-${s.type}-${s.role}-${i}@turnisav`;
+    // LA NOTTE NO: nel calendario è un evento del solo giorno di inizio
+    // (vedi il blocco «NOTTE NEL CALENDARIO» in cima al file).
+    const notte = s.type === 'notte' ? notteCalendario(s) : null;
+    const [start, end] = notte ? [notte.inizio, notte.fine] : displayRange(s);
     ics += 'BEGIN:VEVENT\r\n';
-    ics += `UID:${uid}\r\n`;
-    ics += `DTSTAMP:${toICSDate(new Date())}\r\n`;
-    ics += `DTSTART:${toICSDate(start)}\r\n`;
-    ics += `DTEND:${toICSDate(end)}\r\n`;
-    ics += `SUMMARY:${testoIcs(shiftTitle(s))}\r\n`;
-    ics += `DESCRIPTION:${testoIcs(descrizioneIcs(s))}\r\n`;
+    ics += `UID:${uidIcs(s)}\r\n`;
+    ics += `DTSTAMP:${bollo}\r\n`;
+    ics += `SEQUENCE:${revisione}\r\n`;
+    ics += `DTSTART;TZID=Europe/Rome:${toICSDate(start)}\r\n`;
+    ics += `DTEND;TZID=Europe/Rome:${toICSDate(end)}\r\n`;
+    ics += `SUMMARY:${testoIcs(notte ? notte.titolo : shiftTitle(s))}\r\n`;
+    ics += `DESCRIPTION:${testoIcs(notte ? notte.descrizione : descrizioneIcs(s))}\r\n`;
     ics += 'END:VEVENT\r\n';
   });
   ics += 'END:VCALENDAR\r\n';
