@@ -1,0 +1,12 @@
+# LE IMPOSTAZIONI DI CLAUDE CODE NON ENTRANO QUI DENTRO.
+#
+# In `.claude/settings.local.json` finiscono i comandi approvati con «Sì, e
+# non chiedere più», e quando un comando non si può generalizzare ci finisce
+# INTERO — con dentro quello che aveva: un token, un segreto, una password.
+#
+# Oggi quella cartella qui non c'è. La riga serve per il giorno in cui
+# comparirà: questo repository è pubblico, e a scriverci dentro è anche
+# un'attività pianificata che non guarda in faccia a nessuno. Da un
+# repository un segreto non si toglie più — resta nella storia, e va
+# cambiato tutto.
+.claude/
