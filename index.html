@@ -874,6 +874,50 @@
     padding: 0;
   }
   .dismiss-training-btn:hover { background: #EFCFC2; }
+  /* >>> SCELTE SUGLI ADDESTRAMENTI */
+  .partecipo-btn, .annulla-btn, .ripristina-btn {
+    border: none;
+    font-size: 0.68rem;
+    font-weight: 800;
+    border-radius: 999px;
+    padding: 4px 9px;
+    cursor: pointer;
+    line-height: 1.1;
+    white-space: nowrap;
+  }
+  .partecipo-btn { background: #DCEBE1; color: var(--sa1); }
+  .partecipo-btn:hover { background: #C8E0D0; }
+  .annulla-btn, .ripristina-btn { background: var(--line); color: var(--muted); }
+  .annulla-btn:hover, .ripristina-btn:hover { background: #C6D0CD; }
+  .badge-partecipo {
+    display: inline-flex;
+    align-items: center;
+    background: var(--sa1);
+    color: #fff;
+    font-size: 0.68rem;
+    font-weight: 800;
+    border-radius: 999px;
+    padding: 4px 9px;
+    white-space: nowrap;
+  }
+  .nota-scelta { font-size: 0.68rem; color: var(--muted); align-self: center; }
+  /* Una scheda nascosta, quando si chiede di vederle: sbiadita e col bordo
+     tratteggiato, perché si capisca a colpo d'occhio che non è in elenco. */
+  .shift-card.nascosta { opacity: 0.6; border-style: dashed; }
+  .riga-nascosti { display: flex; justify-content: center; margin: 14px 0 4px; }
+  .nascosti-btn {
+    background: none;
+    border: 1px solid var(--line-scura);
+    color: var(--muted-chiaro);
+    font-family: inherit;
+    font-size: 0.78rem;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 7px 14px;
+    cursor: pointer;
+  }
+  .nascosti-btn:hover { background: var(--ink-su); color: var(--rope); }
+  /* <<< SCELTE SUGLI ADDESTRAMENTI */
   @keyframes pulse-highlight {
     0%, 100% { background: var(--card); }
     50% { background: #FBEFD7; }
@@ -998,7 +1042,10 @@
     width: calc(100% - 48px);
     text-align: center;
   }
-  #confirmModalText { color: var(--rope); font-size: 0.95rem; margin: 0 0 18px; }
+  /* `pre-line`: la domanda arriva da `textContent`, e un a capo scritto nel
+     messaggio deve restare un a capo. Dove non ce ne sono — tutte le altre
+     domande della pagina — non cambia niente. */
+  #confirmModalText { color: var(--rope); font-size: 0.95rem; margin: 0 0 18px; white-space: pre-line; }
   .confirm-modal-actions { display: flex; gap: 10px; }
   #confirmModalCancel, #confirmModalOk {
     flex: 1;
@@ -1979,11 +2026,37 @@ if (savedName && names.includes(savedName)) {
   sel.value = savedName;
 }
 
-// Cancellazione locale degli addestramenti non pertinenti (solo su questo dispositivo)
+/* ====================================================================
+   LE SCELTE SUGLI ADDESTRAMENTI
+   ====================================================================
+   Due gesti su ogni data: «Parteciperò» (le altre date dello stesso
+   addestramento non mi riguardano) e ✕ (questa data non mi riguarda).
+
+   DOVE VIVONO. Con l'accesso personale stanno SUL SERVER, una per
+   persona: valgono su tutti i telefoni, sopravvivono allo svuotamento
+   della memoria del browser, e soprattutto arrivano al calendario di
+   Google. Con la password della squadra, o in sola consultazione, resta
+   il comportamento di sempre: la ✕ vale solo qui, su questo telefono.
+
+   LA FINESTRA DI CONFERMA DICEVA UNA COSA CHE NON ERA VERA. Dal 2025
+   chiedeva «Confermi la rimozione di questo appuntamento dal tuo
+   calendario?» e il calendario non lo toccava nessuno: toglieva la
+   scheda da questo telefono e basta. Da oggi è vera.
+   ==================================================================== */
 const TRAINING_TYPES = ['addestramento_cinofilo', 'addestramento_te', 'addestramento_te_2gg', 'addestramento_sanitario'];
+/* L'identificativo di una data. NON SI CAMBIA ALLA LEGGERA: è la stessa
+   forma che hanno le ✕ già salvate nei telefoni dal 2025, ed è quella che
+   il server importa senza tradurre. */
 function trainingId(s) {
   return [s.month, s.date, s.type, s.role, s.name, s.activity || ''].join('|');
 }
+function annoDelMese(m) {
+  const p = String(m || '').trim().split(/\s+/);
+  return p[p.length - 1] || '';
+}
+/** Lo stesso addestramento: stessa attività, stesso anno. */
+function gruppoAddestramento(s) { return (s.activity || '') + '@' + annoDelMese(s.month); }
+
 function loadDismissedTrainings() {
   try { return new Set(JSON.parse(localStorage.getItem('sav_dismissed_trainings') || '[]')); }
   catch (e) { return new Set(); }
@@ -1992,6 +2065,126 @@ function saveDismissedTrainings(set) {
   try { localStorage.setItem('sav_dismissed_trainings', JSON.stringify([...set])); } catch (e) {}
 }
 let dismissedTrainings = loadDismissedTrainings();
+
+/* Le scelte sul server: `null` finché non si sono lette, o se questo
+   accesso non ne ha (squadra, sola consultazione). */
+let scelteServer = null;
+let mostraNascosti = false;
+
+function accessoPersonale() {
+  return !!(IO.entrato && IO.nome && !IO.condivisa && !IO.visualizzatore);
+}
+/** Le scelte valgono sulle MIE date: su quelle di un altro nominativo no. */
+function mieScelte(s) { return scelteServer && accessoPersonale() && s.name === IO.nome; }
+
+function addestramentoNascosto(s) {
+  if (!TRAINING_TYPES.includes(s.type)) return false;
+  if (mieScelte(s)) {
+    if (scelteServer.nascoste.has(trainingId(s))) return true;
+    const sc = scelteServer.partecipo[gruppoAddestramento(s)];
+    return !!(sc && sc.data && sc.data !== s.date);
+  }
+  return dismissedTrainings.has(trainingId(s));
+}
+/** Nascosta dalla ✕ (si ripristina) o perché ho scelto un'altra data? */
+function nascostaDallaX(s) {
+  return mieScelte(s) ? scelteServer.nascoste.has(trainingId(s)) : dismissedTrainings.has(trainingId(s));
+}
+
+/**
+ * Le ALTRE date dello stesso addestramento che sparirebbero adesso.
+ *
+ * SI CONTANO AL MOMENTO, e non si scrive un numero nel testo. Le edizioni
+ * non sono sempre quattro: nei dati veri «Valutativo 2026» ne ha dieci per
+ * la stessa persona e «Impianti a fune 2026» una sola. Un avviso che dice
+ * «le altre tre» è un avviso che un giorno mente.
+ *
+ * SI CONTANO LE DATE, NON LE SCHEDE: lo stesso giorno una persona può
+ * comparire due volte nello stesso addestramento (una riga come cinofilo e
+ * una come squadra). È un giorno solo, e sparisce o resta tutto insieme.
+ */
+function altreDateDelGruppo(s) {
+  const g = gruppoAddestramento(s);
+  const tKey = todayKey();
+  const date = new Set();
+  SHIFTS.forEach(x => {
+    if (!TRAINING_TYPES.includes(x.type) || x.name !== s.name) return;
+    if (gruppoAddestramento(x) !== g || x.date === s.date) return;
+    if (dateKey(x.date) < tKey) return;        // il passato è già passato
+    if (addestramentoNascosto(x)) return;      // già via: non si conta due volte
+    date.add(x.date);
+  });
+  return [...date];
+}
+
+/* ---- il filo col server ---- */
+
+async function scelteApi(percorso, corpo) {
+  const r = await fetch('api/addestramenti/' + percorso, {
+    method: corpo ? 'POST' : 'GET',
+    credentials: 'same-origin',
+    cache: 'no-store',
+    headers: corpo ? { 'Content-Type': 'application/json' } : undefined,
+    body: corpo ? JSON.stringify(corpo) : undefined
+  });
+  let d = null;
+  try { d = await r.json(); } catch (e) {}
+  return { stato: r.status, d: d || {} };
+}
+
+function assorbiScelte(d) {
+  scelteServer = {
+    partecipo: (d && d.partecipo) || {},
+    nascoste: new Set((d && d.nascoste) || [])
+  };
+}
+
+/**
+ * All'avvio: legge le scelte e, la PRIMA volta, porta su le ✕ che erano
+ * rimaste nel telefono.
+ *
+ * SE IL SERVER NON RISPONDE non si inventa niente: `scelteServer` resta
+ * `null` e la pagina si comporta come prima dell'aggiornamento, con la ✕
+ * locale. Meglio una scheda di troppo che una scelta inventata.
+ */
+async function caricaScelte() {
+  if (!accessoPersonale()) return;
+  let r;
+  try { r = await scelteApi('scelte'); } catch (e) { return; }
+  if (r.stato !== 200 || !r.d.ok) return;
+  assorbiScelte(r.d);
+
+  if (!r.d.importato) {
+    const miei = [...dismissedTrainings].filter(id => id.split('|')[4] === IO.nome);
+    try {
+      const i = await scelteApi('importa', { nascoste: miei });
+      if (i.stato === 200 && i.d.ok) assorbiScelte(i.d);
+    } catch (e) {}
+  }
+  /* LE MIE ✕ LOCALI NON SERVONO PIÙ: da qui in avanti comandano quelle del
+     server, e lasciarle qui vorrebbe dire tenersi due verità sulla stessa
+     domanda. Quelle di ALTRI nominativi restano: sono un filtro di questa
+     pagina e non c'entrano col calendario di nessuno. */
+  const restano = new Set([...dismissedTrainings].filter(id => id.split('|')[4] !== IO.nome));
+  if (restano.size !== dismissedTrainings.size) {
+    dismissedTrainings = restano;
+    saveDismissedTrainings(dismissedTrainings);
+  }
+  render();
+  if (calendarViewActive) renderCalendar();
+}
+
+/** Scrive una scelta sul server e ridisegna. Se non riesce, lo dice. */
+async function cambiaScelta(corpo) {
+  try {
+    const r = await scelteApi('scelte', corpo);
+    if (r.stato === 200 && r.d.ok) { assorbiScelte(r.d); return true; }
+    alert(r.d.error || 'La scelta non è stata salvata: riprova fra poco.');
+  } catch (e) {
+    alert('La scelta non è stata salvata: controlla la connessione e riprova.');
+  }
+  return false;
+}
 
 const exportIcsBtnEl = document.getElementById('exportIcsBtn');
 const calendarViewBtnEl = document.getElementById('calendarViewBtn');
@@ -2025,7 +2218,13 @@ function renderCalendar() {
   const selectedName = sel.value;
   if (!selectedName) return;
 
-  const personShifts = SHIFTS.filter(s => s.name === selectedName && activeRoles.has(s.role));
+  /* ANCHE QUI LE DATE NASCOSTE RESTANO FUORI. Il riquadro del mese è la
+     vista personale di chi è selezionato: un addestramento che si è tolto
+     dal calendario e che qui continua a comparire è la stessa bugia che
+     diceva la finestra di conferma prima del 12 novembre 2026. Il riquadro
+     «Calendario addestramenti», invece, non si tocca: quello è il quadro
+     di TUTTA la squadra, e deve restare completo. */
+  const personShifts = SHIFTS.filter(s => s.name === selectedName && activeRoles.has(s.role) && !addestramentoNascosto(s));
 
   /* ====================================================================
      LA NOTTE SI SEGNA SUL GIORNO IN CUI COMINCIA
@@ -2338,6 +2537,12 @@ function updateCalSyncBtn() {
    lo stesso di prima, ma l'oggetto che arriva ha una voce sola — la tua — e
    durante la prova nessuna. Il pulsante quindi compare sul proprio
    nominativo e su nessun altro, senza che questa pagina debba deciderlo. */
+/* LE SCELTE SUGLI ADDESTRAMENTI SI LEGGONO DOPO L'ACCESSO, come i dati:
+   prima non si saprebbe nemmeno di chi sono. Se la lettura non riesce, la
+   pagina resta quella di prima dell'aggiornamento — la ✕ locale — e non
+   si inventa «nessuna scelta». */
+ACCESSO.then(() => caricaScelte()).catch(() => {});
+
 ACCESSO
   .then(() => prendiDati('calendari.json'))
   .then(r => (r.ok ? r.json() : {}))
@@ -3283,13 +3488,18 @@ function render() {
   const selectedMonth = monthFilterEl.value;
   const showPast = showPastToggle.checked;
   const tKey = todayKey();
-  const filtered = SHIFTS.filter(s =>
+  const base = SHIFTS.filter(s =>
     (!selectedName || s.name === selectedName) &&
     activeRoles.has(s.role) &&
     (!selectedMonth || s.month === selectedMonth) &&
-    (selectedMonth || showPast || dateKey(s.date) >= tKey) &&
-    !(TRAINING_TYPES.includes(s.type) && dismissedTrainings.has(trainingId(s)))
+    (selectedMonth || showPast || dateKey(s.date) >= tKey)
   );
+  /* LE DATE NASCOSTE SI CONTANO ANCHE QUANDO NON SI MOSTRANO: il pulsante
+     in fondo esiste solo se ce n'è qualcuna, e deve dire quante. Un gesto
+     che non si può disfare perché non si vede più è un gesto che la gente
+     ha paura di fare. */
+  const quantiNascosti = base.filter(s => addestramentoNascosto(s)).length;
+  const filtered = mostraNascosti ? base : base.filter(s => !addestramentoNascosto(s));
 
   // Ordine di visualizzazione fisso all'interno di ogni stesso giorno/turno:
   // Operatore, SA1, SA1, Cinofilo, SA2, SA2, AVIF, AVIF — indipendente dall'ordine nei dati
@@ -3307,6 +3517,7 @@ function render() {
   if (filtered.length === 0) {
     footerCountEl.textContent = '';
     emptyEl.style.display = 'block';
+    rigaNascosti(resultsEl, quantiNascosti);
     return;
   }
   emptyEl.style.display = 'none';
@@ -3333,6 +3544,7 @@ function render() {
     if (s === nextShiftRef) {
       card.classList.add('next-shift-card');
     }
+    if (addestramentoNascosto(s)) card.classList.add('nascosta');
     card.dataset.date = s.date;
     card.dataset.type = s.type;
 
@@ -3381,7 +3593,7 @@ function render() {
           ${isActiveNow(s) ? '<span class="active-now-badge">🔴 In corso ora</span>' : ''}
           ${s === nextShiftRef ? '<span class="next-shift-badge">⭐ Prossimo turno</span>' : ''}
           ${selectedName ? '<button type="button" class="swap-shift-btn" title="Richiedi cambio turno">🔄</button>' : ''}
-          ${TRAINING_TYPES.includes(s.type) ? '<button type="button" class="dismiss-training-btn" title="Non è il mio turno, nascondi">✕</button>' : ''}
+          ${TRAINING_TYPES.includes(s.type) ? bottoniAddestramento(s) : ''}
         </div>
         ${selectedName ? '' : `<div class="contact-row">
           ${getPhoneNumber(s.name)
@@ -3428,12 +3640,60 @@ function render() {
       });
     }
 
+    const partecipoBtn = card.querySelector('.partecipo-btn');
+    if (partecipoBtn) {
+      partecipoBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        const altre = altreDateDelGruppo(s);
+        const come = `«${s.activity || 'addestramento'} ${annoDelMese(s.month)}»`;
+        const coda = altre.length === 0
+          ? 'Non ci sono altre date da togliere.'
+          : altre.length === 1
+            ? 'L’altra data sparirà dal tuo elenco e dal tuo calendario.'
+            : `Le altre ${altre.length} date spariranno dal tuo elenco e dal tuo calendario.`;
+        if (!(await showConfirmModal(`Parteciperai a questa data di ${come}.\n\n${coda}\nPuoi sempre annullare.`))) return;
+        if (await cambiaScelta({ azione: 'partecipo', gruppo: gruppoAddestramento(s), id: trainingId(s), data: s.date })) ridisegnaScelte();
+      });
+    }
+
+    const annullaBtn = card.querySelector('.annulla-btn');
+    if (annullaBtn) {
+      annullaBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        if (await cambiaScelta({ azione: 'annulla', gruppo: gruppoAddestramento(s) })) ridisegnaScelte();
+      });
+    }
+
+    const ripristinaBtn = card.querySelector('.ripristina-btn');
+    if (ripristinaBtn) {
+      ripristinaBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        if (mieScelte(s)) {
+          if (await cambiaScelta({ azione: 'ripristina', id: trainingId(s) })) ridisegnaScelte();
+          return;
+        }
+        dismissedTrainings.delete(trainingId(s));
+        saveDismissedTrainings(dismissedTrainings);
+        ridisegnaScelte();
+      });
+    }
+
     const dismissBtn = card.querySelector('.dismiss-training-btn');
     if (dismissBtn) {
       dismissBtn.addEventListener('click', async (e) => {
         e.stopPropagation();
-        const ok = await showConfirmModal('Confermi la rimozione di questo appuntamento dal tuo calendario?');
+        /* DUE DOMANDE DIVERSE PERCHÉ SUCCEDONO DUE COSE DIVERSE. Con
+           l'accesso personale l'appuntamento esce davvero dal calendario
+           di Google; con la password della squadra la scheda sparisce solo
+           da questo telefono, come è sempre stato. */
+        const ok = await showConfirmModal(mieScelte(s)
+          ? 'Confermi la rimozione di questo appuntamento dal tuo calendario?'
+          : 'Nascondi questo appuntamento? Su questo telefono soltanto: il calendario non cambia.');
         if (!ok) return;
+        if (mieScelte(s)) {
+          if (await cambiaScelta({ azione: 'nascondi', id: trainingId(s) })) ridisegnaScelte();
+          return;
+        }
         dismissedTrainings.add(trainingId(s));
         saveDismissedTrainings(dismissedTrainings);
         card.remove();
@@ -3441,6 +3701,49 @@ function render() {
     }
     resultsEl.appendChild(card);
   });
+  rigaNascosti(resultsEl, quantiNascosti);
+}
+
+function ridisegnaScelte() {
+  render();
+  if (calendarViewActive) renderCalendar();
+}
+
+/** I pulsanti di una data di addestramento, secondo lo stato in cui è. */
+function bottoniAddestramento(s) {
+  const mio = mieScelte(s);
+  if (addestramentoNascosto(s)) {
+    /* Si vede solo con «Mostra nascosti», e i due motivi per cui è
+       sparita si disfano in due modi diversi. */
+    if (nascostaDallaX(s)) return '<button type="button" class="ripristina-btn" title="Rimettila in elenco">↩ Ripristina</button>';
+    const sc = mio ? scelteServer.partecipo[gruppoAddestramento(s)] : null;
+    return `<span class="nota-scelta">hai scelto il ${sc ? sc.data : '—'}</span>`
+      + '<button type="button" class="annulla-btn" title="Rimetti tutte le date">Annulla la scelta</button>';
+  }
+  const sc = mio ? scelteServer.partecipo[gruppoAddestramento(s)] : null;
+  if (sc && sc.data === s.date) {
+    return '<span class="badge-partecipo">✓ Parteciperò</span>'
+      + '<button type="button" class="annulla-btn" title="Rimetti tutte le date">Annulla</button>';
+  }
+  /* «Parteciperò» solo dove la scelta si può DAVVERO salvare: sulle proprie
+     date, con l'accesso personale. Sulle date di un altro nominativo, o con
+     la password della squadra, resta la ✕ di sempre — locale. */
+  return (mio ? '<button type="button" class="partecipo-btn" title="Vado a questa data">✓ Parteciperò</button>' : '')
+    + '<button type="button" class="dismiss-training-btn" title="Non è il mio turno, nascondi">✕</button>';
+}
+
+/** Il pulsante in fondo all'elenco: «Mostra nascosti (N)». */
+function rigaNascosti(dove, quanti) {
+  if (!quanti && !mostraNascosti) return;
+  const riga = document.createElement('div');
+  riga.className = 'riga-nascosti';
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'nascosti-btn';
+  b.textContent = mostraNascosti ? 'Torna a nasconderli' : `Mostra nascosti (${quanti})`;
+  b.addEventListener('click', () => { mostraNascosti = !mostraNascosti; ridisegnaScelte(); });
+  riga.appendChild(b);
+  dove.appendChild(riga);
 }
 
 // --- Ricerca nominativo con lente ---
