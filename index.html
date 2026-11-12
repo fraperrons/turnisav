@@ -1936,6 +1936,31 @@ function notteCalendario(s) {
 }
 /* <<< NOTTE NEL CALENDARIO */
 
+/* LA RIGA DELLA LISTA DI ESPORTAZIONE DICE IL GIORNO DELL'EVENTO.
+   ====================================================================
+   Questo pezzo NON sta in calendari.gs: lì non c'è nessuna lista da
+   spuntare.
+
+   Nei dati la notte porta la data in cui FINISCE, e nella lista si
+   leggeva così: «SA1 🌙 — 5/2/27» per una notte che nel calendario sta il
+   4. Un tecnico l'ha segnalato, e aveva ragione: chi spunta una casella e
+   poi cerca l'evento nel telefono deve trovare lo stesso giorno.
+
+   La data si prende quindi da `notteCalendario(s).inizio`, la STESSA che
+   fa il DTSTART dell'evento, e non da una copia della regola: una prova
+   confronta, su tutte le notti vere, il giorno scritto qui col giorno del
+   DTSTART. Il mese segue la data, perché una notte del 1 dicembre
+   comincia a novembre.
+
+   I turni di giorno e gli addestramenti non passano da qui: la loro data
+   è già quella giusta. */
+function notteQuando(s) {
+  var d = notteCalendario(s).inizio;
+  var mese = NOTTE_MESI[d.getMonth()];
+  return d.getDate() + '/' + (d.getMonth() + 1) + '/' + String(d.getFullYear()).slice(-2)
+    + ' (' + mese.charAt(0).toUpperCase() + mese.slice(1) + ' ' + d.getFullYear() + ')';
+}
+
 function initApp() {
 const activeRoles = new Set(['Operatore','SA1','SA2','Cinofilo','AVIF','Addestramento']);
 
@@ -4020,7 +4045,8 @@ document.getElementById('exportIcsBtn').addEventListener('click', () => {
        vezzo — se la riga del pannello e l'evento si chiamassero in due modi
        diversi, chi confronta i due non riconoscerebbe lo stesso turno. Oggi
        dicono tutt'e due «OP 🌙», e una prova lo verifica su tutti i turni. */
-    const label = `${s.type === 'notte' ? notteCalendario(s).titolo : shiftTitle(s)} — ${s.date} (${s.month})`;
+    const quando = s.type === 'notte' ? notteQuando(s) : `${s.date} (${s.month})`;
+    const label = `${s.type === 'notte' ? notteCalendario(s).titolo : shiftTitle(s)} — ${quando}`;
     const row = document.createElement('label');
     row.className = 'export-item';
     row.innerHTML = `<input type="checkbox" checked data-idx="${i}"> ${label}`;
