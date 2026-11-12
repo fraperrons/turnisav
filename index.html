@@ -4015,10 +4015,11 @@ document.getElementById('exportIcsBtn').addEventListener('click', () => {
     // LA STESSA PAROLA DELL'EVENTO: chi sceglie qui deve riconoscere nel
     // telefono quello che ha scelto. Il ruolo non si ripete in fondo, perché
     // la sigla lo dice già.
-    /* La notte si nomina qui come si chiamerà nel telefono: «OP 🌙 19→07».
-       Il commento qui sopra non è un vezzo — se la riga del pannello e
-       l'evento si chiamassero in due modi diversi, chi confronta i due non
-       riconoscerebbe lo stesso turno. */
+    /* La notte si nomina qui con la STESSA funzione che nomina l'evento,
+       e non con una copia della regola: il commento qui sopra non è un
+       vezzo — se la riga del pannello e l'evento si chiamassero in due modi
+       diversi, chi confronta i due non riconoscerebbe lo stesso turno. Oggi
+       dicono tutt'e due «OP 🌙», e una prova lo verifica su tutti i turni. */
     const label = `${s.type === 'notte' ? notteCalendario(s).titolo : shiftTitle(s)} — ${s.date} (${s.month})`;
     const row = document.createElement('label');
     row.className = 'export-item';
