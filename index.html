@@ -1902,8 +1902,13 @@ refreshBtn.addEventListener('click', () => {
    mezzanotte, sull'iPhone e su Google, compare su TUTT'E DUE i giorni: il
    giorno dopo si legge «OP 🌙 · Fine 07:00», e a molti sembra un secondo
    turno. Nel calendario la notte diventa quindi un evento del solo giorno
-   in cui COMINCIA, dalle 19:00 alle 23:59, e l'orario vero lo dicono il
-   titolo («19→07») e la descrizione per intero.
+   in cui COMINCIA, dalle 19:00 alle 23:59, e l'orario vero lo dice la
+   descrizione, per intero.
+
+   IL TITOLO NON CAMBIA: resta «OP 🌙», «SA1 🌙», quello che i tecnici hanno
+   già nel telefono e riconoscono a colpo d'occhio. Scriverci dentro anche
+   l'orario lo allungava, e in una riga stretta quello che si tronca è
+   proprio la fine.
 
    NELL'APP NON CAMBIA NIENTE: i conflitti, i turni attaccati, i cambi e la
    verifica continuano a lavorare sull'orario vero, 19→07. Cambia solo
@@ -1924,7 +1929,7 @@ function notteCalendario(s) {
   return {
     inizio: new Date(inizio.getFullYear(), inizio.getMonth(), inizio.getDate(), 19, 0, 0),
     fine: new Date(inizio.getFullYear(), inizio.getMonth(), inizio.getDate(), 23, 59, 0),
-    titolo: notteSigla(s.role) + ' 🌙 19→07',
+    titolo: notteSigla(s.role) + ' 🌙',
     descrizione: 'Soccorso Alpino Valdostano — turno ' + s.role + ' di notte, dalle 19 del '
       + notteGiorno(inizio) + ' alle 7 del ' + notteGiorno(fine)
   };
