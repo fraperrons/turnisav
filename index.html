@@ -1936,30 +1936,84 @@ function notteCalendario(s) {
 }
 /* <<< NOTTE NEL CALENDARIO */
 
-/* LA RIGA DELLA LISTA DI ESPORTAZIONE DICE IL GIORNO DELL'EVENTO.
+/* >>> LE DATE DELLA LISTA DI ESPORTAZIONE
    ====================================================================
-   Questo pezzo NON sta in calendari.gs: lì non c'è nessuna lista da
+   Questo blocco NON sta in calendari.gs: lì non c'è nessuna lista da
    spuntare.
 
-   Nei dati la notte porta la data in cui FINISCE, e nella lista si
-   leggeva così: «SA1 🌙 — 5/2/27» per una notte che nel calendario sta il
-   4. Un tecnico l'ha segnalato, e aveva ragione: chi spunta una casella e
-   poi cerca l'evento nel telefono deve trovare lo stesso giorno.
+   LA REGOLA, UNA SOLA: la riga della lista porta la data del giorno in
+   cui l'evento COMINCIA nel calendario. Chi spunta una casella e poi
+   cerca l'evento nel telefono deve trovare lo stesso giorno.
 
-   La data si prende quindi da `notteCalendario(s).inizio`, la STESSA che
-   fa il DTSTART dell'evento, e non da una copia della regola: una prova
-   confronta, su tutte le notti vere, il giorno scritto qui col giorno del
-   DTSTART. Il mese segue la data, perché una notte del 1 dicembre
-   comincia a novembre.
+   Nei dati due tipi di turno portano la data del giorno in cui
+   FINISCONO, e la lista li scriveva così com'erano:
 
-   I turni di giorno e gli addestramenti non passano da qui: la loro data
-   è già quella giusta. */
+     - LE NOTTI. Si leggeva «SA1 🌙 — 5/2/27» per una notte che nel
+       calendario sta il 4. L'ha segnalato un tecnico. Il giorno di
+       inizio viene da notteCalendario(s).inizio, la STESSA funzione che
+       fa il DTSTART dell'evento;
+     - GLI ADDESTRAMENTI DI DUE GIORNI (addestramento_te_2gg). Si leggeva
+       «📋 Addestramento Montagna Estiva — 8/6/27» per un addestramento
+       che comincia il 7. Quei dati portano il giorno di inizio in un
+       campo loro, `dayStart`, e la riga adesso scrive tutt'e due le
+       date: «7-8/6/27».
+
+   IL MESE SEGUE LA DATA DI INIZIO, non quello scritto nei dati: una
+   notte del 1 dicembre comincia a novembre, una del 1 gennaio a dicembre
+   dell'anno prima. Lo stesso vale per i due giorni, se un giorno
+   attraversasse il mese o l'anno: oggi nei dati non succede mai, ma la
+   regola non deve aspettare il primo caso per esistere.
+
+   Una prova confronta, su tutte le notti e su tutti gli addestramenti di
+   due giorni veri, la data scritta qui col giorno del DTSTART
+   dell'evento esportato. */
+function meseConMaiuscola(d) {
+  var m = NOTTE_MESI[d.getMonth()];
+  return m.charAt(0).toUpperCase() + m.slice(1) + ' ' + d.getFullYear();
+}
+function dueCifre(d) { return String(d.getFullYear()).slice(-2); }
+function dataDelGiorno(d) {
+  return d.getDate() + '/' + (d.getMonth() + 1) + '/' + dueCifre(d);
+}
+function fineDeiDati(s) {
+  var p = String(s.date).split('/');
+  return new Date(2000 + Number(p[2]), Number(p[1]) - 1, Number(p[0]));
+}
+
 function notteQuando(s) {
   var d = notteCalendario(s).inizio;
-  var mese = NOTTE_MESI[d.getMonth()];
-  return d.getDate() + '/' + (d.getMonth() + 1) + '/' + String(d.getFullYear()).slice(-2)
-    + ' (' + mese.charAt(0).toUpperCase() + mese.slice(1) + ' ' + d.getFullYear() + ')';
+  return dataDelGiorno(d) + ' (' + meseConMaiuscola(d) + ')';
 }
+
+function dueGiorniInizio(s) {
+  /* IL GIORNO DI INIZIO STA NEI DATI, nel campo `dayStart`: è un numero,
+     senza mese. Se è più grande del giorno in cui l'addestramento
+     finisce, i due giorni attraversano il mese e l'inizio sta nel mese
+     prima — e un mese «-1» torna a dicembre dell'anno prima da solo,
+     senza nessun caso speciale da ricordare. */
+  var fine = fineDeiDati(s);
+  var g = Number(s.dayStart);
+  var mese = g > fine.getDate() ? fine.getMonth() - 1 : fine.getMonth();
+  return new Date(fine.getFullYear(), mese, g);
+}
+
+function dueGiorniQuando(s) {
+  var i = dueGiorniInizio(s);
+  var f = fineDeiDati(s);
+  var data;
+  if (i.getFullYear() !== f.getFullYear()) {
+    /* A cavallo d'anno le due date si scrivono per intero: «31/12/26-1/1/27». */
+    data = dataDelGiorno(i) + '-' + dataDelGiorno(f);
+  } else if (i.getMonth() !== f.getMonth()) {
+    /* A cavallo di mese ognuna porta il suo: «30/6-1/7/27». */
+    data = i.getDate() + '/' + (i.getMonth() + 1) + '-' + dataDelGiorno(f);
+  } else {
+    /* Il caso di tutti i giorni: «7-8/6/27». */
+    data = i.getDate() + '-' + dataDelGiorno(f);
+  }
+  return data + ' (' + meseConMaiuscola(i) + ')';
+}
+/* <<< LE DATE DELLA LISTA DI ESPORTAZIONE */
 
 function initApp() {
 const activeRoles = new Set(['Operatore','SA1','SA2','Cinofilo','AVIF','Addestramento']);
@@ -4045,7 +4099,8 @@ document.getElementById('exportIcsBtn').addEventListener('click', () => {
        vezzo — se la riga del pannello e l'evento si chiamassero in due modi
        diversi, chi confronta i due non riconoscerebbe lo stesso turno. Oggi
        dicono tutt'e due «OP 🌙», e una prova lo verifica su tutti i turni. */
-    const quando = s.type === 'notte' ? notteQuando(s) : `${s.date} (${s.month})`;
+    const quando = s.type === 'notte' ? notteQuando(s)
+      : (s.type === 'addestramento_te_2gg' ? dueGiorniQuando(s) : `${s.date} (${s.month})`);
     const label = `${s.type === 'notte' ? notteCalendario(s).titolo : shiftTitle(s)} — ${quando}`;
     const row = document.createElement('label');
     row.className = 'export-item';
