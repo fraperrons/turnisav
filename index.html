@@ -2057,6 +2057,24 @@ function annoDelMese(m) {
 /** Lo stesso addestramento: stessa attività, stesso anno. */
 function gruppoAddestramento(s) { return (s.activity || '') + '@' + annoDelMese(s.month); }
 
+/**
+ * GLI ADDESTRAMENTI CINOFILI NON SONO ALTERNATIVI: ci si va a tutte le
+ * date, e sceglierne una non esclude le altre. Quindi niente
+ * «Parteciperò» sulle date cinofile, e nessuna data cinofila sparisce per
+ * via di un «Parteciperò» fatto altrove.
+ *
+ * Quel «altrove» è il punto, e non è teorico: il gruppo è «attività +
+ * anno» e MESCOLA I TIPI. Nei dati, «Valanghe 2026» di una stessa persona
+ * ha il 7, l'8 e il 27 gennaio sia come cinofilo sia come squadra, più il
+ * 26 solo squadra. Dire «Parteciperò» al 26 — una data di squadra, che è
+ * legittima — non deve portare via le tre cinofile degli altri giorni.
+ *
+ * La ✕ invece resta: vale per quella data sola e non toglie niente al
+ * resto.
+ */
+const CINOFILO = 'addestramento_cinofilo';
+function alternativo(s) { return s.type !== CINOFILO; }
+
 function loadDismissedTrainings() {
   try { return new Set(JSON.parse(localStorage.getItem('sav_dismissed_trainings') || '[]')); }
   catch (e) { return new Set(); }
@@ -2081,6 +2099,7 @@ function addestramentoNascosto(s) {
   if (!TRAINING_TYPES.includes(s.type)) return false;
   if (mieScelte(s)) {
     if (scelteServer.nascoste.has(trainingId(s))) return true;
+    if (!alternativo(s)) return false;        // una cinofila sparisce solo con la ✕
     const sc = scelteServer.partecipo[gruppoAddestramento(s)];
     return !!(sc && sc.data && sc.data !== s.date);
   }
@@ -2092,29 +2111,31 @@ function nascostaDallaX(s) {
 }
 
 /**
- * Le ALTRE date dello stesso addestramento che sparirebbero adesso.
+ * Gli altri appuntamenti dello stesso addestramento che sparirebbero
+ * adesso.
  *
  * SI CONTANO AL MOMENTO, e non si scrive un numero nel testo. Le edizioni
  * non sono sempre quattro: nei dati veri «Valutativo 2026» ne ha dieci per
  * la stessa persona e «Impianti a fune 2026» una sola. Un avviso che dice
  * «le altre tre» è un avviso che un giorno mente.
  *
- * SI CONTANO LE DATE, NON LE SCHEDE: lo stesso giorno una persona può
- * comparire due volte nello stesso addestramento (una riga come cinofilo e
- * una come squadra). È un giorno solo, e sparisce o resta tutto insieme.
+ * SI CONTA QUELLO CHE SPARISCE DAVVERO, e per questo le righe cinofile
+ * restano fuori dal conto: in un gruppo misto come «Valanghe 2026» non
+ * sparisce il GIORNO, sparisce la riga di squadra di quel giorno — la
+ * cinofila dello stesso giorno resta in elenco e nel calendario. Contare i
+ * giorni direbbe un numero più grande di quello che succede.
  */
-function altreDateDelGruppo(s) {
+function altriAppuntamentiDelGruppo(s) {
   const g = gruppoAddestramento(s);
   const tKey = todayKey();
-  const date = new Set();
-  SHIFTS.forEach(x => {
-    if (!TRAINING_TYPES.includes(x.type) || x.name !== s.name) return;
-    if (gruppoAddestramento(x) !== g || x.date === s.date) return;
-    if (dateKey(x.date) < tKey) return;        // il passato è già passato
-    if (addestramentoNascosto(x)) return;      // già via: non si conta due volte
-    date.add(x.date);
+  return SHIFTS.filter(x => {
+    if (!TRAINING_TYPES.includes(x.type) || x.name !== s.name) return false;
+    if (!alternativo(x)) return false;          // le cinofile non spariscono: non si contano
+    if (gruppoAddestramento(x) !== g || x.date === s.date) return false;
+    if (dateKey(x.date) < tKey) return false;   // il passato è già passato
+    if (addestramentoNascosto(x)) return false; // già via: non si conta due volte
+    return true;
   });
-  return [...date];
 }
 
 /* ---- il filo col server ---- */
@@ -3644,13 +3665,13 @@ function render() {
     if (partecipoBtn) {
       partecipoBtn.addEventListener('click', async (e) => {
         e.stopPropagation();
-        const altre = altreDateDelGruppo(s);
+        const altre = altriAppuntamentiDelGruppo(s);
         const come = `«${s.activity || 'addestramento'} ${annoDelMese(s.month)}»`;
         const coda = altre.length === 0
-          ? 'Non ci sono altre date da togliere.'
+          ? 'Non c’è nessun altro appuntamento da togliere.'
           : altre.length === 1
-            ? 'L’altra data sparirà dal tuo elenco e dal tuo calendario.'
-            : `Le altre ${altre.length} date spariranno dal tuo elenco e dal tuo calendario.`;
+            ? 'L’altro appuntamento sparirà dal tuo elenco e dal tuo calendario.'
+            : `Gli altri ${altre.length} appuntamenti spariranno dal tuo elenco e dal tuo calendario.`;
         if (!(await showConfirmModal(`Parteciperai a questa data di ${come}.\n\n${coda}\nPuoi sempre annullare.`))) return;
         if (await cambiaScelta({ azione: 'partecipo', gruppo: gruppoAddestramento(s), id: trainingId(s), data: s.date })) ridisegnaScelte();
       });
@@ -3720,6 +3741,12 @@ function bottoniAddestramento(s) {
     return `<span class="nota-scelta">hai scelto il ${sc ? sc.data : '—'}</span>`
       + '<button type="button" class="annulla-btn" title="Rimetti tutte le date">Annulla la scelta</button>';
   }
+  const laX = '<button type="button" class="dismiss-training-btn" title="Non è il mio turno, nascondi">✕</button>';
+  /* SU UNA DATA CINOFILA SOLO LA ✕. Non sono alternative: ci si va a tutte,
+     e un pulsante che promette di scegliere non avrebbe niente da
+     scegliere. Vale anche per chi è cinofilo E squadra lo stesso giorno:
+     la riga di squadra ha i suoi pulsanti, questa no. */
+  if (!alternativo(s)) return laX;
   const sc = mio ? scelteServer.partecipo[gruppoAddestramento(s)] : null;
   if (sc && sc.data === s.date) {
     return '<span class="badge-partecipo">✓ Parteciperò</span>'
@@ -3729,7 +3756,7 @@ function bottoniAddestramento(s) {
      date, con l'accesso personale. Sulle date di un altro nominativo, o con
      la password della squadra, resta la ✕ di sempre — locale. */
   return (mio ? '<button type="button" class="partecipo-btn" title="Vado a questa data">✓ Parteciperò</button>' : '')
-    + '<button type="button" class="dismiss-training-btn" title="Non è il mio turno, nascondi">✕</button>';
+    + laX;
 }
 
 /** Il pulsante in fondo all'elenco: «Mostra nascosti (N)». */
