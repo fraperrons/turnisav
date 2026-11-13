@@ -773,7 +773,7 @@
   "wd": "",
   "type": "notte",
   "role": "Operatore",
-  "name": "PELLISSIER DAVID"
+  "name": "SEGHEZZI MARCO"
  },
  {
   "month": "Novembre 2026",
@@ -805,7 +805,7 @@
   "wd": "MAR",
   "type": "giorno",
   "role": "SA1",
-  "name": "GLAREY VALERIO"
+  "name": "CALCAMUGGI MATTEO"
  },
  {
   "month": "Novembre 2026",
@@ -901,7 +901,7 @@
   "wd": "GIO",
   "type": "giorno",
   "role": "SA1",
-  "name": "PERRONE CAPANO FRANCESCO"
+  "name": "KOFLER ALAIN"
  },
  {
   "month": "Novembre 2026",
@@ -909,7 +909,7 @@
   "wd": "GIO",
   "type": "giorno",
   "role": "SA1",
-  "name": "CALCAMUGGI MATTEO"
+  "name": "GLAREY VALERIO"
  },
  {
   "month": "Novembre 2026",
@@ -997,7 +997,7 @@
   "wd": "SAB",
   "type": "giorno",
   "role": "SA1",
-  "name": "GLAREY VALERIO"
+  "name": "FAVRE EMRIK"
  },
  {
   "month": "Novembre 2026",
@@ -1213,7 +1213,7 @@
   "wd": "",
   "type": "notte",
   "role": "SA1",
-  "name": "POLETTO PATRICK"
+  "name": "ORIGONE SIMONE"
  },
  {
   "month": "Novembre 2026",
@@ -1293,7 +1293,7 @@
   "wd": "VEN",
   "type": "giorno",
   "role": "SA1",
-  "name": "PERRONE CAPANO FRANCESCO"
+  "name": "FAVRE EMRIK"
  },
  {
   "month": "Novembre 2026",
@@ -1357,7 +1357,7 @@
   "wd": "",
   "type": "notte",
   "role": "SA1",
-  "name": "ROSSET CLAUDIO"
+  "name": "BREDY GIORGIO"
  },
  {
   "month": "Novembre 2026",
@@ -1413,7 +1413,7 @@
   "wd": "",
   "type": "notte",
   "role": "SA1",
-  "name": "PERRONE CAPANO FRANCESCO"
+  "name": "PERRUQUET JEROME"
  },
  {
   "month": "Novembre 2026",
@@ -1909,7 +1909,7 @@
   "wd": "",
   "type": "notte",
   "role": "SA1",
-  "name": "PICCO PIETRO"
+  "name": "CESA CHRISTIAN"
  },
  {
   "month": "Dicembre 2026",
@@ -2453,7 +2453,7 @@
   "wd": "",
   "type": "notte",
   "role": "Operatore",
-  "name": "CHASSEUR PATRICK"
+  "name": "PELLISSIER DAVID"
  },
  {
   "month": "Dicembre 2026",
@@ -2581,7 +2581,7 @@
   "wd": "",
   "type": "notte",
   "role": "SA1",
-  "name": "BREDY GIORGIO"
+  "name": "ROSSET CLAUDIO"
  },
  {
   "month": "Dicembre 2026",
@@ -2605,7 +2605,7 @@
   "wd": "LUN",
   "type": "giorno",
   "role": "SA1",
-  "name": "SCALISE MEYNET THOMAS"
+  "name": "COUT MAURO"
  },
  {
   "month": "Dicembre 2026",
@@ -2621,7 +2621,7 @@
   "wd": "",
   "type": "notte",
   "role": "Operatore",
-  "name": "PELLISSIER DAVID"
+  "name": "CHASSEUR PATRICK"
  },
  {
   "month": "Dicembre 2026",
@@ -3149,7 +3149,7 @@
   "wd": "GIO",
   "type": "giorno",
   "role": "Operatore",
-  "name": "ZANOLLI CHRISTIAN"
+  "name": "BASTRENTAZ CLAUDIO"
  },
  {
   "month": "Dicembre 2026",
@@ -3645,7 +3645,7 @@
   "wd": "",
   "type": "notte",
   "role": "SA1",
-  "name": "PRAMOTTON STEFANO"
+  "name": "CESA CHRISTIAN"
  },
  {
   "month": "Gennaio 2027",
@@ -3701,7 +3701,7 @@
   "wd": "",
   "type": "notte",
   "role": "SA1",
-  "name": "PRAMOTTON STEFANO"
+  "name": "CAMETTI OSCAR"
  },
  {
   "month": "Gennaio 2027",
@@ -3861,7 +3861,7 @@
   "wd": "",
   "type": "notte",
   "role": "SA1",
-  "name": "CESA CHRISTIAN"
+  "name": "PERRUQUET JEROME"
  },
  {
   "month": "Gennaio 2027",
@@ -3973,7 +3973,7 @@
   "wd": "",
   "type": "notte",
   "role": "SA1",
-  "name": "MEZZAVILLA ALESSANDRO"
+  "name": "PICCO PIETRO"
  },
  {
   "month": "Gennaio 2027",
@@ -4061,7 +4061,7 @@
   "wd": "SAB",
   "type": "giorno",
   "role": "SA1",
-  "name": "FAVRE EMRIK"
+  "name": "PERRONE CAPANO FRANCESCO"
  },
  {
   "month": "Gennaio 2027",
@@ -4077,7 +4077,7 @@
   "wd": "",
   "type": "notte",
   "role": "Operatore",
-  "name": "SEGHEZZI MARCO"
+  "name": "PELLISSIER DAVID"
  },
  {
   "month": "Gennaio 2027",
@@ -4117,7 +4117,7 @@
   "wd": "DOM",
   "type": "giorno",
   "role": "SA1",
-  "name": "POLETTO PATRICK"
+  "name": "BOSCHIAZZO ALBERTO"
  },
  {
   "month": "Gennaio 2027",
@@ -4269,7 +4269,7 @@
   "wd": "MER",
   "type": "giorno",
   "role": "Operatore",
-  "name": "ROSSET CLAUDIO"
+  "name": "BOSCHIAZZO ALBERTO"
  },
  {
   "month": "Gennaio 2027",
@@ -4381,7 +4381,7 @@
   "wd": "VEN",
   "type": "giorno",
   "role": "Operatore",
-  "name": "BOSCHIAZZO ALBERTO"
+  "name": "ROSSET CLAUDIO"
  },
  {
   "month": "Gennaio 2027",
@@ -4421,7 +4421,7 @@
   "wd": "",
   "type": "notte",
   "role": "SA1",
-  "name": "PERRUQUET JEROME"
+  "name": "CESA CHRISTIAN"
  },
  {
   "month": "Gennaio 2027",
@@ -4501,7 +4501,7 @@
   "wd": "DOM",
   "type": "giorno",
   "role": "SA1",
-  "name": "BOSCHIAZZO ALBERTO"
+  "name": "POLETTO PATRICK"
  },
  {
   "month": "Gennaio 2027",
@@ -5221,7 +5221,7 @@
   "wd": "",
   "type": "notte",
   "role": "SA1",
-  "name": "SCALISE MEYNET THOMAS"
+  "name": "REY YURI"
  },
  {
   "month": "Febbraio 2027",
@@ -5285,7 +5285,7 @@
   "wd": "LUN",
   "type": "giorno",
   "role": "SA1",
-  "name": "SCALISE MEYNET THOMAS"
+  "name": "PERRUQUET JEROME"
  },
  {
   "month": "Febbraio 2027",
@@ -5333,7 +5333,7 @@
   "wd": "MAR",
   "type": "giorno",
   "role": "SA1",
-  "name": "SCALISE MEYNET THOMAS"
+  "name": "PERRUQUET JEROME"
  },
  {
   "month": "Febbraio 2027",
@@ -5461,7 +5461,7 @@
   "wd": "",
   "type": "notte",
   "role": "SA1",
-  "name": "CAMETTI OSCAR"
+  "name": "PRAMOTTON STEFANO"
  },
  {
   "month": "Febbraio 2027",
@@ -5477,7 +5477,7 @@
   "wd": "VEN",
   "type": "giorno",
   "role": "SA1",
-  "name": "PERRUQUET JEROME"
+  "name": "SCALISE MEYNET THOMAS"
  },
  {
   "month": "Febbraio 2027",
@@ -5549,7 +5549,7 @@
   "wd": "",
   "type": "notte",
   "role": "SA1",
-  "name": "PICCO PIETRO"
+  "name": "MEZZAVILLA ALESSANDRO"
  },
  {
   "month": "Febbraio 2027",
@@ -5957,7 +5957,7 @@
   "wd": "LUN",
   "type": "giorno",
   "role": "SA1",
-  "name": "BLANCHET LUCA"
+  "name": "REY YURI"
  },
  {
   "month": "Febbraio 2027",
@@ -6061,7 +6061,7 @@
   "wd": "MER",
   "type": "giorno",
   "role": "SA1",
-  "name": "PERRUQUET JEROME"
+  "name": "SCALISE MEYNET THOMAS"
  },
  {
   "month": "Febbraio 2027",
@@ -6317,7 +6317,7 @@
   "wd": "",
   "type": "notte",
   "role": "SA1",
-  "name": "CESA CHRISTIAN"
+  "name": "FERRARO ROBERTO"
  },
  {
   "month": "Marzo 2027",
@@ -6437,7 +6437,7 @@
   "wd": "GIO",
   "type": "giorno",
   "role": "SA1",
-  "name": "ORIGONE SIMONE"
+  "name": "PICCO PIETRO"
  },
  {
   "month": "Marzo 2027",
@@ -6605,7 +6605,7 @@
   "wd": "",
   "type": "notte",
   "role": "SA1",
-  "name": "REY YURI"
+  "name": "SCALISE MEYNET THOMAS"
  },
  {
   "month": "Marzo 2027",
@@ -6733,7 +6733,7 @@
   "wd": "MER",
   "type": "giorno",
   "role": "SA1",
-  "name": "PERRONE CAPANO FRANCESCO"
+  "name": "REY YURI"
  },
  {
   "month": "Marzo 2027",
@@ -7133,7 +7133,7 @@
   "wd": "",
   "type": "notte",
   "role": "SA1",
-  "name": "PERRUQUET JEROME"
+  "name": "PERRONE CAPANO FRANCESCO"
  },
  {
   "month": "Marzo 2027",
@@ -7189,7 +7189,7 @@
   "wd": "",
   "type": "notte",
   "role": "SA1",
-  "name": "CAMETTI OSCAR"
+  "name": "PERRUQUET JEROME"
  },
  {
   "month": "Marzo 2027",
@@ -7253,7 +7253,7 @@
   "wd": "DOM",
   "type": "giorno",
   "role": "SA1",
-  "name": "CESA CHRISTIAN"
+  "name": "FAVRE EMRIK"
  },
  {
   "month": "Marzo 2027",
@@ -7373,7 +7373,7 @@
   "wd": "",
   "type": "notte",
   "role": "SA1",
-  "name": "CESA CHRISTIAN"
+  "name": "PRAMOTTON STEFANO"
  },
  {
   "month": "Marzo 2027",
@@ -7645,7 +7645,7 @@
   "wd": "LUN",
   "type": "giorno",
   "role": "SA1",
-  "name": "CESA CHRISTIAN"
+  "name": "PICCO PIETRO"
  },
  {
   "month": "Marzo 2027",
@@ -7693,7 +7693,7 @@
   "wd": "MAR",
   "type": "giorno",
   "role": "SA1",
-  "name": "PERRUQUET JEROME"
+  "name": "CAMETTI OSCAR"
  },
  {
   "month": "Marzo 2027",
@@ -7741,7 +7741,7 @@
   "wd": "MER",
   "type": "giorno",
   "role": "SA1",
-  "name": "REY YURI"
+  "name": "BLANCHET LUCA"
  },
  {
   "month": "Aprile 2027",
@@ -8173,7 +8173,7 @@
   "wd": "VEN",
   "type": "giorno",
   "role": "SA1",
-  "name": "REY YURI"
+  "name": "PERRONE CAPANO FRANCESCO"
  },
  {
   "month": "Aprile 2027",
@@ -8261,7 +8261,7 @@
   "wd": "DOM",
   "type": "giorno",
   "role": "SA1",
-  "name": "FAVRE EMRIK"
+  "name": "CESA CHRISTIAN"
  },
  {
   "month": "Aprile 2027",
@@ -8597,7 +8597,7 @@
   "wd": "DOM",
   "type": "giorno",
   "role": "SA1",
-  "name": "CAMETTI OSCAR"
+  "name": "PERRUQUET JEROME"
  },
  {
   "month": "Aprile 2027",
@@ -9053,7 +9053,7 @@
   "wd": "",
   "type": "notte",
   "role": "SA1",
-  "name": "PERRUQUET JEROME"
+  "name": "CAMETTI OSCAR"
  },
  {
   "month": "Aprile 2027",
