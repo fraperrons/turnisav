@@ -347,6 +347,26 @@ input::placeholder{color:var(--muted-chiaro)}
       <div id="conteggi" style="margin-top:12px"></div>
     </div>
 
+    <div class="pannello" data-sez="calendari" data-desc="Come appaiono le notti nel calendario di ciascuno.">
+      <h2>Calendari</h2>
+      <p class="nota" style="margin:0 0 10px">
+        La notte vera va dalle <b>19 alle 7</b>, e questo non cambia: cambia come la si
+        <b>vede</b> nel calendario. Tutta dentro il giorno in cui comincia — com’è oggi
+        per tutti — oppure a cavallo della mezzanotte, fino alle 7 del giorno dopo.
+        Chi non ha mai scelto resta sul primo modo.
+      </p>
+      <p class="nota" style="margin:0 0 10px">
+        Il cambio si vede al <b>primo giro</b> dello script dei calendari (uno all’ora) e
+        tocca <b>solo le notti future</b> di quella persona: niente viene cancellato e
+        ricreato, e nessun altro evento si muove. In elenco ci sono le persone che hanno
+        la <b>sincronizzazione attiva</b>, cioè un calendario già pubblicato.
+      </p>
+      <div class="filtri" style="margin-top:12px">
+        <input type="text" id="cercaCalendari" placeholder="Cerca un nominativo…" autocomplete="off">
+      </div>
+      <div id="calendari" style="margin-top:12px"></div>
+    </div>
+
     <div class="pannello" data-sez="registro" data-desc="Che cosa è successo, in ordine di tempo.">
       <h2>Registro</h2>
       <div class="registro" id="registro"></div>
@@ -374,8 +394,17 @@ function toast(t) {
   el.textContent = t; el.classList.add('visible');
   setTimeout(() => el.classList.remove('visible'), 2600);
 }
-async function api(rotta, corpo) {
-  const r = await fetch('api/admin/' + rotta, {
+/**
+ * Una chiamata al servizio, con il percorso per intero.
+ *
+ * SERVE PERCHÉ NON TUTTO QUELLO CHE QUESTA PAGINA FA STA SOTTO
+ * `api/admin/`: la preferenza sul calendario si scrive sulla rotta che dal
+ * 1° dicembre 2026 userà anche la pagina «Io» della persona. Una copia
+ * della fetch per quel caso sarebbe stata la seconda, e la prima cosa che
+ * si scosta è sempre `credentials` o `cache`.
+ */
+async function apiA(percorso, corpo) {
+  const r = await fetch(percorso, {
     method: corpo ? 'POST' : 'GET',
     credentials: 'same-origin', cache: 'no-store',
     headers: corpo ? { 'Content-Type': 'application/json' } : undefined,
@@ -384,6 +413,7 @@ async function api(rotta, corpo) {
   let d = null; try { d = await r.json(); } catch (e) {}
   return { stato: r.status, d: d || {} };
 }
+async function api(rotta, corpo) { return apiA('api/admin/' + rotta, corpo); }
 
 /* ---------------- la finestra ---------------- */
 function apriFinestra(html) { $('finestra').innerHTML = html; $('velo').classList.add('visible'); }
@@ -1704,7 +1734,93 @@ $('verificaPubblicaBtn').addEventListener('click', pubblicaVerifica);
 $('cercaConteggi').addEventListener('input', disegnaConteggi);
 $('filtroConteggi').addEventListener('change', disegnaConteggi);
 
+$('cercaCalendari').addEventListener('input', disegnaCalendari);
+/* IL CAMBIO SI ASCOLTA SUL CONTENITORE, non su ogni tendina: le righe si
+   ridisegnano a ogni ricerca, e un ascoltatore per riga sarebbe un
+   ascoltatore nuovo a ogni lettera battuta. */
+$('calendari').addEventListener('change', async (e) => {
+  const sel = e.target;
+  if (!sel || !sel.classList || !sel.classList.contains('notti')) return;
+  await cambiaNotti(sel.getAttribute('data-nome'), sel.value, sel);
+});
+
 $('registroAltre').addEventListener('click', () => { REGISTRO_QUANTE += 20; disegnaRegistro(); });
+
+/* ==================================================================
+   I CALENDARI: COME APPAIONO LE NOTTI
+   ==================================================================
+   Una tendina per persona, salvata appena si cambia. Niente pulsante
+   «Salva»: una preferenza sola non ha un momento in cui si conferma, e un
+   pulsante che resta da premere è una scelta che si crede fatta e non lo
+   è.
+
+   SE IL SALVATAGGIO NON RIESCE la tendina torna com'era. Lasciarla sul
+   valore nuovo direbbe una bugia: la pagina mostrerebbe «due giorni» e il
+   calendario continuerebbe a fare l'altro.
+   ================================================================== */
+let CALENDARI = [], CALENDARI_PREDEFINITO = 'inizio';
+
+const ETICHETTE_NOTTI = {
+  inizio: 'Notti: solo giorno di inizio (19–24)',
+  due_giorni: 'Notti su due giorni (19–07)'
+};
+
+async function caricaCalendari() {
+  const r = await api('calendari');
+  if (!r.d.ok) return;
+  CALENDARI = (r.d.righe || []).slice();
+  CALENDARI_PREDEFINITO = r.d.predefinito || 'inizio';
+  disegnaCalendari();
+}
+
+function disegnaCalendari() {
+  const q = $('cercaCalendari').value.trim().toUpperCase();
+  const viste = CALENDARI.filter((x) => !q || x.nome.indexOf(q) >= 0);
+
+  $('calendari').innerHTML = viste.map((x) => {
+    const opzioni = Object.keys(ETICHETTE_NOTTI).map((v) =>
+      `<option value="${v}"${x.notti === v ? ' selected' : ''}>${esc(ETICHETTE_NOTTI[v])}</option>`).join('');
+    return `<div class="riga">
+      <div class="nome">${esc(x.nome)}${x.fuori_elenco ? ' <span class="stato s-non_attivo">fuori elenco</span>' : ''}</div>
+      <div class="azioni">
+        <select class="notti" data-nome="${esc(x.nome)}" aria-label="Come appaiono le notti di ${esc(x.nome)}">${opzioni}</select>
+      </div>
+    </div>`;
+  /* DUE VUOTI DIVERSI: «non c'è nessuno» e «la tua ricerca non trova
+     nessuno» sono due situazioni che si risolvono in due modi, e dirle
+     con la stessa frase manda a cercare il guasto dove non è. */
+  }).join('') || (q
+    ? '<div class="vuoto">Nessun nominativo con questo nome.</div>'
+    : '<div class="vuoto">Nessun nominativo con la sincronizzazione attiva.</div>');
+
+  const due = CALENDARI.filter((x) => x.notti === 'due_giorni').length;
+  scriviConta('calendari', CALENDARI.length
+    ? `${CALENDARI.length} con il calendario · ${due ? due + ' su due giorni' : 'tutti sul giorno di inizio'}`
+    : 'nessun calendario pubblicato');
+}
+
+async function cambiaNotti(nome, notti, sel) {
+  const riga = CALENDARI.find((x) => x.nome === nome);
+  const prima = riga ? riga.notti : CALENDARI_PREDEFINITO;
+  if (sel) sel.disabled = true;
+  /* LA ROTTA NON È SOTTO `api/admin/`: è quella che dal 1° dicembre 2026
+     userà anche la persona dalla sua pagina. Vedi `chiCambiaLaPreferenza`
+     nel server. */
+  const r = await apiA('api/preferenze/notti', { nome, notti });
+  if (sel) sel.disabled = false;
+  if (!r.d.ok) {
+    if (sel) sel.value = prima;
+    return toast(r.d.error || 'Non sono riuscito a salvare.');
+  }
+  if (riga) riga.notti = r.d.notti;
+  disegnaCalendari();
+  toast(r.d.cambiata
+    ? nome + ': ' + ETICHETTE_NOTTI[r.d.notti]
+    : 'Era già così: nessun cambiamento.');
+  /* IL REGISTRO LO DICE, e si rilegge: un cambio fatto da qui deve
+     comparire lì sotto come tutti gli altri. */
+  caricaRegistro();
+}
 
 (async function avvia() {
   /* LE SEZIONI SI COSTRUISCONO PRIMA DI CHIEDERE I DATI: così la pagina
@@ -1721,6 +1837,7 @@ $('registroAltre').addEventListener('click', () => { REGISTRO_QUANTE += 20; dise
   await caricaPec();
   await caricaVerifica();
   await caricaConteggi();
+  await caricaCalendari();
   await caricaRegistro();
 })();
 </script>

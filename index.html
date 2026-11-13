@@ -1905,9 +1905,23 @@ refreshBtn.addEventListener('click', () => {
    in cui COMINCIA, dalle 19:00 alle 23:59, e l'orario vero lo dice la
    descrizione, per intero.
 
+   MA NON A TUTTI PIACE, ed è una questione di gusto e non di giusto: chi
+   guarda il calendario la sera vuole vedere fin dove arriva l'impegno, e
+   per lui l'evento che attraversa la mezzanotte dice da solo «domani fino
+   alle 7». Dal 14 novembre 2026 è una PREFERENZA, una per persona
+   (`modo`), e chi non ha scelto niente resta su «inizio», cioè com'è
+   sempre stato. Chi sceglie `due_giorni` ha la notte 19:00 → 07:00 del
+   giorno dopo.
+
+   LE ORE SI COSTRUISCONO CON LE COMPONENTI DELLA DATA — anno, mese,
+   giorno, ora — e mai sommando millisecondi: così la notte fra il sabato e
+   la domenica del cambio dell'ora comincia alle 19 e finisce alle 7
+   dell'orologio, che è quello che leggono le persone, e non alle 6 o alle
+   8. Il giorno dopo si ottiene dalla data di FINE, che nei dati c'è già.
+
    IL TITOLO NON CAMBIA: resta «OP 🌙», «SA1 🌙», quello che i tecnici hanno
-   già nel telefono e riconoscono a colpo d'occhio. Scriverci dentro anche
-   l'orario lo allungava, e in una riga stretta quello che si tronca è
+   già nel telefono e riconoscono a colpo d'occhio. In nessuno dei due modi
+   ci si scrive dentro l'orario: in una riga stretta quello che si tronca è
    proprio la fine.
 
    NELL'APP NON CAMBIA NIENTE: i conflitti, i turni attaccati, i cambi e la
@@ -1915,9 +1929,13 @@ refreshBtn.addEventListener('click', () => {
    l'evento che finisce nel calendario. */
 var NOTTE_MESI = ['gennaio', 'febbraio', 'marzo', 'aprile', 'maggio', 'giugno',
   'luglio', 'agosto', 'settembre', 'ottobre', 'novembre', 'dicembre'];
+/* Le due diciture, scritte qui perché sono la lingua della notte: le
+   stesse parole che il servizio accetta e che la pagina mostra. */
+var NOTTI_INIZIO = 'inizio';
+var NOTTI_DUE_GIORNI = 'due_giorni';
 function notteSigla(role) { return ({ Operatore: 'OP', Cinofilo: 'CI' })[role] || role; }
 function notteGiorno(d) { return d.getDate() + ' ' + NOTTE_MESI[d.getMonth()]; }
-function notteCalendario(s) {
+function notteCalendario(s, modo) {
   /* NEI DATI LA NOTTE PORTA LA DATA IN CUI FINISCE — «30 - 1/12» è il turno
      del 1 — ed è la convenzione del foglio del SAV. Il giorno di inizio è
      quello prima, e si calcola con l'aritmetica delle date: così il 1
@@ -1926,9 +1944,14 @@ function notteCalendario(s) {
   var p = String(s.date).split('/');
   var fine = new Date(2000 + Number(p[2]), Number(p[1]) - 1, Number(p[0]));
   var inizio = new Date(fine.getFullYear(), fine.getMonth(), fine.getDate() - 1);
+  /* UNA PAROLA CHE NON CONOSCO VALE «inizio»: il comportamento di sempre è
+     sempre la risposta meno dannosa. */
+  var dueGiorni = modo === NOTTI_DUE_GIORNI;
   return {
     inizio: new Date(inizio.getFullYear(), inizio.getMonth(), inizio.getDate(), 19, 0, 0),
-    fine: new Date(inizio.getFullYear(), inizio.getMonth(), inizio.getDate(), 23, 59, 0),
+    fine: dueGiorni
+      ? new Date(fine.getFullYear(), fine.getMonth(), fine.getDate(), 7, 0, 0)
+      : new Date(inizio.getFullYear(), inizio.getMonth(), inizio.getDate(), 23, 59, 0),
     titolo: notteSigla(s.role) + ' 🌙',
     descrizione: 'Soccorso Alpino Valdostano — turno ' + s.role + ' di notte, dalle 19 del '
       + notteGiorno(inizio) + ' alle 7 del ' + notteGiorno(fine)
