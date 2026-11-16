@@ -2992,11 +2992,20 @@ document.getElementById('scVerifyBtn').addEventListener('click', () => {
       scResultEl.innerHTML = '<div class="sc-outcome fail">❌ Cessione non possibile — ruolo non cedibile.<span class="sc-reason">' + motivoRuoloNonCedibile(myShift.role) + '</span></div>';
       return;
     }
+    /* GIA' COMINCIATO: prima di tutto il resto, perché è la cosa più
+       semplice da spiegare a chi se la sente dire. */
+    if (giaIniziato(myShift)) {
+      scResultEl.innerHTML = '<div class="sc-outcome fail">❌ ' + TURNO_GIA_INIZIATO + '</div>';
+      return;
+    }
     const me = sel.value;
     const [gs, ge] = shiftRange(myShift);
     const nowC = new Date();
     const recv = SHIFTS.filter(s => s.name === otherName && (s.type === 'notte' || s.type === 'giorno') && shiftRange(s)[1] > nowC);
-    const overlap = recv.find(s => { const [a, b] = shiftRange(s); return a < ge && b > gs; });
+    /* L'accavallamento lo decide `trovaAccavallamento`, la stessa
+       funzione che usa il cambio: era questa riga, scritta a mano, a
+       essere l'unica copia della regola. */
+    const overlap = trovaAccavallamento(otherName, null, { ...myShift, name: otherName });
     let adj = null;
     recv.forEach(s => {
       const [a, b] = shiftRange(s);
@@ -3024,8 +3033,29 @@ document.getElementById('scVerifyBtn').addEventListener('click', () => {
 
   const myName = sel.value;
 
+  /* GIA' COMINCIATO, e vale per TUTTI E DUE i turni del cambio. */
+  if (giaIniziato(myShift) || giaIniziato(otherShift)) {
+    scResultEl.innerHTML = '<div class="sc-outcome fail">❌ ' + TURNO_GIA_INIZIATO + '</div>';
+    return;
+  }
+
   if (!ruoliScambiabili(myShift.role, otherShift.role)) {
     scResultEl.innerHTML = '<div class="sc-outcome fail">❌ Cambio non possibile — ruoli diversi.<span class="sc-reason">' + motivoRuoliDiversi(myShift.role, otherShift.role) + '</span></div>';
+    return;
+  }
+
+  /* ACCAVALLAMENTO NEL CAMBIO, dal 16 novembre 2026: per tutte e due le
+     persone, con la stessa funzione della cessione. Prima non c'era, e un
+     cambio poteva lasciare qualcuno su due turni nelle stesse ore in due
+     ruoli diversi. */
+  const accA = trovaAccavallamento(myName, myShift, { ...otherShift, name: myName });
+  const accB = trovaAccavallamento(otherName, otherShift, { ...myShift, name: otherName });
+  if (accA || accB) {
+    const chi = accA ? myName : otherName;
+    const gia = accA || accB;
+    scResultEl.innerHTML = '<div class="sc-outcome fail">❌ Cambio non possibile — due turni nelle stesse ore.'
+      + '<span class="sc-reason">' + chi + ' ha già il turno ' + (gia.type === 'notte' ? 'notte' : 'giorno')
+      + ' del ' + shiftDateLabel(gia) + ' (' + gia.role + '), nelle stesse ore di quello che riceverebbe.</span></div>';
     return;
   }
 
@@ -3637,6 +3667,63 @@ function orarioDichiarato(s) {
 function displayRange(s) {
   return orarioDichiarato(s) || shiftRange(s);
 }
+
+/* ======================================================================
+   LE DUE REGOLE DELLO SCAMBIO CHE GUARDANO L'OROLOGIO
+   ======================================================================
+   Stanno qui, accanto a shiftRange, perché è da shiftRange che prendono
+   l'intervallo — 07-19 e 19-07 — e non da displayRange: un cambio si
+   decide sull'orario di REGOLA, non su un orario dichiarato nei dati.
+   La stessa coppia esiste nel servizio (server.js), e il servizio rifiuta
+   comunque: queste due servono a dirlo PRIMA che parta una richiesta, con
+   la stessa frase.
+   ====================================================================== */
+
+/**
+ * DUE TURNI NELLE STESSE ORE, dopo lo scambio.
+ *
+ * Torna il turno che la persona ha GIA' e che si accavallerebbe con
+ * quello che sta per ricevere, oppure null.
+ *
+ * PERCHE' UNA FUNZIONE E NON DUE RIGHE IN LINEA. Fino al 16 novembre
+ * 2026 questo confronto stava scritto a mano dentro il solo ramo della
+ * cessione, e nel CAMBIO non c'era: si poteva scambiare un turno e
+ * ritrovarsi con due turni nelle stesse ore, in due ruoli diversi, e la
+ * PEC partiva. Aggiungere le stesse due righe anche al cambio, per due
+ * persone, avrebbe fatto quattro copie del confronto fra due intervalli.
+ * Si scrive una volta, e la usano tutti e due i rami.
+ *
+ * GLI ADDESTRAMENTI RESTANO FUORI, come da decisione del 16 novembre
+ * 2026: qui passano solo notte e giorno. Non è una dimenticanza.
+ *
+ * `excludeShift` si confronta per IDENTITA' di oggetto, come fa già
+ * findAdjacentConflict in questa pagina: i turni arrivano tutti da
+ * SHIFTS, quindi sono gli stessi oggetti. Il servizio confronta i campi,
+ * perché là i turni si rileggono dal file ad ogni richiesta.
+ */
+function trovaAccavallamento(personName, excludeShift, addShift) {
+  const adesso = new Date();
+  const [as, ae] = shiftRange(addShift);
+  return SHIFTS.find(s =>
+    s.name === personName && s !== excludeShift &&
+    (s.type === 'notte' || s.type === 'giorno') &&
+    shiftRange(s)[1] > adesso &&
+    shiftRange(s)[0] < ae && shiftRange(s)[1] > as
+  ) || null;
+}
+
+/* ====== UN TURNO GIA' COMINCIATO NON SI SCAMBIA DALL'APP ======
+   Fino al 16 novembre 2026 un turno era scambiabile finché non era
+   FINITO: a metà pomeriggio si poteva ancora cedere il turno di giorno
+   che stava correndo in quel momento, e la PEC partiva. Dal 16 novembre
+   2026 il confine è l'INIZIO: uno scambio dell'ultimo minuto esiste, ma
+   non lo fa l'app — lo fa il registro cartaceo, dove qualcuno se ne
+   accorge.
+   IL TESTO E' SCRITTO IN DUE FILE, qui e in server.js, e una prova li
+   confronta: se qualcuno ne cambia uno, trova una rossa e non due
+   messaggi diversi per la stessa cosa. */
+const TURNO_GIA_INIZIATO = 'Turno già iniziato: per questo cambio si usa il registro cartaceo';
+function giaIniziato(s, adesso) { return !!s && shiftRange(s)[0] <= (adesso || new Date()); }
 
 /** L'orario vero accanto alla pastiglia del tipo, quando c'è. */
 function orarioEtichetta(s) {
