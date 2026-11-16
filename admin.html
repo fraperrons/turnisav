@@ -625,7 +625,7 @@ function disegnaElenco() {
       azioni = (r.scaduto && !visual ? b('contributo', 'Registra contributo') : '')
         + b('disattiva', 'Disattiva')
         + `<span class="piu"><button class="btn piccolo" data-piu="${esc(r.nome)}" aria-label="Altro">⋯</button>
-             <span class="piu-voci" hidden>${b('reimposta', 'Nuovo link password')}</span></span>`;
+             <span class="piu-voci" hidden>${b('reimposta', 'Nuovo link password')}${visual ? '' : b('riporta-prova', 'Riporta in prova')}</span></span>`;
     } else azioni = b('manda', 'Manda link', 'principale') + (visual ? '' : b('contributo', 'Registra contributo'));
 
     const chiusa = SCHEDA_APERTA === r.nome ? '' : ' chiusa';
@@ -786,6 +786,7 @@ async function azione(az, nome) {
         await carica();
       });
   }
+  if (az === 'riporta-prova') return finestraRiportaInProva(nome);
   /* «manda» È L'UNICO LINK. Il tipo che si manda al server è sempre
      «accesso»: prova o attivazione lo decide il server quando quella
      persona lo apre, guardando se il contributo c'è. */
@@ -809,6 +810,43 @@ function finestraContributo(nome) {
     const r = await api('contributo', { nome, data: $('dataC').value });
     chiudiFinestra();
     toast(r.d.ok ? 'Contributo registrato: scade il ' + dataIt(r.d.scade_il) : (r.d.error || 'Non riuscito'));
+    await carica();
+  };
+}
+
+/**
+ * RIPORTA IN PROVA: l'opposto di «Registra contributo», per quando il
+ * contributo è stato registrato sul nominativo sbagliato.
+ *
+ * LA DATA SI LASCIA VUOTA, e il campo nasce vuoto apposta: così la calcola
+ * il server, con il suo orologio e la sua configurazione. Scriverla qui
+ * vorrebbe dire fidarsi dell'ora del telefono di chi preme, che la notte di
+ * un cambio d'ora o su un tablet con la data sbagliata non è la stessa.
+ *
+ * SI DICE CHE IL CONTRIBUTO SI AZZERA, perché è l'unica cosa che si perde
+ * dalla scheda — resta nel registro, ma chi preme deve saperlo prima.
+ */
+function finestraRiportaInProva(nome) {
+  apriFinestra(`<h3>Riportare ${esc(nome)} in prova?</h3>
+    <p>Torna in prova per ${giorni(CONFIG.giorniProva)}, a partire da oggi. Il contributo registrato
+       e la data di scadenza si azzerano: resta scritto nel registro, ma la scheda torna
+       come quella di chi la prova la sta facendo adesso.</p>
+    <p><b>Non cambia niente per lui:</b> la password resta la sua, il link non cambia e
+       le sessioni aperte non si chiudono. Alla fine della prova si ferma come tutte le altre.</p>
+    <div class="campo">
+      <label for="dataP">Fine della prova — vuoto: la decide il server</label>
+      <input type="date" id="dataP">
+    </div>
+    <div class="pulsanti">
+      <button class="btn" id="fNo">Annulla</button>
+      <button class="btn principale" id="fSi">Riporta in prova</button>
+    </div>`);
+  $('fNo').onclick = chiudiFinestra;
+  $('fSi').onclick = async () => {
+    $('fSi').disabled = true;
+    const r = await api('riporta-in-prova', { nome, data: $('dataP').value });
+    chiudiFinestra();
+    toast(r.d.ok ? 'In prova fino al ' + dataIt(r.d.prova_fino_al) : (r.d.error || 'Non riuscito'));
     await carica();
   };
 }
