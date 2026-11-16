@@ -3722,7 +3722,7 @@ function trovaAccavallamento(personName, excludeShift, addShift) {
    IL TESTO E' SCRITTO IN DUE FILE, qui e in server.js, e una prova li
    confronta: se qualcuno ne cambia uno, trova una rossa e non due
    messaggi diversi per la stessa cosa. */
-const TURNO_GIA_INIZIATO = 'Turno già iniziato: per questo cambio si usa il registro cartaceo';
+const TURNO_GIA_INIZIATO = 'Turno già iniziato: per questo cambio si usa il registro cartaceo.';
 function giaIniziato(s, adesso) { return !!s && shiftRange(s)[0] <= (adesso || new Date()); }
 
 /** L'orario vero accanto alla pastiglia del tipo, quando c'è. */
