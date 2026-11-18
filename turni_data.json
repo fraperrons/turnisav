@@ -1021,7 +1021,7 @@
   "wd": "",
   "type": "notte",
   "role": "SA1",
-  "name": "PERRONET RUDY"
+  "name": "FERRARO ROBERTO"
  },
  {
   "month": "Novembre 2026",
@@ -1053,7 +1053,7 @@
   "wd": "DOM",
   "type": "giorno",
   "role": "SA1",
-  "name": "MARRA GIANLUCA"
+  "name": "SCAVAZZA SIMONE"
  },
  {
   "month": "Novembre 2026",
@@ -1077,7 +1077,7 @@
   "wd": "",
   "type": "notte",
   "role": "SA1",
-  "name": "FERRARO ROBERTO"
+  "name": "PERRONET RUDY"
  },
  {
   "month": "Novembre 2026",
@@ -1429,7 +1429,7 @@
   "wd": "LUN",
   "type": "giorno",
   "role": "SA1",
-  "name": "POLETTO PATRICK"
+  "name": "CAMETTI OSCAR"
  },
  {
   "month": "Novembre 2026",
@@ -1741,7 +1741,7 @@
   "wd": "",
   "type": "notte",
   "role": "SA1",
-  "name": "POLETTO PATRICK"
+  "name": "CAMETTI OSCAR"
  },
  {
   "month": "Dicembre 2026",
@@ -2405,7 +2405,7 @@
   "wd": "",
   "type": "notte",
   "role": "SA1",
-  "name": "SCAVAZZA SIMONE"
+  "name": "REY YURI"
  },
  {
   "month": "Dicembre 2026",
@@ -2597,7 +2597,7 @@
   "wd": "LUN",
   "type": "giorno",
   "role": "SA1",
-  "name": "CAMETTI OSCAR"
+  "name": "POLETTO PATRICK"
  },
  {
   "month": "Dicembre 2026",
@@ -3509,7 +3509,7 @@
   "wd": "MER",
   "type": "giorno",
   "role": "Cinofilo",
-  "name": "RATTI FRANCESCO"
+  "name": "SCALISE MEYNET THOMAS"
  },
  {
   "month": "Gennaio 2027",
@@ -4125,7 +4125,7 @@
   "wd": "DOM",
   "type": "giorno",
   "role": "Cinofilo",
-  "name": "SCALISE MEYNET THOMAS"
+  "name": "RATTI FRANCESCO"
  },
  {
   "month": "Gennaio 2027",
@@ -4541,7 +4541,7 @@
   "wd": "",
   "type": "notte",
   "role": "SA1",
-  "name": "BLANCHET LUCA"
+  "name": "CALCAMUGGI MATTEO"
  },
  {
   "month": "Gennaio 2027",
@@ -5149,7 +5149,7 @@
   "wd": "VEN",
   "type": "giorno",
   "role": "SA1",
-  "name": "MEZZAVILLA ALESSANDRO"
+  "name": "REY YURI"
  },
  {
   "month": "Febbraio 2027",
@@ -5629,7 +5629,7 @@
   "wd": "LUN",
   "type": "giorno",
   "role": "SA1",
-  "name": "SCAVAZZA SIMONE"
+  "name": "MARRA GIANLUCA"
  },
  {
   "month": "Febbraio 2027",
@@ -6677,7 +6677,7 @@
   "wd": "MAR",
   "type": "giorno",
   "role": "SA1",
-  "name": "SCAVAZZA SIMONE"
+  "name": "BLANCHET LUCA"
  },
  {
   "month": "Marzo 2027",
@@ -7093,7 +7093,7 @@
   "wd": "",
   "type": "notte",
   "role": "SA1",
-  "name": "REY YURI"
+  "name": "SCAVAZZA SIMONE"
  },
  {
   "month": "Marzo 2027",
@@ -7477,7 +7477,7 @@
   "wd": "",
   "type": "notte",
   "role": "SA1",
-  "name": "BLANCHET LUCA"
+  "name": "SCAVAZZA SIMONE"
  },
  {
   "month": "Marzo 2027",
@@ -7493,7 +7493,7 @@
   "wd": "VEN",
   "type": "giorno",
   "role": "SA1",
-  "name": "REY YURI"
+  "name": "MEZZAVILLA ALESSANDRO"
  },
  {
   "month": "Marzo 2027",
@@ -7829,7 +7829,7 @@
   "wd": "VEN",
   "type": "giorno",
   "role": "SA1",
-  "name": "CALCAMUGGI MATTEO"
+  "name": "BLANCHET LUCA"
  },
  {
   "month": "Aprile 2027",
