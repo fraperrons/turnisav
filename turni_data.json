@@ -1149,7 +1149,7 @@
   "wd": "MAR",
   "type": "giorno",
   "role": "SA1",
-  "name": "PRAMOTTON STEFANO"
+  "name": "STRADELLI STEFANO"
  },
  {
   "month": "Novembre 2026",
@@ -1221,7 +1221,7 @@
   "wd": "",
   "type": "notte",
   "role": "SA1",
-  "name": "ZANOLLI CHRISTIAN"
+  "name": "FERRARO ROBERTO"
  },
  {
   "month": "Novembre 2026",
@@ -1261,7 +1261,7 @@
   "wd": "",
   "type": "notte",
   "role": "SA1",
-  "name": "FERRARO ROBERTO"
+  "name": "ZANOLLI CHRISTIAN"
  },
  {
   "month": "Novembre 2026",
@@ -2893,7 +2893,7 @@
   "wd": "SAB",
   "type": "giorno",
   "role": "Cinofilo",
-  "name": "PIZZI MATTEO"
+  "name": "OTTOZ FABIO"
  },
  {
   "month": "Dicembre 2026",
@@ -2949,7 +2949,7 @@
   "wd": "DOM",
   "type": "giorno",
   "role": "Cinofilo",
-  "name": "OTTOZ FABIO"
+  "name": "PIZZI MATTEO"
  },
  {
   "month": "Dicembre 2026",
@@ -4637,7 +4637,7 @@
   "wd": "",
   "type": "notte",
   "role": "Operatore",
-  "name": "ORIGONE SIMONE"
+  "name": "BOSCHIAZZO ALBERTO"
  },
  {
   "month": "Gennaio 2027",
@@ -4693,7 +4693,7 @@
   "wd": "",
   "type": "notte",
   "role": "Operatore",
-  "name": "BOSCHIAZZO ALBERTO"
+  "name": "ORIGONE SIMONE"
  },
  {
   "month": "Gennaio 2027",
@@ -7301,7 +7301,7 @@
   "wd": "LUN",
   "type": "giorno",
   "role": "SA1",
-  "name": "STRADELLI STEFANO"
+  "name": "PRAMOTTON STEFANO"
  },
  {
   "month": "Marzo 2027",
